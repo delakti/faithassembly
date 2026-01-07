@@ -15,16 +15,17 @@ export default async function handler(req, res) {
 
       // Use CommonJS require to load Square SDK reliably
       const square = require('square');
-      const { Client, Environment } = square;
+      const { SquareClient, SquareEnvironment } = square;
 
-      if (!Client) {
-          throw new Error('Failed to import Client from square SDK via require');
+      if (!SquareClient) {
+          throw new Error('Failed to import SquareClient from square SDK via require');
       }
 
       // Initialize Square Client
-      const client = new Client({
+      // Note: "Environment" is now "SquareEnvironment"
+      const client = new SquareClient({
         accessToken: process.env.SQUARE_ACCESS_TOKEN,
-        environment: process.env.NODE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
+        environment: process.env.NODE_ENV === 'production' ? SquareEnvironment.Production : SquareEnvironment.Sandbox,
       });
 
       const { sourceId, amount } = req.body;
