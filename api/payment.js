@@ -1,4 +1,3 @@
-import { Client, Environment } from 'square';
 import crypto from 'crypto';
 
 export default async function handler(req, res) {
@@ -8,11 +7,30 @@ export default async function handler(req, res) {
 
   try {
       if (!process.env.SQUARE_ACCESS_TOKEN) {
-          console.error('SQUARE_ACCESS_TOKEN is missing');
-          throw new Error('Server configuration error: Missing Access Token');
+          throw new Error('Server configuration error: Missing SQUARE_ACCESS_TOKEN');
       }
 
-      // Initialize Square Client inside handler to prevent cold start crashes
+      // Dynamic import to prevent cold-start crashes and handle CJS/ESM interop
+      const squareCjs = await import('square');
+      
+      // Attempt to find Client in various export locations
+      let Client = squareCjs.Client;
+      if (!Client && squareCjs.default && squareCjs.default.Client) {
+          Client = squareCjs.default.Client;
+      }
+      
+      // Also check Environment similarly
+      let Environment = squareCjs.Environment;
+      if (!Environment && squareCjs.default && squareCjs.default.Environment) {
+          Environment = squareCjs.default.Environment;
+      }
+
+      if (!Client) {
+          console.error('Square SDK Import Debug:', Object.keys(squareCjs));
+          throw new Error('Failed to import Square Client from SDK');
+      }
+
+      // Initialize Square Client
       const client = new Client({
         accessToken: process.env.SQUARE_ACCESS_TOKEN,
         environment: process.env.NODE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
@@ -56,7 +74,8 @@ export default async function handler(req, res) {
 
     return res.status(500).json({ 
         message: 'Payment processing failed', 
-        error: errorMessage 
+        error: errorMessage,
+        stack: process.env.NODE_ENV !== 'production' ? error.stack : undefined
     });
   }
 }
