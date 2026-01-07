@@ -1,49 +1,49 @@
 import { Client, Environment } from 'square';
 import crypto from 'crypto';
 
-// Initialize Square Client
-const client = new Client({
-  accessToken: process.env.SQUARE_ACCESS_TOKEN,
-  environment: process.env.NODE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
-});
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  if (!process.env.SQUARE_ACCESS_TOKEN) {
-      console.error('SQUARE_ACCESS_TOKEN is missing');
-      return res.status(500).json({ message: 'Server configuration error: Missing Access Token' });
-  }
-
   try {
-    const { sourceId, amount } = req.body;
+      if (!process.env.SQUARE_ACCESS_TOKEN) {
+          console.error('SQUARE_ACCESS_TOKEN is missing');
+          throw new Error('Server configuration error: Missing Access Token');
+      }
 
-    if (!sourceId || !amount) {
-        return res.status(400).json({ message: 'Missing sourceId or amount' });
-    }
+      // Initialize Square Client inside handler to prevent cold start crashes
+      const client = new Client({
+        accessToken: process.env.SQUARE_ACCESS_TOKEN,
+        environment: process.env.NODE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
+      });
 
-    const paymentsApi = client.paymentsApi;
-    const idempotencyKey = crypto.randomUUID();
+      const { sourceId, amount } = req.body;
 
-    const { result } = await paymentsApi.createPayment({
-      idempotencyKey,
-      sourceId,
-      amountMoney: {
-        amount: BigInt(amount),
-        currency: 'GBP',
-      },
-    });
+      if (!sourceId || !amount) {
+          return res.status(400).json({ message: 'Missing sourceId or amount' });
+      }
 
-    // Serialize BigInt to string to avoid JSON errors
-    const jsonResult = JSON.parse(JSON.stringify(result, (key, value) =>
-        typeof value === 'bigint'
-            ? value.toString()
-            : value
-    ));
+      const paymentsApi = client.paymentsApi;
+      const idempotencyKey = crypto.randomUUID();
 
-    return res.status(200).json(jsonResult);
+      const { result } = await paymentsApi.createPayment({
+        idempotencyKey,
+        sourceId,
+        amountMoney: {
+          amount: BigInt(amount),
+          currency: 'GBP',
+        },
+      });
+
+      // Serialize BigInt to string to avoid JSON errors
+      const jsonResult = JSON.parse(JSON.stringify(result, (key, value) =>
+          typeof value === 'bigint'
+              ? value.toString()
+              : value
+      ));
+
+      return res.status(200).json(jsonResult);
 
   } catch (error) {
     console.error('Payment API Error:', error);
