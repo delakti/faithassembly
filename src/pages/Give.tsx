@@ -48,19 +48,26 @@ const Give: React.FC = () => {
                 }),
             });
 
-            const data = await response.json();
+            const text = await response.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error('Failed to parse response as JSON:', text);
+                throw new Error(`Server returned ${response.status}: ${text}`);
+            }
 
             if (response.ok) {
                 setPaymentStatus('success');
             } else {
                 console.error('Payment failed:', data);
                 setPaymentStatus('error');
-                setErrorMessage(data.message || 'Payment failed. Please try again.');
+                setErrorMessage(data.message || `Payment failed (${response.status})`);
             }
-        } catch (error) {
-            console.error('Error:', error);
+        } catch (error: any) {
+            console.error('Full Error Details:', error);
             setPaymentStatus('error');
-            setErrorMessage('An unexpected error occurred. Please try again.');
+            setErrorMessage(`Error: ${error.message || 'An unexpected error occurred.'}`);
         } finally {
             setIsProcessing(false);
         }
@@ -135,8 +142,8 @@ const Give: React.FC = () => {
                                             key={val}
                                             onClick={() => { setAmount(val); setCustomAmount(''); }}
                                             className={`py-2 rounded-lg font-medium transition ${amount === val && !customAmount
-                                                    ? 'bg-cyan-600 text-white shadow-md'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                ? 'bg-cyan-600 text-white shadow-md'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                                 }`}
                                         >
                                             £{val}
