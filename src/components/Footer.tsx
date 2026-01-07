@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaFacebook, FaInstagram, FaYoutube, FaTwitter } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaYoutube, FaTwitter, FaSoundcloud, FaTiktok, FaSpotify } from 'react-icons/fa';
 
 const Footer: React.FC = () => {
     return (
@@ -44,11 +44,14 @@ const Footer: React.FC = () => {
                     {/* Column 4: Social */}
                     <div>
                         <h4 className="text-lg font-semibold mb-6 text-yellow-500">Follow Us</h4>
-                        <div className="flex space-x-6 text-2xl text-gray-400">
-                            <a href="#" className="hover:text-white transition"><FaFacebook /></a>
-                            <a href="#" className="hover:text-white transition"><FaInstagram /></a>
-                            <a href="#" className="hover:text-white transition"><FaYoutube /></a>
-                            <a href="#" className="hover:text-white transition"><FaTwitter /></a>
+                        <div className="flex space-x-4 text-2xl text-gray-400 flex-wrap gap-y-2">
+                            <a href="https://www.facebook.com/RCCGFaithAssemblyUxbridge/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><FaFacebook /></a>
+                            <a href="https://twitter.com/faithassemblyux" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><FaTwitter /></a>
+                            <a href="https://www.instagram.com/rccgfaithassembly/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><FaInstagram /></a>
+                            <a href="https://www.youtube.com/channel/UCI8g_7iBvboeQteg-vH9lXg" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><FaYoutube /></a>
+                            <a href="https://soundcloud.com/rccg-faith-assembly-uxbridge" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><FaSoundcloud /></a>
+                            <a href="https://www.tiktok.com/@faithassemblyuxbridge" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><FaTiktok /></a>
+                            <a href="https://open.spotify.com/artist/3F1j870mdry7yJpQXX4bOU?si=SB0K54XUQvCsrXJkZU92bw" target="_blank" rel="noopener noreferrer" className="hover:text-white transition"><FaSpotify /></a>
                         </div>
                     </div>
 
