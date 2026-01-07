@@ -51,6 +51,7 @@ const Navbar: React.FC = () => {
                             <div className="ml-10 flex items-center space-x-8">
                                 <Link to="/" className={linkClasses}>Home</Link>
                                 <Link to="/about" className={linkClasses}>About</Link>
+                                <Link to="/groups" className={linkClasses}>Groups</Link>
                                 <Link to="/services" className={linkClasses}>Services</Link>
                                 <Link to="/events" className={linkClasses}>Events</Link>
                                 <Link to="/contact" className={linkClasses}>Contact</Link>
