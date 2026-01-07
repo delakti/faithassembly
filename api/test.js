@@ -4,10 +4,19 @@ export default async function handler(req, res) {
   let squareImportResult = 'Not Attempted';
   let importError = null;
 
-  try {
       const square = await import('square');
+      // Inspect what is actually exported
+      squareImportResult = {
+          keys: Object.keys(square),
+          defaultKeys: square.default ? Object.keys(square.default) : 'No Default'
+      };
+      
       const { Client } = square;
-      squareImportResult = !!Client ? 'Success' : 'Client is undefined';
+      const ClientFromDefault = square.default?.Client;
+      
+      squareImportResult.foundClient = !!Client;
+      squareImportResult.foundClientInDefault = !!ClientFromDefault;
+      
   } catch (e) {
       console.error('Import Error:', e);
       squareImportResult = 'Failed';
@@ -22,7 +31,7 @@ export default async function handler(req, res) {
       message: 'API is working', 
       nodeVersion: process.version,
       hasSquareToken: hasToken,
-      squareImportResult,
+      importDebug: squareImportResult,
       importError
   });
 }
