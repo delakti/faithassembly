@@ -1,4 +1,7 @@
 import crypto from 'crypto';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -10,24 +13,12 @@ export default async function handler(req, res) {
           throw new Error('Server configuration error: Missing SQUARE_ACCESS_TOKEN');
       }
 
-      // Dynamic import to prevent cold-start crashes and handle CJS/ESM interop
-      const squareCjs = await import('square');
-      
-      // Attempt to find Client in various export locations
-      let Client = squareCjs.Client;
-      if (!Client && squareCjs.default && squareCjs.default.Client) {
-          Client = squareCjs.default.Client;
-      }
-      
-      // Also check Environment similarly
-      let Environment = squareCjs.Environment;
-      if (!Environment && squareCjs.default && squareCjs.default.Environment) {
-          Environment = squareCjs.default.Environment;
-      }
+      // Use CommonJS require to load Square SDK reliably
+      const square = require('square');
+      const { Client, Environment } = square;
 
       if (!Client) {
-          console.error('Square SDK Import Debug:', Object.keys(squareCjs));
-          throw new Error('Failed to import Square Client from SDK');
+          throw new Error('Failed to import Client from square SDK via require');
       }
 
       // Initialize Square Client
