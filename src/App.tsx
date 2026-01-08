@@ -19,6 +19,7 @@ import Groups from './pages/Groups';
 import Give from './pages/Give';
 import Volunteer from './pages/Volunteer';
 import Salvation from './pages/Salvation';
+import NeedPrayer from './pages/NeedPrayer';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path="/give" element={<Give />} />
           <Route path="/volunteer" element={<Volunteer />} />
           <Route path="/salvation" element={<Salvation />} />
+          <Route path="/prayer" element={<NeedPrayer />} />
         </Routes>
       </Layout>
     </div>
