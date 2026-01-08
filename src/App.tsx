@@ -17,6 +17,7 @@ import TestimonyCards from './pages/TestimonyCards';
 import EventDetail from './pages/EventDetail';
 import Groups from './pages/Groups';
 import Give from './pages/Give';
+import Volunteer from './pages/Volunteer';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="/testimony" element={<TestimonyCards />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/give" element={<Give />} />
+          <Route path="/volunteer" element={<Volunteer />} />
         </Routes>
       </Layout>
     </div>
