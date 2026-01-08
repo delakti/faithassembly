@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { HiMenuAlt3 } from 'react-icons/hi';
+import { FaShoppingCart } from 'react-icons/fa';
+import { useStore } from '../context/StoreContext';
 import logo from '../assets/logo.jpg';
 import whiteLogo from '../assets/logo-white.png';
 import QuickMenu from './QuickMenu';
@@ -8,6 +10,7 @@ import QuickMenu from './QuickMenu';
 const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const { cartCount, setIsCartOpen } = useStore();
     const location = useLocation();
 
     const isHome = location.pathname === '/';
@@ -59,6 +62,15 @@ const Navbar: React.FC = () => {
                                 <Link to="/volunteer" className={linkClasses}>Volunteer</Link>
                                 <Link to="/prayer" className={linkClasses}>Prayer</Link>
                                 <Link to="/salvation" className={`${linkClasses} text-red-400 font-semibold`}>Decided?</Link>
+                                <Link to="/store" className={`${linkClasses} font-semibold text-purple-600`}>Store</Link>
+                                <button onClick={() => setIsCartOpen(true)} className="relative p-2 text-gray-600 hover:text-purple-600 transition">
+                                    <FaShoppingCart size={20} />
+                                    {cartCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                            {cartCount}
+                                        </span>
+                                    )}
+                                </button>
                             </div>
                         </div>
 
