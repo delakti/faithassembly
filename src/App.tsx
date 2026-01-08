@@ -18,6 +18,7 @@ import EventDetail from './pages/EventDetail';
 import Groups from './pages/Groups';
 import Give from './pages/Give';
 import Volunteer from './pages/Volunteer';
+import Salvation from './pages/Salvation';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path="/groups" element={<Groups />} />
           <Route path="/give" element={<Give />} />
           <Route path="/volunteer" element={<Volunteer />} />
+          <Route path="/salvation" element={<Salvation />} />
         </Routes>
       </Layout>
     </div>

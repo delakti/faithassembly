@@ -4,6 +4,7 @@ export default async function handler(req, res) {
   let squareImportResult = 'Not Attempted';
   let importError = null;
 
+  try {
       const square = await import('square');
       // Inspect what is actually exported
       squareImportResult = {
