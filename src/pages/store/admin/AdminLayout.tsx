@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
-import { FaBox, FaClipboardList, FaSignOutAlt, FaChartPie } from 'react-icons/fa';
+import { FaBox, FaClipboardList, FaSignOutAlt, FaChartPie, FaFilePdf } from 'react-icons/fa';
 
 const AdminLayout: React.FC = () => {
     const navigate = useNavigate();
@@ -21,6 +21,7 @@ const AdminLayout: React.FC = () => {
         { path: '/admin', label: 'Dashboard', icon: <FaChartPie /> },
         { path: '/admin/products', label: 'Products', icon: <FaBox /> },
         { path: '/admin/orders', label: 'Orders', icon: <FaClipboardList /> },
+        { path: '/admin/bible-study', label: 'Bible Study', icon: <FaFilePdf /> },
     ];
 
     return (
@@ -28,7 +29,7 @@ const AdminLayout: React.FC = () => {
             {/* Sidebar */}
             <aside className="w-64 bg-slate-900 text-white flex flex-col fixed inset-y-0 left-0 z-10">
                 <div className="p-6 border-b border-slate-800">
-                    <h1 className="text-xl font-bold tracking-wider">STORE ADMIN</h1>
+                    <h1 className="text-xl font-bold tracking-wider">ADMIN PORTAL</h1>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">

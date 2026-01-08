@@ -27,6 +27,9 @@ import StoreHome from './pages/store/StoreHome';
 import ProductDetail from './pages/store/ProductDetail';
 import Checkout from './pages/store/Checkout';
 import OrderSuccess from './pages/store/OrderSuccess';
+import BibleStudyHome from './pages/bible-study/BibleStudyHome';
+import StudyGuideDetail from './pages/bible-study/StudyGuideDetail';
+import UserDashboard from './pages/bible-study/UserDashboard';
 
 // Admin Imports
 import AdminRoute from './components/store/AdminRoute';
@@ -35,6 +38,7 @@ import AdminLayout from './pages/store/admin/AdminLayout';
 import AdminDashboard from './pages/store/admin/AdminDashboard';
 import ProductManager from './pages/store/admin/ProductManager';
 import OrderManager from './pages/store/admin/OrderManager';
+import BibleStudyManager from './pages/store/admin/BibleStudyManager';
 
 function App() {
   return (
@@ -71,6 +75,11 @@ function App() {
             <Route path="/store/product/:id" element={<ProductDetail />} />
             <Route path="/store/checkout" element={<Checkout />} />
             <Route path="/store/success" element={<OrderSuccess />} />
+
+            {/* Bible Study Portal */}
+            <Route path="/bible-study" element={<BibleStudyHome />} />
+            <Route path="/bible-study/dashboard" element={<UserDashboard />} />
+            <Route path="/bible-study/:id" element={<StudyGuideDetail />} />
           </Route>
 
           {/* Admin Routes */}
@@ -81,6 +90,7 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<ProductManager />} />
               <Route path="orders" element={<OrderManager />} />
+              <Route path="bible-study" element={<BibleStudyManager />} />
             </Route>
           </Route>
         </Routes>
