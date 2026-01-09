@@ -12,12 +12,12 @@ const TRUSTEES = [
 ];
 
 const MINISTRIES = [
-    { title: "Children's Church", lead: "Deaconess Name", email: "children@faithassembly.org.uk" },
-    { title: "Youth Ministry", lead: "Minister Name", email: "youth@faithassembly.org.uk" },
-    { title: "Worship Team", lead: "Music Director", email: "worship@faithassembly.org.uk" },
-    { title: "Ushering", lead: "Head Usher", email: "admin@faithassembly.org.uk" },
+    { title: "Children's Church", lead: "Minister T", email: "children@faithassembly.org.uk" },
+    { title: "Youth Ministry", lead: "Minister D", email: "youth@faithassembly.org.uk" },
+    { title: "Worship Team", lead: "Minister S", email: "worship@faithassembly.org.uk" },
+    { title: "Ushering", lead: "Minister A", email: "admin@faithassembly.org.uk" },
     { title: "Media & Tech", lead: "Media Head", email: "media@faithassembly.org.uk" },
-    { title: "Evangelism", lead: "Mission Outreach", email: "outreach@faithassembly.org.uk" },
+    { title: "Evangelism", lead: "Minister D", email: "outreach@faithassembly.org.uk" },
 ];
 
 const Leadership: React.FC = () => {
