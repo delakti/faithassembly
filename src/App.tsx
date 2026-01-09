@@ -4,6 +4,7 @@ import { Routes, Route, Outlet } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import About from './pages/About';
+import Ministries from './pages/Ministries';
 import Mission from './pages/Mission';
 import Leadership from './pages/Leadership';
 import ServiceTimes from './pages/ServiceTimes';
@@ -117,6 +118,7 @@ function App() {
             <Route element={<Layout><Outlet /></Layout>}>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
+              <Route path="/ministries" element={<Ministries />} />
               <Route path="/mission" element={<Mission />} />
               <Route path="/leadership" element={<Leadership />} />
               <Route path="/services" element={<ServiceTimes />} />

@@ -90,6 +90,7 @@ const Navbar: React.FC = () => {
                                         Ministries <HiChevronDown className="ml-1" />
                                     </button>
                                     <div className={dropdownClasses}>
+                                        <Link to="/ministries" className={dropdownItemClasses}>All Ministries</Link>
                                         <Link to="/groups" className={dropdownItemClasses}>Groups & Connect</Link>
                                         <Link to="/bible-study" className={dropdownItemClasses}>Bible Study</Link>
                                         <Link to="/children/login" className={dropdownItemClasses}>Children's Ministry</Link>

@@ -92,6 +92,7 @@ const QuickMenu: React.FC<QuickMenuProps> = ({ isOpen, onClose }) => {
 
                                 {/* Ministries Section */}
                                 <AccordionItem title="Ministries" isOpen={openSection === 'ministries'} onClick={() => toggleSection('ministries')}>
+                                    <SubMenuItem to="/ministries" title="All Ministries" onClose={onClose} />
                                     <SubMenuItem to="/groups" title="Groups & Connect" onClose={onClose} />
                                     <SubMenuItem to="/bible-study" title="Bible Study" onClose={onClose} />
                                     <SubMenuItem to="/children/login" title="Children's Ministry" onClose={onClose} />
