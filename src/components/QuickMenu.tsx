@@ -78,8 +78,8 @@ const QuickMenu: React.FC<QuickMenuProps> = ({ isOpen, onClose }) => {
                                 {/* About Section */}
                                 <AccordionItem title="About Us" isOpen={openSection === 'about'} onClick={() => toggleSection('about')}>
                                     <SubMenuItem to="/about" title="Our Story & Beliefs" onClose={onClose} />
-                                    <SubMenuItem to="/about#mission" title="Mission & Vision" onClose={onClose} />
-                                    <SubMenuItem to="/about#pastors" title="Leadership" onClose={onClose} />
+                                    <SubMenuItem to="/mission" title="Mission & Vision" onClose={onClose} />
+                                    <SubMenuItem to="/leadership" title="Leadership" onClose={onClose} />
                                     <SubMenuItem to="/contact" title="Contact Us" onClose={onClose} />
                                 </AccordionItem>
 

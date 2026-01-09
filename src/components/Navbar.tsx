@@ -66,8 +66,8 @@ const Navbar: React.FC = () => {
                                     </button>
                                     <div className={dropdownClasses}>
                                         <Link to="/about" className={dropdownItemClasses}>Our Story & Beliefs</Link>
-                                        <Link to="/about#mission" className={dropdownItemClasses}>Mission & Vision</Link>
-                                        <Link to="/about#pastors" className={dropdownItemClasses}>Leadership</Link>
+                                        <Link to="/mission" className={dropdownItemClasses}>Mission & Vision</Link>
+                                        <Link to="/leadership" className={dropdownItemClasses}>Leadership</Link>
                                         <Link to="/contact" className={dropdownItemClasses}>Contact Us</Link>
                                     </div>
                                 </div>
