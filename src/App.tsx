@@ -21,6 +21,7 @@ import Give from './pages/Give';
 import Volunteer from './pages/Volunteer';
 import Salvation from './pages/Salvation';
 import NeedPrayer from './pages/NeedPrayer';
+import Baptism from './pages/Baptism';
 import { StoreProvider } from './context/StoreContext';
 import CartSidebar from './components/store/CartSidebar';
 import StoreHome from './pages/store/StoreHome';
@@ -69,6 +70,7 @@ function App() {
             <Route path="/volunteer" element={<Volunteer />} />
             <Route path="/salvation" element={<Salvation />} />
             <Route path="/prayer" element={<NeedPrayer />} />
+            <Route path="/baptism" element={<Baptism />} />
 
             {/* Store Routes */}
             <Route path="/store" element={<StoreHome />} />
