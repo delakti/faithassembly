@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
-import { FaBox, FaClipboardList, FaSignOutAlt, FaChartPie, FaFilePdf, FaGlobe } from 'react-icons/fa';
+import { FaBox, FaClipboardList, FaSignOutAlt, FaChartPie, FaFilePdf, FaGlobe, FaUserCheck } from 'react-icons/fa';
 
 const AdminLayout: React.FC = () => {
     const navigate = useNavigate();
@@ -23,6 +23,7 @@ const AdminLayout: React.FC = () => {
         { path: '/admin/orders', label: 'Orders', icon: <FaClipboardList /> },
         { path: '/admin/bible-study', label: 'Bible Study', icon: <FaFilePdf /> },
         { path: '/admin/seo', label: 'SEO Manager', icon: <FaGlobe /> },
+        { path: '/admin/volunteers', label: 'Volunteer Manager', icon: <FaUserCheck /> },
     ];
 
     return (

@@ -42,6 +42,17 @@ import ProductManager from './pages/store/admin/ProductManager';
 import OrderManager from './pages/store/admin/OrderManager';
 import BibleStudyManager from './pages/store/admin/BibleStudyManager';
 import SEOManager from './pages/store/admin/SEOManager';
+import VolunteerManager from './pages/store/admin/VolunteerManager';
+
+// Volunteer Imports
+import VolunteerLogin from './pages/volunteer/VolunteerLogin';
+import VolunteerRoute from './components/volunteer/VolunteerRoute';
+import VolunteerLayout from './layouts/VolunteerLayout';
+import VolunteerDashboard from './pages/volunteer/VolunteerDashboard';
+import VolunteerTasks from './pages/volunteer/VolunteerTasks';
+import VolunteerSchedule from './pages/volunteer/VolunteerSchedule';
+import VolunteerResources from './pages/volunteer/VolunteerResources';
+import VolunteerMessages from './pages/volunteer/VolunteerMessages';
 
 function App() {
   return (
@@ -89,6 +100,18 @@ function App() {
 
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/team/login" element={<VolunteerLogin />} />
+
+          {/* Volunteer Portal (Team) Routes */}
+          <Route path="/team" element={<VolunteerRoute />}>
+            <Route element={<VolunteerLayout />}>
+              <Route path="dashboard" element={<VolunteerDashboard />} />
+              <Route path="tasks" element={<VolunteerTasks />} />
+              <Route path="schedule" element={<VolunteerSchedule />} />
+              <Route path="resources" element={<VolunteerResources />} />
+              <Route path="messages" element={<VolunteerMessages />} />
+            </Route>
+          </Route>
 
           <Route path="/admin" element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
@@ -97,6 +120,7 @@ function App() {
               <Route path="orders" element={<OrderManager />} />
               <Route path="bible-study" element={<BibleStudyManager />} />
               <Route path="seo" element={<SEOManager />} />
+              <Route path="volunteers" element={<VolunteerManager />} />
             </Route>
           </Route>
         </Routes>
