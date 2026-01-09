@@ -31,6 +31,7 @@ import OrderSuccess from './pages/store/OrderSuccess';
 import BibleStudyHome from './pages/bible-study/BibleStudyHome';
 import StudyGuideDetail from './pages/bible-study/StudyGuideDetail';
 import UserDashboard from './pages/bible-study/UserDashboard';
+import SEOHead from './components/SEOHead';
 
 // Admin Imports
 import AdminRoute from './components/store/AdminRoute';
@@ -40,11 +41,13 @@ import AdminDashboard from './pages/store/admin/AdminDashboard';
 import ProductManager from './pages/store/admin/ProductManager';
 import OrderManager from './pages/store/admin/OrderManager';
 import BibleStudyManager from './pages/store/admin/BibleStudyManager';
+import SEOManager from './pages/store/admin/SEOManager';
 
 function App() {
   return (
     <div className="antialiased">
       <StoreProvider>
+        <SEOHead />
         <CartSidebar />
         <Routes>
           {/* Public Routes with Main Layout */}
@@ -93,6 +96,7 @@ function App() {
               <Route path="products" element={<ProductManager />} />
               <Route path="orders" element={<OrderManager />} />
               <Route path="bible-study" element={<BibleStudyManager />} />
+              <Route path="seo" element={<SEOManager />} />
             </Route>
           </Route>
         </Routes>
