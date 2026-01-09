@@ -54,6 +54,38 @@ import VolunteerSchedule from './pages/volunteer/VolunteerSchedule';
 import VolunteerResources from './pages/volunteer/VolunteerResources';
 import VolunteerMessages from './pages/volunteer/VolunteerMessages';
 
+// Member Portal Imports
+import MemberLogin from './pages/members/MemberLogin';
+import MemberRoute from './components/members/MemberRoute';
+import MemberLayout from './layouts/MemberLayout';
+import MemberDashboard from './pages/members/MemberDashboard';
+import GivingHistory from './pages/members/GivingHistory';
+import GiftAid from './pages/members/GiftAid';
+
+import MemberGroups from './pages/members/Groups';
+import CheckIn from './pages/members/CheckIn';
+import MemberNews from './pages/members/MemberNews';
+import Appointments from './pages/members/Appointments';
+
+import Prayer from './pages/members/Prayer';
+
+// Children's Portal Imports
+import ChildrenLogin from './pages/children/ChildrenLogin';
+import ChildrenRoute from './components/children/ChildrenRoute';
+import ChildrenLayout from './layouts/ChildrenLayout';
+import ChildrenDashboard from './pages/children/ChildrenDashboard';
+import ChildDirectory from './pages/children/ChildDirectory';
+import ChildProfile from './pages/children/ChildProfile';
+import Attendance from './pages/children/Attendance';
+import LessonManager from './pages/children/Lessons';
+import EventPlanner from './pages/children/Events';
+import IncidentReport from './pages/children/Incidents';
+import PhotoGallery from './pages/children/Gallery';
+import ParentMessaging from './pages/children/Messaging';
+
+// Admin Imports
+import MemberManager from './pages/store/admin/MemberManager';
+
 function App() {
   return (
     <div className="antialiased">
@@ -101,6 +133,7 @@ function App() {
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/team/login" element={<VolunteerLogin />} />
+          <Route path="/members/login" element={<MemberLogin />} />
 
           {/* Volunteer Portal (Team) Routes */}
           <Route path="/team" element={<VolunteerRoute />}>
@@ -113,6 +146,37 @@ function App() {
             </Route>
           </Route>
 
+          {/* Members Portal Routes */}
+          <Route path="/members" element={<MemberRoute />}>
+            <Route element={<MemberLayout />}>
+              <Route path="dashboard" element={<MemberDashboard />} />
+              <Route path="giving" element={<GivingHistory />} />
+              <Route path="gift-aid" element={<GiftAid />} />
+              <Route path="groups" element={<MemberGroups />} />
+              <Route path="check-in" element={<CheckIn />} />
+              <Route path="news" element={<MemberNews />} />
+              <Route path="appointments" element={<Appointments />} />
+              <Route path="prayer" element={<Prayer />} />
+            </Route>
+          </Route>
+
+          {/* Children's Portal Routes */}
+          <Route path="/children/login" element={<ChildrenLogin />} />
+          <Route path="/children" element={<ChildrenRoute />}>
+            <Route element={<ChildrenLayout />}>
+              <Route path="dashboard" element={<ChildrenDashboard />} />
+              <Route path="directory" element={<ChildDirectory />} />
+              <Route path="register" element={<ChildProfile />} />
+              <Route path="profile/:id" element={<ChildProfile />} />
+              <Route path="attendance" element={<Attendance />} />
+              <Route path="lessons" element={<LessonManager />} />
+              <Route path="events" element={<EventPlanner />} />
+              <Route path="incidents" element={<IncidentReport />} />
+              <Route path="gallery" element={<PhotoGallery />} />
+              <Route path="messaging" element={<ParentMessaging />} />
+            </Route>
+          </Route>
+
           <Route path="/admin" element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
@@ -121,6 +185,7 @@ function App() {
               <Route path="bible-study" element={<BibleStudyManager />} />
               <Route path="seo" element={<SEOManager />} />
               <Route path="volunteers" element={<VolunteerManager />} />
+              <Route path="members" element={<MemberManager />} />
             </Route>
           </Route>
         </Routes>
