@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { HiMenuAlt3, HiChevronDown } from 'react-icons/hi';
+import { HiMenuAlt3, HiChevronDown, HiSearch } from 'react-icons/hi';
 import { FaShoppingCart } from 'react-icons/fa';
 import { useStore } from '../context/StoreContext';
+import { useSearch } from '../context/SearchContext';
 import logo from '../assets/logo.jpg';
 import whiteLogo from '../assets/logo-white.png';
 import QuickMenu from './QuickMenu';
@@ -11,6 +12,7 @@ const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const { cartCount, setIsCartOpen } = useStore();
+    const { openSearch } = useSearch();
     const location = useLocation();
 
 
@@ -113,6 +115,14 @@ const Navbar: React.FC = () => {
 
                         {/* Right Side - Plan Visit & Menu */}
                         <div className="flex items-center space-x-4">
+                            <button
+                                onClick={openSearch}
+                                className="p-2 text-gray-300 hover:text-white transition-colors hover:scale-110 transform"
+                                aria-label="Search"
+                            >
+                                <HiSearch size={22} />
+                            </button>
+
                             <Link
                                 to="/plan-visit"
                                 className="hidden sm:block border-2 border-cyan-500 text-cyan-400 px-4 py-2 rounded hover:bg-cyan-500 hover:text-white transition-all font-semibold uppercase text-sm tracking-wide"

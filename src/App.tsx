@@ -99,124 +99,130 @@ import FinanceReports from './pages/finance/Reports';
 // Admin Imports
 import MemberManager from './pages/store/admin/MemberManager';
 
+import { SearchProvider } from './context/SearchContext';
+import SearchOverlay from './components/SearchOverlay';
+
 function App() {
   return (
     <div className="antialiased">
       <StoreProvider>
-        <SEOHead />
-        <CartSidebar />
-        <Routes>
-          {/* Public Routes with Main Layout */}
-          <Route element={<Layout><Outlet /></Layout>}>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<ServiceTimes />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/plan-visit" element={<PlanVisit />} />
+        <SearchProvider>
+          <SEOHead />
+          <CartSidebar />
+          <SearchOverlay />
+          <Routes>
+            {/* Public Routes with Main Layout */}
+            <Route element={<Layout><Outlet /></Layout>}>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/services" element={<ServiceTimes />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/plan-visit" element={<PlanVisit />} />
 
-            {/* New Routes */}
-            <Route path="/events" element={<Events />} />
-            <Route path="/events/:id" element={<EventDetail />} />
-            <Route path="/newcomers" element={<Newcomers />} />
-            <Route path="/prayer" element={<PrayerRequests />} />
-            <Route path="/sermons" element={<Sermons />} />
-            <Route path="/decisions" element={<DecisionCards />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/news" element={<News />} />
-            <Route path="/testimony" element={<TestimonyCards />} />
-            <Route path="/groups" element={<Groups />} />
-            <Route path="/give" element={<Give />} />
-            <Route path="/volunteer" element={<Volunteer />} />
-            <Route path="/salvation" element={<Salvation />} />
-            <Route path="/prayer" element={<NeedPrayer />} />
-            <Route path="/baptism" element={<Baptism />} />
+              {/* New Routes */}
+              <Route path="/events" element={<Events />} />
+              <Route path="/events/:id" element={<EventDetail />} />
+              <Route path="/newcomers" element={<Newcomers />} />
+              <Route path="/prayer" element={<PrayerRequests />} />
+              <Route path="/sermons" element={<Sermons />} />
+              <Route path="/decisions" element={<DecisionCards />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/news" element={<News />} />
+              <Route path="/testimony" element={<TestimonyCards />} />
+              <Route path="/groups" element={<Groups />} />
+              <Route path="/give" element={<Give />} />
+              <Route path="/volunteer" element={<Volunteer />} />
+              <Route path="/salvation" element={<Salvation />} />
+              <Route path="/prayer" element={<NeedPrayer />} />
+              <Route path="/baptism" element={<Baptism />} />
 
-            {/* Store Routes */}
-            <Route path="/store" element={<StoreHome />} />
-            <Route path="/store/product/:id" element={<ProductDetail />} />
-            <Route path="/store/checkout" element={<Checkout />} />
-            <Route path="/store/success" element={<OrderSuccess />} />
+              {/* Store Routes */}
+              <Route path="/store" element={<StoreHome />} />
+              <Route path="/store/product/:id" element={<ProductDetail />} />
+              <Route path="/store/checkout" element={<Checkout />} />
+              <Route path="/store/success" element={<OrderSuccess />} />
 
-            {/* Bible Study Portal */}
-            <Route path="/bible-study" element={<BibleStudyHome />} />
-            <Route path="/bible-study/dashboard" element={<UserDashboard />} />
-            <Route path="/bible-study/:id" element={<StudyGuideDetail />} />
-          </Route>
-
-          {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/team/login" element={<VolunteerLogin />} />
-          <Route path="/members/login" element={<MemberLogin />} />
-
-          {/* Volunteer Portal (Team) Routes */}
-          <Route path="/team" element={<VolunteerRoute />}>
-            <Route element={<VolunteerLayout />}>
-              <Route path="dashboard" element={<VolunteerDashboard />} />
-              <Route path="tasks" element={<VolunteerTasks />} />
-              <Route path="schedule" element={<VolunteerSchedule />} />
-              <Route path="resources" element={<VolunteerResources />} />
-              <Route path="messages" element={<VolunteerMessages />} />
+              {/* Bible Study Portal */}
+              <Route path="/bible-study" element={<BibleStudyHome />} />
+              <Route path="/bible-study/dashboard" element={<UserDashboard />} />
+              <Route path="/bible-study/:id" element={<StudyGuideDetail />} />
             </Route>
-          </Route>
 
-          {/* Members Portal Routes */}
-          <Route path="/members" element={<MemberRoute />}>
-            <Route element={<MemberLayout />}>
-              <Route path="dashboard" element={<MemberDashboard />} />
-              <Route path="giving" element={<GivingHistory />} />
-              <Route path="gift-aid" element={<GiftAid />} />
-              <Route path="groups" element={<MemberGroups />} />
-              <Route path="check-in" element={<CheckIn />} />
-              <Route path="news" element={<MemberNews />} />
-              <Route path="appointments" element={<Appointments />} />
-              <Route path="prayer" element={<Prayer />} />
-            </Route>
-          </Route>
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/team/login" element={<VolunteerLogin />} />
+            <Route path="/members/login" element={<MemberLogin />} />
 
-          {/* Children's Portal Routes */}
-          <Route path="/children/login" element={<ChildrenLogin />} />
-          <Route path="/children" element={<ChildrenRoute />}>
-            <Route element={<ChildrenLayout />}>
-              <Route path="dashboard" element={<ChildrenDashboard />} />
-              <Route path="directory" element={<ChildDirectory />} />
-              <Route path="register" element={<ChildProfile />} />
-              <Route path="profile/:id" element={<ChildProfile />} />
-              <Route path="attendance" element={<Attendance />} />
-              <Route path="lessons" element={<LessonManager />} />
-              <Route path="events" element={<EventPlanner />} />
-              <Route path="incidents" element={<IncidentReport />} />
-              <Route path="gallery" element={<PhotoGallery />} />
-              <Route path="messaging" element={<ParentMessaging />} />
+            {/* Volunteer Portal (Team) Routes */}
+            <Route path="/team" element={<VolunteerRoute />}>
+              <Route element={<VolunteerLayout />}>
+                <Route path="dashboard" element={<VolunteerDashboard />} />
+                <Route path="tasks" element={<VolunteerTasks />} />
+                <Route path="schedule" element={<VolunteerSchedule />} />
+                <Route path="resources" element={<VolunteerResources />} />
+                <Route path="messages" element={<VolunteerMessages />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Finance Portal Routes */}
-          <Route path="/finance/login" element={<FinanceLogin />} />
-          <Route path="/finance" element={<FinanceRoute />}>
-            <Route element={<FinanceLayout />}>
-              <Route path="dashboard" element={<FinanceDashboard />} />
-              <Route path="income" element={<FinanceIncome />} />
-              <Route path="banking" element={<FinanceBanking />} />
-              <Route path="expenses" element={<FinanceExpenses />} />
-              <Route path="invoices" element={<FinanceInvoices />} />
-              <Route path="ious" element={<FinanceIOUs />} />
-              <Route path="budget" element={<FinanceBudget />} />
-              <Route path="reports" element={<FinanceReports />} />
+            {/* Members Portal Routes */}
+            <Route path="/members" element={<MemberRoute />}>
+              <Route element={<MemberLayout />}>
+                <Route path="dashboard" element={<MemberDashboard />} />
+                <Route path="giving" element={<GivingHistory />} />
+                <Route path="gift-aid" element={<GiftAid />} />
+                <Route path="groups" element={<MemberGroups />} />
+                <Route path="check-in" element={<CheckIn />} />
+                <Route path="news" element={<MemberNews />} />
+                <Route path="appointments" element={<Appointments />} />
+                <Route path="prayer" element={<Prayer />} />
+              </Route>
             </Route>
-          </Route>
 
-          <Route path="/admin" element={<AdminRoute />}>
-            <Route element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="products" element={<ProductManager />} />
-              <Route path="orders" element={<OrderManager />} />
-              <Route path="bible-study" element={<BibleStudyManager />} />
-              <Route path="seo" element={<SEOManager />} />
-              <Route path="volunteers" element={<VolunteerManager />} />
-              <Route path="members" element={<MemberManager />} />
+            {/* Children's Portal Routes */}
+            <Route path="/children/login" element={<ChildrenLogin />} />
+            <Route path="/children" element={<ChildrenRoute />}>
+              <Route element={<ChildrenLayout />}>
+                <Route path="dashboard" element={<ChildrenDashboard />} />
+                <Route path="directory" element={<ChildDirectory />} />
+                <Route path="register" element={<ChildProfile />} />
+                <Route path="profile/:id" element={<ChildProfile />} />
+                <Route path="attendance" element={<Attendance />} />
+                <Route path="lessons" element={<LessonManager />} />
+                <Route path="events" element={<EventPlanner />} />
+                <Route path="incidents" element={<IncidentReport />} />
+                <Route path="gallery" element={<PhotoGallery />} />
+                <Route path="messaging" element={<ParentMessaging />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
+
+            {/* Finance Portal Routes */}
+            <Route path="/finance/login" element={<FinanceLogin />} />
+            <Route path="/finance" element={<FinanceRoute />}>
+              <Route element={<FinanceLayout />}>
+                <Route path="dashboard" element={<FinanceDashboard />} />
+                <Route path="income" element={<FinanceIncome />} />
+                <Route path="banking" element={<FinanceBanking />} />
+                <Route path="expenses" element={<FinanceExpenses />} />
+                <Route path="invoices" element={<FinanceInvoices />} />
+                <Route path="ious" element={<FinanceIOUs />} />
+                <Route path="budget" element={<FinanceBudget />} />
+                <Route path="reports" element={<FinanceReports />} />
+              </Route>
+            </Route>
+
+            <Route path="/admin" element={<AdminRoute />}>
+              <Route element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="products" element={<ProductManager />} />
+                <Route path="orders" element={<OrderManager />} />
+                <Route path="bible-study" element={<BibleStudyManager />} />
+                <Route path="seo" element={<SEOManager />} />
+                <Route path="volunteers" element={<VolunteerManager />} />
+                <Route path="members" element={<MemberManager />} />
+              </Route>
+            </Route>
+          </Routes>
+        </SearchProvider>
       </StoreProvider>
     </div>
   );
