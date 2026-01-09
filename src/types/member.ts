@@ -1,4 +1,5 @@
-export type UserRole = 'admin' | 'volunteer' | 'user' | 'member' | 'children_staff' | 'finance';
+import type { UserRole } from './auth';
+export type { UserRole };
 
 export interface MemberProfile {
     uid: string;

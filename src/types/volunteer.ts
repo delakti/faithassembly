@@ -1,4 +1,5 @@
-export type UserRole = 'admin' | 'volunteer' | 'user';
+import type { UserRole } from './auth';
+export type { UserRole };
 
 export interface Badge {
     id: string;

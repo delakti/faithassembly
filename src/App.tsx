@@ -1,6 +1,5 @@
 
-
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -56,6 +55,13 @@ import VolunteerTasks from './pages/volunteer/VolunteerTasks';
 import VolunteerSchedule from './pages/volunteer/VolunteerSchedule';
 import VolunteerResources from './pages/volunteer/VolunteerResources';
 import VolunteerMessages from './pages/volunteer/VolunteerMessages';
+
+// Super Admin Imports
+import SuperAdminRoute from './components/admin/SuperAdminRoute';
+import SuperAdminLayout from './layouts/SuperAdminLayout';
+import SuperAdminLogin from './pages/admin/super/SuperAdminLogin';
+import SuperAdminDashboard from './pages/admin/super/Dashboard';
+import UserManager from './pages/admin/super/users/UserManager';
 
 // Member Portal Imports
 import MemberLogin from './pages/members/MemberLogin';
@@ -122,6 +128,17 @@ function App() {
               <Route path="/mission" element={<Mission />} />
               <Route path="/leadership" element={<Leadership />} />
               <Route path="/services" element={<ServiceTimes />} />
+              {/* Super Admin Routes */}
+              <Route path="/super-admin/login" element={<SuperAdminLogin />} />
+              <Route element={<SuperAdminRoute />}>
+                <Route path="/super-admin" element={<SuperAdminLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<SuperAdminDashboard />} />
+                  <Route path="users" element={<UserManager />} />
+                  {/* Future routes: portals, content, etc. */}
+                </Route>
+              </Route>
+
               <Route path="/contact" element={<Contact />} />
               <Route path="/plan-visit" element={<PlanVisit />} />
 
