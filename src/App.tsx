@@ -83,6 +83,19 @@ import IncidentReport from './pages/children/Incidents';
 import PhotoGallery from './pages/children/Gallery';
 import ParentMessaging from './pages/children/Messaging';
 
+// Finance Portal Imports
+import FinanceLogin from './pages/finance/FinanceLogin';
+import FinanceRoute from './components/finance/FinanceRoute';
+import FinanceLayout from './layouts/FinanceLayout';
+import FinanceDashboard from './pages/finance/FinanceDashboard';
+import FinanceIncome from './pages/finance/Income';
+import FinanceBanking from './pages/finance/Banking';
+import FinanceExpenses from './pages/finance/Expenses';
+import FinanceInvoices from './pages/finance/Invoices';
+import FinanceIOUs from './pages/finance/IOUs';
+import FinanceBudget from './pages/finance/Budget';
+import FinanceReports from './pages/finance/Reports';
+
 // Admin Imports
 import MemberManager from './pages/store/admin/MemberManager';
 
@@ -174,6 +187,21 @@ function App() {
               <Route path="incidents" element={<IncidentReport />} />
               <Route path="gallery" element={<PhotoGallery />} />
               <Route path="messaging" element={<ParentMessaging />} />
+            </Route>
+          </Route>
+
+          {/* Finance Portal Routes */}
+          <Route path="/finance/login" element={<FinanceLogin />} />
+          <Route path="/finance" element={<FinanceRoute />}>
+            <Route element={<FinanceLayout />}>
+              <Route path="dashboard" element={<FinanceDashboard />} />
+              <Route path="income" element={<FinanceIncome />} />
+              <Route path="banking" element={<FinanceBanking />} />
+              <Route path="expenses" element={<FinanceExpenses />} />
+              <Route path="invoices" element={<FinanceInvoices />} />
+              <Route path="ious" element={<FinanceIOUs />} />
+              <Route path="budget" element={<FinanceBudget />} />
+              <Route path="reports" element={<FinanceReports />} />
             </Route>
           </Route>
 

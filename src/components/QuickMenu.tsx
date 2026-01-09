@@ -1,18 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     HiX,
     HiHome,
-    HiPlay,
-    HiUserGroup,
-    HiHeart,
     HiCalendar,
-    HiBookOpen,
     HiShoppingBag,
-    HiChatAlt2
+    HiChevronDown,
+    HiChevronUp
 } from 'react-icons/hi';
-import { FaPrayingHands, FaCross, FaWater, FaHandHoldingHeart } from 'react-icons/fa';
+import { FaPrayingHands, FaCross, FaHandHoldingHeart } from 'react-icons/fa';
 
 interface QuickMenuProps {
     isOpen: boolean;
@@ -20,6 +17,13 @@ interface QuickMenuProps {
 }
 
 const QuickMenu: React.FC<QuickMenuProps> = ({ isOpen, onClose }) => {
+    // State for Accordion sections
+    const [openSection, setOpenSection] = useState<string | null>(null);
+
+    const toggleSection = (section: string) => {
+        setOpenSection(openSection === section ? null : section);
+    };
+
     const menuVariants = {
         hidden: { x: '100%' },
         visible: { x: 0 },
@@ -58,7 +62,7 @@ const QuickMenu: React.FC<QuickMenuProps> = ({ isOpen, onClose }) => {
                         <div className="p-6">
                             {/* Header */}
                             <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-bold text-gray-900">Get Involved</h2>
+                                <h2 className="text-2xl font-bold text-gray-900">Menu</h2>
                                 <button
                                     onClick={onClose}
                                     className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -68,28 +72,40 @@ const QuickMenu: React.FC<QuickMenuProps> = ({ isOpen, onClose }) => {
                             </div>
 
                             {/* Menu Items */}
-                            <div className="space-y-6">
-                                <MenuItem to="/plan-visit" icon={<HiHome />} title="Visit Faith Assembly" desc="Find a location near you" onClose={onClose} />
-                                <MenuItem to="/sermons" icon={<HiPlay />} title="Live Streams" desc="Join us from anywhere" onClose={onClose} />
-                                <MenuItem to="/groups" icon={<HiUserGroup />} title="Groups" desc="Relationships to grow your faith" onClose={onClose} />
-                                <MenuItem to="/give" icon={<FaHandHoldingHeart />} title="Giving" desc="Generosity in action" onClose={onClose} />
-                                <MenuItem to="/volunteer" icon={<HiHeart />} title="Volunteer" desc="Serve at your local campus" onClose={onClose} />
-                                <MenuItem to="/events" icon={<HiCalendar />} title="Events" desc="Meaningful experiences" onClose={onClose} />
-                                <MenuItem to="/salvation" icon={<FaCross />} title="Salvation" desc="Receive God's grace" onClose={onClose} />
-                                <MenuItem to="/baptism" icon={<FaWater />} title="Baptism" desc="Celebrate new beginnings" onClose={onClose} />
-                                <MenuItem to="/prayer" icon={<FaPrayingHands />} title="Need Prayer?" desc="Support through faith" onClose={onClose} />
-                            </div>
+                            <div className="space-y-4">
+                                <MenuItem to="/" icon={<HiHome />} title="Home" onClose={onClose} />
 
-                            <hr className="my-8 border-gray-100" />
+                                {/* About Section */}
+                                <AccordionItem title="About Us" isOpen={openSection === 'about'} onClick={() => toggleSection('about')}>
+                                    <SubMenuItem to="/about" title="Our Story & Beliefs" onClose={onClose} />
+                                    <SubMenuItem to="/about#mission" title="Mission & Vision" onClose={onClose} />
+                                    <SubMenuItem to="/about#pastors" title="Leadership" onClose={onClose} />
+                                    <SubMenuItem to="/contact" title="Contact Us" onClose={onClose} />
+                                </AccordionItem>
 
-                            {/* Discover Section */}
-                            <div className="mb-8">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-6">Discover</h2>
-                                <div className="space-y-6">
-                                    <MenuItem to="/sermons" icon={<HiBookOpen />} title="Sermons" onClose={onClose} />
-                                    <MenuItem to="/study-guides" icon={<HiChatAlt2 />} title="Study Guides" onClose={onClose} />
-                                    <MenuItem to="/store" icon={<HiShoppingBag />} title="Store" isExternal onClose={onClose} />
-                                </div>
+                                {/* Services Section */}
+                                <AccordionItem title="Services" isOpen={openSection === 'services'} onClick={() => toggleSection('services')}>
+                                    <SubMenuItem to="/services" title="Service Times" onClose={onClose} />
+                                    <SubMenuItem to="/sermons" title="Watch Sermons" onClose={onClose} />
+                                    <SubMenuItem to="/plan-visit" title="Plan Your Visit" onClose={onClose} />
+                                </AccordionItem>
+
+                                {/* Ministries Section */}
+                                <AccordionItem title="Ministries" isOpen={openSection === 'ministries'} onClick={() => toggleSection('ministries')}>
+                                    <SubMenuItem to="/groups" title="Groups & Connect" onClose={onClose} />
+                                    <SubMenuItem to="/bible-study" title="Bible Study" onClose={onClose} />
+                                    <SubMenuItem to="/children/login" title="Children's Ministry" onClose={onClose} />
+                                    <SubMenuItem to="/volunteer" title="Volunteer" onClose={onClose} />
+                                </AccordionItem>
+
+                                <MenuItem to="/events" icon={<HiCalendar />} title="Events" onClose={onClose} />
+                                <MenuItem to="/give" icon={<FaHandHoldingHeart />} title="Give" onClose={onClose} />
+                                <MenuItem to="/store" icon={<HiShoppingBag />} title="Store" onClose={onClose} />
+
+                                <hr className="border-gray-100 my-4" />
+
+                                <MenuItem to="/salvation" icon={<FaCross />} title="Salvation" desc="Decided to follow Jesus?" onClose={onClose} />
+                                <MenuItem to="/prayer" icon={<FaPrayingHands />} title="Need Prayer?" onClose={onClose} />
                             </div>
                         </div>
                     </motion.div>
@@ -101,27 +117,68 @@ const QuickMenu: React.FC<QuickMenuProps> = ({ isOpen, onClose }) => {
 
 interface MenuItemProps {
     to: string;
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
     title: string;
     desc?: string;
-    isExternal?: boolean;
     onClose: () => void;
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ to, icon, title, desc, isExternal, onClose }) => {
+const MenuItem: React.FC<MenuItemProps> = ({ to, icon, title, desc, onClose }) => {
     return (
-        <Link to={to} onClick={onClose} className="flex items-start group">
-            <div className="text-2xl text-gray-900 mt-1 mr-4 group-hover:text-cyan-600 transition-colors">
-                {icon}
-            </div>
+        <Link to={to} onClick={onClose} className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group">
+            {icon && <div className="text-xl text-gray-500 mr-4 group-hover:text-cyan-600">{icon}</div>}
             <div>
-                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-cyan-600 transition-colors">
-                    {title} {isExternal && <span className="text-xs align-top ml-1">↗</span>}
-                </h3>
-                {desc && <p className="text-gray-500 text-sm">{desc}</p>}
+                <h3 className="font-semibold text-gray-900">{title}</h3>
+                {desc && <p className="text-xs text-gray-500">{desc}</p>}
             </div>
         </Link>
     );
 };
+
+interface SubMenuItemProps {
+    to: string;
+    title: string;
+    onClose: () => void;
+}
+
+const SubMenuItem: React.FC<SubMenuItemProps> = ({ to, title, onClose }) => (
+    <Link to={to} onClick={onClose} className="block py-2 pl-4 text-gray-600 hover:text-cyan-600 hover:bg-gray-50 rounded-md transition-colors text-sm">
+        {title}
+    </Link>
+);
+
+interface AccordionItemProps {
+    title: string;
+    isOpen: boolean;
+    onClick: () => void;
+    children: React.ReactNode;
+}
+
+const AccordionItem: React.FC<AccordionItemProps> = ({ title, isOpen, onClick, children }) => (
+    <div className="border border-gray-100 rounded-lg overflow-hidden">
+        <button
+            onClick={onClick}
+            className={`w-full flex items-center justify-between p-3 font-semibold transition-colors ${isOpen ? 'bg-gray-50 text-cyan-600' : 'text-gray-900 hover:bg-gray-50'}`}
+        >
+            <span>{title}</span>
+            {isOpen ? <HiChevronUp /> : <HiChevronDown />}
+        </button>
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="bg-white border-t border-gray-50"
+                >
+                    <div className="p-2 space-y-1">
+                        {children}
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    </div>
+);
 
 export default QuickMenu;

@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'volunteer' | 'user' | 'member' | 'children_staff';
+export type UserRole = 'admin' | 'volunteer' | 'user' | 'member' | 'children_staff' | 'finance';
 
 export interface MemberProfile {
     uid: string;

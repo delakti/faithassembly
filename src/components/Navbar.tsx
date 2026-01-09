@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { HiMenuAlt3 } from 'react-icons/hi';
+import { HiMenuAlt3, HiChevronDown } from 'react-icons/hi';
 import { FaShoppingCart } from 'react-icons/fa';
 import { useStore } from '../context/StoreContext';
 import logo from '../assets/logo.jpg';
@@ -12,6 +12,8 @@ const Navbar: React.FC = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const { cartCount, setIsCartOpen } = useStore();
     const location = useLocation();
+
+
 
     const isHome = location.pathname === '/';
 
@@ -31,10 +33,11 @@ const Navbar: React.FC = () => {
         }`
         : 'fixed w-full z-50 bg-black/95 text-white shadow-md backdrop-blur-sm';
 
-    const linkClasses = "hover:text-cyan-400 transition-colors duration-200 font-semibold uppercase tracking-wide text-sm";
+    const linkClasses = "hover:text-cyan-400 transition-colors duration-200 font-semibold uppercase tracking-wide text-sm flex items-center";
+    const dropdownClasses = "absolute top-full left-0 bg-white text-gray-800 shadow-xl rounded-md py-2 min-w-[200px] flex flex-col mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0";
+    const dropdownItemClasses = "px-6 py-3 hover:bg-gray-50 hover:text-cyan-600 transition-colors text-sm font-medium border-l-4 border-transparent hover:border-cyan-500";
 
     // Determine which logo to show
-    // Use white logo if not on home page OR if on home page and scrolled
     const currentLogo = !isHome || (isHome && isScrolled) ? whiteLogo : logo;
 
     return (
@@ -50,22 +53,54 @@ const Navbar: React.FC = () => {
                         </div>
 
                         {/* Desktop Center Links */}
-                        <div className="hidden md:block">
+                        <div className="hidden lg:block">
                             <div className="ml-10 flex items-center space-x-8">
                                 <Link to="/" className={linkClasses}>Home</Link>
-                                <Link to="/about" className={linkClasses}>About</Link>
-                                <Link to="/groups" className={linkClasses}>Groups</Link>
-                                <Link to="/bible-study" className={linkClasses}>Bible Study</Link>
-                                <Link to="/services" className={linkClasses}>Services</Link>
+
+                                {/* About Dropdown */}
+                                <div className="relative group">
+                                    <button className={linkClasses}>
+                                        About <HiChevronDown className="ml-1" />
+                                    </button>
+                                    <div className={dropdownClasses}>
+                                        <Link to="/about" className={dropdownItemClasses}>Our Story & Beliefs</Link>
+                                        <Link to="/about#mission" className={dropdownItemClasses}>Mission & Vision</Link>
+                                        <Link to="/about#pastors" className={dropdownItemClasses}>Leadership</Link>
+                                        <Link to="/contact" className={dropdownItemClasses}>Contact Us</Link>
+                                    </div>
+                                </div>
+
+                                {/* Services Dropdown */}
+                                <div className="relative group">
+                                    <button className={linkClasses}>
+                                        Services <HiChevronDown className="ml-1" />
+                                    </button>
+                                    <div className={dropdownClasses}>
+                                        <Link to="/services" className={dropdownItemClasses}>Service Times</Link>
+                                        <Link to="/sermons" className={dropdownItemClasses}>Watch Sermons</Link>
+                                        <Link to="/plan-visit" className={dropdownItemClasses}>Plan Your Visit</Link>
+                                    </div>
+                                </div>
+
+                                {/* Ministries Dropdown */}
+                                <div className="relative group">
+                                    <button className={linkClasses}>
+                                        Ministries <HiChevronDown className="ml-1" />
+                                    </button>
+                                    <div className={dropdownClasses}>
+                                        <Link to="/groups" className={dropdownItemClasses}>Groups & Connect</Link>
+                                        <Link to="/bible-study" className={dropdownItemClasses}>Bible Study</Link>
+                                        <Link to="/children/login" className={dropdownItemClasses}>Children's Ministry</Link>
+                                        <Link to="/volunteer" className={dropdownItemClasses}>Volunteer</Link>
+                                        <Link to="/members/login" className={dropdownItemClasses}>Members Portal</Link>
+                                    </div>
+                                </div>
+
                                 <Link to="/events" className={linkClasses}>Events</Link>
-                                <Link to="/contact" className={linkClasses}>Contact</Link>
-                                <Link to="/baptism" className={linkClasses}>Baptism</Link>
                                 <Link to="/give" className={linkClasses}>Give</Link>
-                                <Link to="/volunteer" className={linkClasses}>Volunteer</Link>
-                                <Link to="/prayer" className={linkClasses}>Prayer</Link>
-                                <Link to="/salvation" className={`${linkClasses} text-red-400 font-semibold`}>Decided?</Link>
-                                <Link to="/store" className={`${linkClasses} font-semibold text-purple-600`}>Store</Link>
-                                <button onClick={() => setIsCartOpen(true)} className="relative p-2 text-gray-600 hover:text-purple-600 transition">
+
+                                <Link to="/store" className={`${linkClasses} text-purple-400 hover:text-purple-300`}>Store</Link>
+                                <button onClick={() => setIsCartOpen(true)} className="relative p-2 text-gray-300 hover:text-white transition">
                                     <FaShoppingCart size={20} />
                                     {cartCount > 0 && (
                                         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
