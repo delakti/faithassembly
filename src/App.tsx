@@ -62,6 +62,11 @@ import SuperAdminLayout from './layouts/SuperAdminLayout';
 import SuperAdminLogin from './pages/admin/super/SuperAdminLogin';
 import SuperAdminDashboard from './pages/admin/super/Dashboard';
 import UserManager from './pages/admin/super/users/UserManager';
+import AnalyticsDashboard from './pages/admin/super/analytics/AnalyticsDashboard';
+import ActivityLogViewer from './pages/admin/super/analytics/ActivityLogViewer';
+import AnnouncementManager from './pages/admin/super/content/AnnouncementManager';
+import SystemSettings from './pages/admin/super/settings/SystemSettings';
+import AdminSetup from './pages/admin/super/AdminSetup';
 
 // Youth Portal Imports
 import YouthLogin from './pages/youth/YouthLogin';
@@ -246,12 +251,17 @@ function App() {
               <Route path="/leadership" element={<Leadership />} />
               <Route path="/services" element={<ServiceTimes />} />
               {/* Super Admin Routes */}
-              <Route path="/super-admin/login" element={<SuperAdminLogin />} />
+              <Route path="/admin/super/login" element={<SuperAdminLogin />} />
+              <Route path="/admin/super/setup" element={<AdminSetup />} />
               <Route element={<SuperAdminRoute />}>
-                <Route path="/super-admin" element={<SuperAdminLayout />}>
+                <Route path="/admin/super" element={<SuperAdminLayout />}>
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<SuperAdminDashboard />} />
                   <Route path="users" element={<UserManager />} />
+                  <Route path="analytics" element={<AnalyticsDashboard />} />
+                  <Route path="logs" element={<ActivityLogViewer />} />
+                  <Route path="announcements" element={<AnnouncementManager />} />
+                  <Route path="settings" element={<SystemSettings />} />
                   {/* Future routes: portals, content, etc. */}
                 </Route>
               </Route>

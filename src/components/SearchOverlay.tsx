@@ -1,20 +1,51 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HiX, HiSearch, HiOutlineExclamationCircle } from 'react-icons/hi';
+import {
+    HiX,
+    HiSearch,
+    HiOutlineExclamationCircle,
+    HiOutlineDesktopComputer, // Portal
+    HiOutlineDocumentText,    // Page
+    HiOutlineCalendar,        // Event
+    HiOutlineCog,             // Admin
+    HiOutlineCollection,      // Service/Resource
+    HiLightningBolt
+} from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import { useSearch } from '../context/SearchContext';
-import type { SearchItem } from '../types/search';
-// Placeholder for search service - to be implemented next
-// import { searchContent } from '../services/SearchService'; 
+import { SEARCH_INDEX, type SearchItem } from '../data/searchIndex';
 
-// Mock Data for Phase 1 Testing
-const MOCK_INDEX: SearchItem[] = [
-    { id: '1', title: 'Sunday Service', description: 'Join us every Sunday at 10 AM.', category: 'Service', tags: ['worship', 'sunday'], url: '/services', accessLevel: 'public', updatedAt: new Date().toISOString() },
-    { id: '2', title: 'About Faith Assembly', description: 'Learn about our history and beliefs.', category: 'Page', tags: ['about', 'mission'], url: '/about', accessLevel: 'public', updatedAt: new Date().toISOString() },
-    { id: '3', title: 'Member Dashboard', description: 'Manage your giving and profile.', category: 'Page', tags: ['members', 'dashboard'], url: '/members', accessLevel: 'member', updatedAt: new Date().toISOString() },
-    { id: '4', title: 'Admin Login', description: 'Portal for church administration.', category: 'Admin', tags: ['admin', 'login'], url: '/admin/login', accessLevel: 'public', updatedAt: new Date().toISOString() },
-    { id: '5', title: 'Give Online', description: 'Support the church financially.', category: 'Page', tags: ['give', 'tithe'], url: '/give', accessLevel: 'public', updatedAt: new Date().toISOString() },
-];
+// Weighted Search Function
+const performSearch = (query: string): SearchItem[] => {
+    if (!query) return [];
+
+    const lowerQuery = query.toLowerCase();
+    const terms = lowerQuery.split(' ').filter(t => t.length > 0);
+
+    // transform items with a score
+    const scored = SEARCH_INDEX.map(item => {
+        let score = 0;
+
+        // 1. Exact or Partial Title Match (High Priority)
+        if (item.title.toLowerCase().includes(lowerQuery)) score += 20;
+
+        // 2. Term matching
+        terms.forEach(term => {
+            if (item.title.toLowerCase().includes(term)) score += 10;
+            if (item.tags.some(tag => tag.includes(term))) score += 5;
+            if (item.description.toLowerCase().includes(term)) score += 2;
+        });
+
+        return { item, score };
+    });
+
+    // Filter out zero scores and sort by descending score
+    return scored
+        .filter(entry => entry.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map(entry => entry.item)
+        .slice(0, 8); // Limit to top 8 results
+};
 
 const SearchOverlay: React.FC = () => {
     const { isSearchOpen, closeSearch } = useSearch();
@@ -29,25 +60,39 @@ const SearchOverlay: React.FC = () => {
         }
     }, [isSearchOpen]);
 
-    // Handle Search Logic (Client-side Mock)
+    // Handle Search
     useEffect(() => {
         if (query.trim() === '') {
             setResults([]);
             return;
         }
-
-        const lowerQuery = query.toLowerCase();
-        const filtered = MOCK_INDEX.filter(item =>
-            item.title.toLowerCase().includes(lowerQuery) ||
-            item.description.toLowerCase().includes(lowerQuery) ||
-            item.tags.some(tag => tag.includes(lowerQuery))
-        );
-        setResults(filtered);
+        setResults(performSearch(query));
     }, [query]);
 
     const handleBackdropClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
             closeSearch();
+        }
+    };
+
+    const getIcon = (category: string) => {
+        switch (category) {
+            case 'Portal': return <HiOutlineDesktopComputer className="w-5 h-5" />;
+            case 'Admin': return <HiOutlineCog className="w-5 h-5" />;
+            case 'Event': return <HiOutlineCalendar className="w-5 h-5" />;
+            case 'Page': return <HiOutlineDocumentText className="w-5 h-5" />;
+            default: return <HiOutlineCollection className="w-5 h-5" />;
+        }
+    };
+
+    const getColor = (category: string) => {
+        switch (category) {
+            case 'Portal': return 'bg-purple-100 text-purple-700';
+            case 'Admin': return 'bg-slate-100 text-slate-700';
+            case 'Event': return 'bg-orange-100 text-orange-700';
+            case 'Service': return 'bg-sky-100 text-sky-700';
+            case 'Resource': return 'bg-emerald-100 text-emerald-700';
+            default: return 'bg-gray-100 text-gray-600';
         }
     };
 
@@ -59,23 +104,23 @@ const SearchOverlay: React.FC = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="fixed inset-0 bg-black/80 z-[100] backdrop-blur-sm flex items-start justify-center pt-20 px-4"
+                    className="fixed inset-0 bg-black/60 z-[100] backdrop-blur-sm flex items-start justify-center pt-20 px-4"
                     onClick={handleBackdropClick}
                 >
                     <motion.div
                         initial={{ y: -50, scale: 0.95 }}
                         animate={{ y: 0, scale: 1 }}
                         exit={{ y: -50, scale: 0.95 }}
-                        className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden"
+                        className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
                     >
                         {/* Search Input Header */}
-                        <div className="flex items-center p-4 border-b border-gray-100">
+                        <div className="flex items-center p-4 border-b border-gray-100 relative">
                             <HiSearch className="text-gray-400 w-6 h-6 ml-2" />
                             <input
                                 ref={inputRef}
                                 type="text"
                                 className="w-full flex-1 px-4 py-3 text-lg text-gray-900 placeholder-gray-400 outline-none bg-transparent"
-                                placeholder="Search events, sermons, pages..."
+                                placeholder="Search everything (e.g. 'Youth', 'Sunday', 'Give')..."
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                             />
@@ -88,15 +133,22 @@ const SearchOverlay: React.FC = () => {
                         </div>
 
                         {/* Results Area */}
-                        <div className="max-h-[60vh] overflow-y-auto p-4 bg-gray-50">
+                        <div className="overflow-y-auto p-4 bg-gray-50/50 flex-1">
                             {query === '' && (
                                 <div className="text-center py-12 text-gray-400">
-                                    <HiSearch className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                                    <p>Type to start searching...</p>
-                                    <div className="mt-6 flex flex-wrap justify-center gap-2">
-                                        <button onClick={() => setQuery('Service')} className="px-3 py-1 bg-white border border-gray-200 rounded-full text-xs hover:border-cyan-500 transition">Services</button>
-                                        <button onClick={() => setQuery('Give')} className="px-3 py-1 bg-white border border-gray-200 rounded-full text-xs hover:border-cyan-500 transition">Giving</button>
-                                        <button onClick={() => setQuery('Events')} className="px-3 py-1 bg-white border border-gray-200 rounded-full text-xs hover:border-cyan-500 transition">Events</button>
+                                    <HiLightningBolt className="w-12 h-12 mx-auto mb-3 text-amber-400" />
+                                    <h3 className="text-gray-900 font-semibold mb-1">Quick Links</h3>
+                                    <p className="text-sm mb-6">Try searching for common terms</p>
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        {['Sunday Service', 'Giving', 'Youth Portal', 'Life Discussion', 'Events'].map(term => (
+                                            <button
+                                                key={term}
+                                                onClick={() => setQuery(term)}
+                                                className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:border-sky-500 hover:text-sky-600 transition shadow-sm"
+                                            >
+                                                {term}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
                             )}
@@ -105,6 +157,7 @@ const SearchOverlay: React.FC = () => {
                                 <div className="text-center py-12 text-gray-500">
                                     <HiOutlineExclamationCircle className="w-10 h-10 mx-auto mb-2 text-yellow-500" />
                                     <p>No results found for "{query}".</p>
+                                    <button onClick={() => setQuery('')} className="mt-4 text-sky-600 font-medium hover:underline">Clear Search</button>
                                 </div>
                             )}
 
@@ -115,24 +168,23 @@ const SearchOverlay: React.FC = () => {
                                             key={item.id}
                                             to={item.url}
                                             onClick={closeSearch}
-                                            className="block bg-white p-4 rounded-xl border border-gray-100 hover:border-cyan-500 hover:shadow-md transition-all group"
+                                            className="block bg-white p-4 rounded-xl border border-gray-200 hover:border-sky-400 hover:shadow-md transition-all group"
                                         >
-                                            <div className="flex items-start justify-between">
-                                                <div>
-                                                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-cyan-600 transition-colors">
-                                                        {item.title}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-500 mt-1">{item.description}</p>
+                                            <div className="flex items-center gap-4">
+                                                <div className={`p-3 rounded-lg ${getColor(item.category)}`}>
+                                                    {getIcon(item.category)}
                                                 </div>
-                                                <span className={`
-                                                    px-2 py-1 rounded text-xs font-bold uppercase tracking-wide
-                                                    ${item.category === 'Service' ? 'bg-purple-100 text-purple-700' : ''}
-                                                    ${item.category === 'Event' ? 'bg-orange-100 text-orange-700' : ''}
-                                                    ${item.category === 'Page' ? 'bg-gray-100 text-gray-700' : ''}
-                                                    ${item.category === 'Admin' ? 'bg-red-100 text-red-700' : ''}
-                                                `}>
-                                                    {item.category}
-                                                </span>
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-center">
+                                                        <h3 className="text-lg font-bold text-slate-800 group-hover:text-sky-600 transition-colors">
+                                                            {item.title}
+                                                        </h3>
+                                                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                                            {item.category}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-slate-500 mt-0.5">{item.description}</p>
+                                                </div>
                                             </div>
                                         </Link>
                                     ))}
@@ -141,8 +193,8 @@ const SearchOverlay: React.FC = () => {
                         </div>
 
                         {/* Footer Hint */}
-                        <div className="p-2 bg-white border-t border-gray-100 text-center text-xs text-gray-400">
-                            Press <strong>ESC</strong> to close
+                        <div className="p-3 bg-white border-t border-gray-100 text-center text-xs text-slate-400 font-medium">
+                            {results.length > 0 ? `Found ${results.length} matches` : 'Type to search...'}
                         </div>
                     </motion.div>
                 </motion.div>

@@ -24,7 +24,7 @@ const SuperAdminLogin: React.FC = () => {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists() && userDoc.data().role === 'super_admin') {
                 toast.success('Welcome back, Super Admin.');
-                navigate('/super-admin/dashboard');
+                navigate('/admin/super/dashboard');
             } else {
                 toast.error('Access Denied. Insufficient privileges.');
                 await auth.signOut(); // Force sign out if not super admin
@@ -80,8 +80,8 @@ const SuperAdminLogin: React.FC = () => {
                         type="submit"
                         disabled={loading}
                         className={`w-full py-4 rounded-lg text-white font-bold text-lg shadow-lg transition-all transform hover:-translate-y-1 ${loading
-                                ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600'
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600'
                             }`}
                     >
                         {loading ? 'Verifying...' : 'Authenticate'}

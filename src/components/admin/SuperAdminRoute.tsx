@@ -44,7 +44,7 @@ const SuperAdminRoute: React.FC = () => {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/super-admin/login" replace />;
+        return <Navigate to="/admin/super/login" replace />;
     }
 
     if (!isSuperAdmin) {
