@@ -59,9 +59,9 @@ const BELIEFS = [
 ];
 
 const TIMELINE = [
-    { year: "1996", title: "The Beginning", desc: "Faith Assembly was founded under the RCCG mandate to plant churches." },
-    { year: "2005", title: "Uxbridge Campus", desc: "We established our roots in Uxbridge, becoming a beacon for the local community." },
-    { year: "2015", title: "Community Expansion", desc: "Launched major outreach programs including the food bank and youth services." },
+    { year: "2016", title: "The Beginning", desc: "Faith Assembly was founded under the RCCG mandate to plant churches." },
+    { year: "2017", title: "Uxbridge Campus", desc: "We established our roots in Uxbridge, becoming a beacon for the local community." },
+    { year: "2021", title: "Community Expansion", desc: "Launched major outreach programs including the food bank and youth services." },
     { year: "2024", title: "A New Vision", desc: "Pastors Solomon & Ola lead us into a new season of 'Building Disciples Who Make Disciples'." }
 ];
 
