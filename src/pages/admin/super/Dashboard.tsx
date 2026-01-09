@@ -31,6 +31,9 @@ const SuperAdminDashboard: React.FC = () => {
         { name: 'Worship', path: '/worship/dashboard', icon: <HiMusicNote className="w-6 h-6" />, color: 'bg-purple-500', desc: 'Music & Creative' },
         { name: 'Prayer', path: '/prayer/dashboard', icon: <HiChatAlt2 className="w-6 h-6" />, color: 'bg-blue-500', desc: 'Intercession' },
         { name: 'Media', path: '/media/dashboard', icon: <HiVideoCamera className="w-6 h-6" />, color: 'bg-indigo-500', desc: 'Production & Tech' },
+        { name: 'Men', path: '/men/dashboard', icon: <HiUserGroup className="w-6 h-6" />, color: 'bg-slate-700', desc: 'The Brotherhood' },
+        { name: 'Esther', path: '/esther/dashboard', icon: <HiUserGroup className="w-6 h-6" />, color: 'bg-rose-500', desc: 'Women of Faith' },
+        { name: 'Youth', path: '/youth/dashboard', icon: <HiUserGroup className="w-6 h-6" />, color: 'bg-yellow-500', desc: 'Next Gen' },
         { name: 'Members', path: '/members/dashboard', icon: <HiUsers className="w-6 h-6" />, color: 'bg-cyan-500', desc: 'Community Hub' },
     ];
 

@@ -163,6 +163,8 @@ import UsherStock from './pages/ushering/UsherStock';
 import UsherAnnouncements from './pages/ushering/UsherAnnouncements';
 import UsherTeam from './pages/ushering/UsherTeam';
 
+
+
 // Member Portal Imports
 import MemberLogin from './pages/members/MemberLogin';
 import MemberRoute from './components/members/MemberRoute';
@@ -370,6 +372,8 @@ function App() {
                   {/* Future routes: events */}
                 </Route>
               </Route>
+
+
 
               <Route path="/contact" element={<Contact />} />
               <Route path="/plan-visit" element={<PlanVisit />} />
