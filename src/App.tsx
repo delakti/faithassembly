@@ -207,6 +207,21 @@ import FinanceIOUs from './pages/finance/IOUs';
 import FinanceBudget from './pages/finance/Budget';
 import FinanceReports from './pages/finance/Reports';
 
+// Life Discussion (Sunday School) Portal Imports
+import LifeDiscussionLogin from './pages/life-discussion/LifeDiscussionLogin';
+import LifeDiscussionRoute from './components/life-discussion/LifeDiscussionRoute';
+import LifeDiscussionLayout from './layouts/LifeDiscussionLayout';
+import LifeDiscussionDashboard from './pages/life-discussion/LifeDiscussionDashboard';
+import LifeTeacherRota from './pages/life-discussion/teachers/LifeTeacherRota';
+import LifeGroupManager from './pages/life-discussion/teachers/LifeGroupManager';
+import LifeAttendanceTeacher from './pages/life-discussion/attendance/LifeAttendanceTeacher';
+import LifeAttendanceStudent from './pages/life-discussion/attendance/LifeAttendanceStudent';
+import LifeAttendanceReports from './pages/life-discussion/attendance/LifeAttendanceReports';
+import LifeAssignmentsTeacher from './pages/life-discussion/learning/LifeAssignmentsTeacher';
+import LifeAssignmentsStudent from './pages/life-discussion/learning/LifeAssignmentsStudent';
+import LifeAnnouncements from './pages/life-discussion/announcements/LifeAnnouncements';
+import LifeResources from './pages/life-discussion/resources/LifeResources';
+
 // Admin Imports
 import MemberManager from './pages/store/admin/MemberManager';
 
@@ -377,6 +392,25 @@ function App() {
 
               <Route path="/contact" element={<Contact />} />
               <Route path="/plan-visit" element={<PlanVisit />} />
+
+              {/* Life Discussion Portal Routes */}
+              <Route path="/life-discussion/login" element={<LifeDiscussionLogin />} />
+              <Route element={<LifeDiscussionRoute />}>
+                <Route path="/life-discussion" element={<LifeDiscussionLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<LifeDiscussionDashboard />} />
+                  <Route path="rota" element={<LifeTeacherRota />} />
+                  <Route path="classes" element={<LifeGroupManager />} />
+                  <Route path="attendance" element={<LifeAttendanceTeacher />} />
+                  <Route path="my-attendance" element={<LifeAttendanceStudent />} />
+                  <Route path="reports" element={<LifeAttendanceReports />} />
+                  <Route path="assignments" element={<LifeAssignmentsTeacher />} />
+                  <Route path="assignments/new" element={<LifeAssignmentsTeacher />} />
+                  <Route path="my-assignments" element={<LifeAssignmentsStudent />} />
+                  <Route path="announcements" element={<LifeAnnouncements />} />
+                  <Route path="resources" element={<LifeResources />} />
+                </Route>
+              </Route>
 
               {/* New Routes */}
               <Route path="/events" element={<Events />} />

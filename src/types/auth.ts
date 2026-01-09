@@ -35,7 +35,11 @@ export type UserRole =
     | 'media_team'
     // Evangelism
     | 'evangelism_member'
-    | 'evangelism_leader';
+    | 'evangelism_leader'
+    // Life Discussion (Sunday School)
+    | 'sunday_student'
+    | 'sunday_teacher'
+    | 'sunday_admin';
 
 export interface UserProfile {
     uid: string;
