@@ -63,6 +63,106 @@ import SuperAdminLogin from './pages/admin/super/SuperAdminLogin';
 import SuperAdminDashboard from './pages/admin/super/Dashboard';
 import UserManager from './pages/admin/super/users/UserManager';
 
+// Youth Portal Imports
+import YouthLogin from './pages/youth/YouthLogin';
+import YouthRoute from './components/youth/YouthRoute';
+import YouthLayout from './layouts/YouthLayout';
+import YouthDashboard from './pages/youth/YouthDashboard';
+import YouthEvents from './pages/youth/YouthEvents';
+import YouthGroups from './pages/youth/YouthGroups';
+import YouthChat from './pages/youth/YouthChat';
+import YouthResources from './pages/youth/YouthResources';
+import YouthLeaderPanel from './pages/youth/YouthLeaderPanel';
+
+// Women of Faith (Esther) Portal Imports
+import EstherLogin from './pages/esther/EstherLogin';
+import EstherRoute from './components/esther/EstherRoute';
+import EstherLayout from './layouts/EstherLayout';
+import EstherDashboard from './pages/esther/EstherDashboard';
+import EstherDevotionals from './pages/esther/EstherDevotionals';
+import EstherEvents from './pages/esther/EstherEvents';
+import EstherGroups from './pages/esther/EstherGroups';
+import EstherForum from './pages/esther/EstherForum';
+import EstherResources from './pages/esther/EstherResources';
+
+// Men's Fellowship Portal Imports
+import MenLogin from './pages/men/MenLogin';
+import MenRoute from './components/men/MenRoute';
+import MenLayout from './layouts/MenLayout';
+import MenDashboard from './pages/men/MenDashboard';
+import MenEvents from './pages/men/MenEvents';
+import MenAnnouncements from './pages/men/MenAnnouncements';
+import MenGroups from './pages/men/MenGroups';
+import MenForum from './pages/men/MenForum';
+import MenResources from './pages/men/MenResources';
+
+// Worship & Choir Portal Imports
+import WorshipLogin from './pages/worship/WorshipLogin';
+import WorshipRoute from './components/worship/WorshipRoute';
+import WorshipLayout from './layouts/WorshipLayout';
+import WorshipDashboard from './pages/worship/WorshipDashboard';
+import WorshipEvents from './pages/worship/WorshipEvents';
+import WorshipAnnouncements from './pages/worship/WorshipAnnouncements';
+import WorshipLibrary from './pages/worship/WorshipLibrary';
+import WorshipTeam from './pages/worship/WorshipTeam';
+
+// Ushering Portal Imports
+
+
+// Hospitality Portal Imports
+import HospitalityLogin from './pages/hospitality/HospitalityLogin';
+import HospitalityRoute from './components/hospitality/HospitalityRoute';
+import HospitalityLayout from './layouts/HospitalityLayout';
+import HospitalityDashboard from './pages/hospitality/HospitalityDashboard';
+import HospitalitySchedule from './pages/hospitality/HospitalitySchedule';
+import HospitalityEvents from './pages/hospitality/HospitalityEvents';
+import HospitalityAnnouncements from './pages/hospitality/HospitalityAnnouncements';
+import HospitalityTeam from './pages/hospitality/HospitalityTeam';
+
+// Prayer Portal Imports
+import PrayerLogin from './pages/prayer/PrayerLogin';
+import PrayerRoute from './components/prayer/PrayerRoute';
+import PrayerLayout from './layouts/PrayerLayout';
+import PrayerDashboard from './pages/prayer/PrayerDashboard';
+import PrayerSchedule from './pages/prayer/PrayerSchedule';
+import PrayerEvents from './pages/prayer/PrayerEvents';
+import PrayerAnnouncements from './pages/prayer/PrayerAnnouncements';
+import PrayerTeam from './pages/prayer/PrayerTeam';
+
+import MediaLogin from './pages/media/MediaLogin';
+import MediaRoute from './components/media/MediaRoute';
+import MediaLayout from './layouts/MediaLayout';
+import MediaDashboard from './pages/media/MediaDashboard';
+import MediaSchedule from './pages/media/MediaSchedule';
+import MediaResources from './pages/media/MediaResources';
+import MediaEquipment from './pages/media/MediaEquipment';
+import MediaAnnouncements from './pages/media/MediaAnnouncements';
+import MediaTeam from './pages/media/MediaTeam';
+import MediaEvents from './pages/media/MediaEvents';
+
+import EvangelismLogin from './pages/evangelism/EvangelismLogin';
+import EvangelismRoute from './components/evangelism/EvangelismRoute';
+import EvangelismLayout from './layouts/EvangelismLayout';
+import EvangelismDashboard from './pages/evangelism/EvangelismDashboard';
+import EvangelismSchedule from './pages/evangelism/EvangelismSchedule';
+import EvangelismFollowUp from './pages/evangelism/EvangelismFollowUp';
+import EvangelismTestimonies from './pages/evangelism/EvangelismTestimonies';
+import EvangelismAnnouncements from './pages/evangelism/EvangelismAnnouncements';
+import EvangelismTeam from './pages/evangelism/EvangelismTeam';
+import EvangelismEvents from './pages/evangelism/EvangelismEvents';
+
+// Ushering Portal Imports
+import UsherLogin from './pages/ushering/UsherLogin';
+import UsherRoute from './components/ushering/UsherRoute';
+import UsherLayout from './layouts/UsherLayout';
+import UsherDashboard from './pages/ushering/UsherDashboard';
+import UsherSchedule from './pages/ushering/UsherSchedule';
+import UsherAttendance from './pages/ushering/UsherAttendance';
+import UsherOffering from './pages/ushering/UsherOffering';
+import UsherStock from './pages/ushering/UsherStock';
+import UsherAnnouncements from './pages/ushering/UsherAnnouncements';
+import UsherTeam from './pages/ushering/UsherTeam';
+
 // Member Portal Imports
 import MemberLogin from './pages/members/MemberLogin';
 import MemberRoute from './components/members/MemberRoute';
@@ -136,6 +236,138 @@ function App() {
                   <Route path="dashboard" element={<SuperAdminDashboard />} />
                   <Route path="users" element={<UserManager />} />
                   {/* Future routes: portals, content, etc. */}
+                </Route>
+              </Route>
+
+              {/* Youth Portal Routes */}
+              <Route path="/youth/login" element={<YouthLogin />} />
+              <Route element={<YouthRoute />}>
+                <Route path="/youth" element={<YouthLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<YouthDashboard />} />
+                  <Route path="events" element={<YouthEvents />} />
+                  <Route path="groups" element={<YouthGroups />} />
+                  <Route path="chat" element={<YouthChat />} />
+                  <Route path="media" element={<YouthResources />} />
+                  <Route path="leader" element={<YouthLeaderPanel />} />
+                  {/* Future routes: chat, etc. */}
+                </Route>
+              </Route>
+
+              {/* Women of Faith (Esther) Portal Routes */}
+              <Route path="/esther/login" element={<EstherLogin />} />
+              <Route element={<EstherRoute />}>
+                <Route path="/esther" element={<EstherLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<EstherDashboard />} />
+                  <Route path="devotionals" element={<EstherDevotionals />} />
+                  <Route path="events" element={<EstherEvents />} />
+                  <Route path="groups" element={<EstherGroups />} />
+                  <Route path="forum" element={<EstherForum />} />
+                  <Route path="resources" element={<EstherResources />} />
+                </Route>
+              </Route>
+
+              {/* Men's Fellowship Portal Routes */}
+              <Route path="/men/login" element={<MenLogin />} />
+              <Route element={<MenRoute />}>
+                <Route path="/men" element={<MenLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<MenDashboard />} />
+                  <Route path="events" element={<MenEvents />} />
+                  <Route path="announcements" element={<MenAnnouncements />} />
+                  <Route path="groups" element={<MenGroups />} />
+                  <Route path="forum" element={<MenForum />} />
+                  <Route path="resources" element={<MenResources />} />
+                </Route>
+              </Route>
+
+              {/* Worship & Choir Portal Routes */}
+              <Route path="/worship/login" element={<WorshipLogin />} />
+              <Route element={<WorshipRoute />}>
+                <Route path="/worship" element={<WorshipLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<WorshipDashboard />} />
+                  <Route path="events" element={<WorshipEvents />} />
+                  <Route path="announcements" element={<WorshipAnnouncements />} />
+                  <Route path="library" element={<WorshipLibrary />} />
+                  <Route path="team" element={<WorshipTeam />} />
+                </Route>
+              </Route>
+
+
+
+              {/* Hospitality Portal Routes */}
+              <Route path="/hospitality/login" element={<HospitalityLogin />} />
+              <Route element={<HospitalityRoute />}>
+                <Route path="/hospitality" element={<HospitalityLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<HospitalityDashboard />} />
+                  <Route path="referrals" element={<HospitalitySchedule />} />
+                  {/* Using 'referrals' path to match navigation item, though component is Schedule */}
+                  <Route path="events" element={<HospitalityEvents />} />
+                  <Route path="announcements" element={<HospitalityAnnouncements />} />
+                  <Route path="team" element={<HospitalityTeam />} />
+                </Route>
+              </Route>
+
+              {/* Prayer Portal Routes */}
+              <Route path="/prayer/login" element={<PrayerLogin />} />
+              <Route element={<PrayerRoute />}>
+                <Route path="/prayer" element={<PrayerLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<PrayerDashboard />} />
+                  <Route path="schedule" element={<PrayerSchedule />} />
+                  <Route path="events" element={<PrayerEvents />} />
+                  <Route path="requests" element={<PrayerRequests />} />
+                  <Route path="announcements" element={<PrayerAnnouncements />} />
+                  <Route path="team" element={<PrayerTeam />} />
+                </Route>
+              </Route>
+
+              {/* Media Portal Routes */}
+              <Route path="/media/login" element={<MediaLogin />} />
+              <Route element={<MediaRoute />}>
+                <Route path="/media" element={<MediaLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<MediaDashboard />} />
+                  <Route path="schedule" element={<MediaSchedule />} />
+                  <Route path="resources" element={<MediaResources />} />
+                  <Route path="equipment" element={<MediaEquipment />} />
+                  <Route path="announcements" element={<MediaAnnouncements />} />
+                  <Route path="team" element={<MediaTeam />} />
+                  <Route path="events" element={<MediaEvents />} />
+                </Route>
+              </Route>
+
+              {/* Evangelism Portal Routes */}
+              <Route path="/evangelism/login" element={<EvangelismLogin />} />
+              <Route element={<EvangelismRoute />}>
+                <Route path="/evangelism" element={<EvangelismLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<EvangelismDashboard />} />
+                  <Route path="schedule" element={<EvangelismSchedule />} />
+                  <Route path="followup" element={<EvangelismFollowUp />} />
+                  <Route path="testimonies" element={<EvangelismTestimonies />} />
+                  <Route path="announcements" element={<EvangelismAnnouncements />} />
+                  <Route path="team" element={<EvangelismTeam />} />
+                  <Route path="events" element={<EvangelismEvents />} />
+                </Route>
+              </Route>
+
+              {/* Ushering Portal Routes */}
+              <Route path="/ushering/login" element={<UsherLogin />} />
+              <Route element={<UsherRoute />}>
+                <Route path="/ushering" element={<UsherLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<UsherDashboard />} />
+                  <Route path="schedule" element={<UsherSchedule />} />
+                  <Route path="attendance" element={<UsherAttendance />} />
+                  <Route path="offering" element={<UsherOffering />} />
+                  <Route path="stock" element={<UsherStock />} />
+                  <Route path="announcements" element={<UsherAnnouncements />} />
+                  <Route path="team" element={<UsherTeam />} />
+                  {/* Future routes: events */}
                 </Route>
               </Route>
 
