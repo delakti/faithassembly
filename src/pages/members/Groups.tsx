@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import { getDatabase, ref, get, set } from 'firebase/database';
+import { ref, get, set } from 'firebase/database';
 import { FaUsers, FaMapMarkerAlt, FaClock, FaPlus, FaTimes, FaUserTie } from 'react-icons/fa';
+import { database } from '../../firebase';
 
 interface Group {
     id: string;
@@ -35,13 +36,17 @@ const Groups: React.FC = () => {
     }, []);
 
     const fetchGroups = async () => {
+        setLoading(true);
+        console.log("Groups.tsx: Fetching groups...");
         try {
-            const db = getDatabase();
+            const db = database;
             const groupsRef = ref(db, 'churchGroups');
             const snapshot = await get(groupsRef);
 
+            console.log("Groups.tsx: Snapshot exists?", snapshot.exists());
             if (snapshot.exists()) {
                 const data = snapshot.val();
+                console.log("Groups.tsx: Data:", data);
                 const groupsList = Object.keys(data).map(key => ({
                     id: key,
                     ...data[key]
@@ -50,6 +55,7 @@ const Groups: React.FC = () => {
                 groupsList.sort((a, b) => a.title.localeCompare(b.title));
                 setGroups(groupsList);
             } else {
+                console.log("Groups.tsx: No data found.");
                 setGroups([]);
             }
         } catch (error) {
@@ -70,11 +76,8 @@ const Groups: React.FC = () => {
 
         setSubmitting(true);
         try {
-            const db = getDatabase();
+            const db = database;
             // Path: groupJoinRequests / {groupId} / {userId}
-            // Using a timestamp in the key or just userId depending on if we want multiple requests.
-            // Let's use userId to prevent spamming, or maybe existing logic allows one request.
-            // For now, simpler is one request per user per group context.
             const requestRef = ref(db, `groupJoinRequests/${selectedGroup.id}/${user.uid}`);
 
             await set(requestRef, {

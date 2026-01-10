@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getDatabase, ref, get, set, update, remove, push } from 'firebase/database';
+import { ref, get, set, update, remove, push } from 'firebase/database';
 import { HiPlus, HiPencil, HiTrash, HiSearch, HiX, HiUserGroup } from 'react-icons/hi';
+import { database } from '../../../../firebase';
 
 interface Group {
     id: string;
@@ -30,13 +31,16 @@ const GroupManager: React.FC = () => {
     }, []);
 
     const fetchGroups = async () => {
+        console.log("Fetching groups...");
         try {
-            const db = getDatabase();
+            const db = database;
             const groupsRef = ref(db, 'churchGroups');
             const snapshot = await get(groupsRef);
 
+            console.log("Snapshot exists:", snapshot.exists());
             if (snapshot.exists()) {
                 const data = snapshot.val();
+                console.log("Groups data:", data);
                 const groupsList = Object.keys(data).map(key => ({
                     id: key,
                     ...data[key]
@@ -45,6 +49,7 @@ const GroupManager: React.FC = () => {
                 groupsList.sort((a, b) => a.title.localeCompare(b.title));
                 setGroups(groupsList);
             } else {
+                console.log("No groups found.");
                 setGroups([]);
             }
         } catch (error) {
@@ -85,7 +90,7 @@ const GroupManager: React.FC = () => {
         setSaving(true);
 
         try {
-            const db = getDatabase();
+            const db = database;
 
             if (editingGroup) {
                 // Update existing
@@ -114,7 +119,7 @@ const GroupManager: React.FC = () => {
         if (!window.confirm("Are you sure you want to delete this group? This action cannot be undone.")) return;
 
         try {
-            const db = getDatabase();
+            const db = database;
             await remove(ref(db, `churchGroups/${id}`));
             setGroups(prev => prev.filter(g => g.id !== id));
         } catch (error) {
