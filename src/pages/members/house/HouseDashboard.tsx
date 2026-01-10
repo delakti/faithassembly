@@ -122,7 +122,9 @@ const HouseDashboard: React.FC = () => {
                                 <span className="text-gray-400 mt-1">📧</span>
                                 <div>
                                     <p className="text-xs font-bold text-gray-400 uppercase">Email</p>
-                                    <p className="text-sm font-medium text-gray-900">{selectedMember.email}</p>
+                                    <a href={`mailto:${selectedMember.email}`} className="text-sm font-medium text-blue-600 hover:underline">
+                                        {selectedMember.email}
+                                    </a>
                                 </div>
                             </div>
 
@@ -130,7 +132,13 @@ const HouseDashboard: React.FC = () => {
                                 <span className="text-gray-400 mt-1">📱</span>
                                 <div>
                                     <p className="text-xs font-bold text-gray-400 uppercase">Phone</p>
-                                    <p className="text-sm font-medium text-gray-900">{selectedMember.phone || 'N/A'}</p>
+                                    {selectedMember.phone ? (
+                                        <a href={`tel:${selectedMember.phone}`} className="text-sm font-medium text-blue-600 hover:underline">
+                                            {selectedMember.phone}
+                                        </a>
+                                    ) : (
+                                        <p className="text-sm font-medium text-gray-900">N/A</p>
+                                    )}
                                 </div>
                             </div>
 
@@ -139,10 +147,15 @@ const HouseDashboard: React.FC = () => {
                                     <span className="text-gray-400 mt-1">📍</span>
                                     <div>
                                         <p className="text-xs font-bold text-gray-400 uppercase">Address</p>
-                                        <p className="text-sm font-medium text-gray-900">
+                                        <a
+                                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${selectedMember.address}, ${selectedMember.city} ${selectedMember.postcode}`)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm font-medium text-blue-600 hover:underline block"
+                                        >
                                             {selectedMember.address}<br />
                                             {selectedMember.city} {selectedMember.postcode}
-                                        </p>
+                                        </a>
                                     </div>
                                 </div>
                             )}
