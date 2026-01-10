@@ -54,7 +54,7 @@ const UserDashboard: React.FC = () => {
     if (loading) return <div>Loading dashboard...</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="min-h-screen bg-gray-50 py-12 px-4 pt-24">
             <div className="max-w-7xl mx-auto">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900">My Study Dashboard</h1>
