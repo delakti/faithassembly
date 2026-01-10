@@ -42,3 +42,20 @@ export interface Event {
     organizer: string;
     createdAt?: any;
 }
+
+export type IncidentSeverity = 'Low' | 'Medium' | 'High' | 'Critical';
+
+export interface Incident {
+    id?: string;
+    childId: string;
+    childName: string; // Denormalized for easier display
+    date: string;
+    time: string;
+    description: string;
+    actionTaken: string;
+    witnesses: string; // Staff names
+    reportedBy: string;
+    parentNotified: boolean;
+    severity: IncidentSeverity;
+    createdAt?: any;
+}
