@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import { db } from '../../firebase';
-import { collection, addDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { db, database } from '../../firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { ref, query, orderByChild, equalTo, get, update } from 'firebase/database';
 import { FaSignature, FaCheckCircle, FaInfoCircle } from 'react-icons/fa';
 
 const GiftAid: React.FC = () => {
@@ -9,6 +10,7 @@ const GiftAid: React.FC = () => {
     const user = auth.currentUser;
     const [status, setStatus] = useState<'loading' | 'active' | 'none'>('loading');
     const [loading, setLoading] = useState(false);
+    const [donorKey, setDonorKey] = useState<string | null>(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -22,36 +24,74 @@ const GiftAid: React.FC = () => {
     });
 
     useEffect(() => {
-        checkStatus();
-    }, [user]);
+        const fetchDonorStatus = async () => {
+            if (!user?.email) {
+                setStatus('none');
+                return;
+            }
 
-    const checkStatus = async () => {
-        if (!user) return;
-        const q = query(
-            collection(db, 'gift_aid_declarations'),
-            where('userId', '==', user.uid),
-            orderBy('dateDeclared', 'desc'),
-            limit(1)
-        );
-        const snapshot = await getDocs(q);
-        if (!snapshot.empty) {
-            setStatus('active');
-        } else {
-            setStatus('none');
-        }
-    };
+            try {
+                // Query Realtime DB for donor record by Email
+                const donorRef = ref(database, 'donor');
+                const donorQ = query(donorRef, orderByChild('Email'), equalTo(user.email));
+                const snapshot = await get(donorQ);
+
+                if (snapshot.exists()) {
+                    const donorVal = snapshot.val();
+                    const key = Object.keys(donorVal)[0];
+                    setDonorKey(key);
+                    const donorData = donorVal[key];
+
+                    if (donorData.GiftAidAccepted === true || donorData.GiftAidAccepted === 'true') {
+                        setStatus('active');
+                        // Pre-fill form just in case they want to see it? No, just show active state.
+                    } else {
+                        // Pre-fill form with known data
+                        setFormData(prev => ({
+                            ...prev,
+                            firstName: donorData['First Name'] || donorData.FirstName || '',
+                            lastName: donorData['Last Name'] || donorData.LastName || '',
+                            addressLine1: donorData['Street Name'] || donorData.Address || '',
+                            town: donorData.City || '',
+                            postcode: donorData.Postcode || ''
+                        }));
+                        setStatus('none');
+                    }
+                } else {
+                    setStatus('none');
+                }
+            } catch (error) {
+                console.error("Error fetching donor status:", error);
+                setStatus('none');
+            }
+        };
+
+        fetchDonorStatus();
+    }, [user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         try {
+            const timestamp = new Date().toISOString();
+
+            // 1. Create audit record in Firestore
             await addDoc(collection(db, 'gift_aid_declarations'), {
                 ...formData,
                 userId: user?.uid,
                 email: user?.email,
-                dateDeclared: new Date().toISOString(),
+                dateDeclared: timestamp,
                 taxPayerConfirmed: true
             });
+
+            // 2. Update donor record in Realtime Database if it exists
+            if (donorKey) {
+                const updates: any = {};
+                updates[`/donor/${donorKey}/GiftAidAccepted`] = true;
+                updates[`/donor/${donorKey}/GiftAidDate`] = timestamp;
+                await update(ref(database), updates);
+            }
+
             setStatus('active');
         } catch (error) {
             console.error("Error submitting declaration:", error);
@@ -65,7 +105,7 @@ const GiftAid: React.FC = () => {
 
     if (status === 'active') {
         return (
-            <div className="max-w-3xl mx-auto bg-white rounded-xl shadow p-8 text-center">
+            <div className="max-w-3xl mx-auto bg-white rounded-xl shadow p-8 text-center mt-8">
                 <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
                     <FaCheckCircle />
                 </div>
@@ -82,7 +122,7 @@ const GiftAid: React.FC = () => {
     }
 
     return (
-        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-8">
             <div className="bg-blue-600 p-6 text-white text-center">
                 <FaSignature className="mx-auto text-4xl mb-4" />
                 <h1 className="text-2xl font-bold">Gift Aid Declaration</h1>
