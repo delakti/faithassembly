@@ -41,10 +41,15 @@ const GroupManager: React.FC = () => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 console.log("Groups data:", data);
-                const groupsList = Object.keys(data).map(key => ({
-                    id: key,
-                    ...data[key]
-                }));
+
+                const groupsList = Object.keys(data)
+                    .map(key => ({
+                        id: key,
+                        ...data[key]
+                    }))
+                    // Filter out invalid items (must have title)
+                    .filter((g: any) => g && g.title && typeof g.title === 'string');
+
                 // Sort by title
                 groupsList.sort((a, b) => a.title.localeCompare(b.title));
                 setGroups(groupsList);

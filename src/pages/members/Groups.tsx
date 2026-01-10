@@ -47,10 +47,17 @@ const Groups: React.FC = () => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 console.log("Groups.tsx: Data:", data);
-                const groupsList = Object.keys(data).map(key => ({
-                    id: key,
-                    ...data[key]
-                }));
+
+                const groupsList = Object.keys(data)
+                    .map(key => ({
+                        id: key,
+                        ...data[key]
+                    }))
+                    // Filter out items that don't look like groups (MUST have a title)
+                    .filter((g: any) => g && g.title && typeof g.title === 'string');
+
+                console.log("Groups.tsx: Filtered List:", groupsList);
+
                 // Sort by title alphabetically
                 groupsList.sort((a, b) => a.title.localeCompare(b.title));
                 setGroups(groupsList);

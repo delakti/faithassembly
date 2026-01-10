@@ -2,6 +2,8 @@ import React from 'react';
 import { getAuth } from 'firebase/auth';
 import { FaHandHoldingHeart, FaCalendarAlt, FaStar, FaArrowRight, FaTimes } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { ref, query, orderByChild, equalTo, get } from 'firebase/database';
+import { database } from '../../firebase';
 
 const MemberDashboard: React.FC = () => {
     const auth = getAuth();
@@ -19,11 +21,10 @@ const MemberDashboard: React.FC = () => {
             if (!user?.email) return;
 
             try {
-                // Import RTDB functions dynamically to avoid issues if not used elsewhere often
-                const { getDatabase, ref, query, orderByChild, equalTo, get } = await import('firebase/database');
-                const db = getDatabase();
+                const db = database;
 
                 // 1. Fetch Donor to get HouseFellowship name
+                // Note: 'donor' query might also need index on 'Email'
                 const donorRef = ref(db, 'donor');
                 const donorQ = query(donorRef, orderByChild('Email'), equalTo(user.email));
                 const donorSnapshot = await get(donorQ);
@@ -44,22 +45,25 @@ const MemberDashboard: React.FC = () => {
                         setMyGroup(basicGroupInfo);
 
                         try {
-                            // 2. Try Fetch churchGroups to get details matching the name
+                            // 2. Fetch ALL churchGroups and find match client-side to avoid Index error
                             const groupsRef = ref(db, 'churchGroups');
-                            const groupsQ = query(groupsRef, orderByChild('title'), equalTo(houseFellowshipName));
-                            const groupsSnapshot = await get(groupsQ);
+                            const groupsSnapshot = await get(groupsRef);
 
                             if (groupsSnapshot.exists()) {
                                 const groupsVal = groupsSnapshot.val();
-                                const groupKey = Object.keys(groupsVal)[0];
-                                const groupDetails = groupsVal[groupKey];
+                                // Manual find to avoid .indexOn error
+                                // Safe navigation .? used to avoid processing invalid entries
+                                const groupKey = Object.keys(groupsVal).find(key =>
+                                    groupsVal[key]?.title === houseFellowshipName
+                                );
 
-                                // Update with details
-                                setMyGroup(prev => prev ? ({ ...prev, details: groupDetails }) : null);
+                                if (groupKey) {
+                                    const groupDetails = groupsVal[groupKey];
+                                    setMyGroup(prev => prev ? ({ ...prev, details: groupDetails }) : null);
+                                }
                             }
                         } catch (detailErr) {
                             console.warn("Could not fetch extra group details:", detailErr);
-                            // Do nothing, basic info is already set
                         }
                     }
                 }
