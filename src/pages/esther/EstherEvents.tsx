@@ -18,7 +18,7 @@ const EVENTS = [
         date: "Fri, Dec 1 - Sun, Dec 3",
         time: "All Weekend",
         location: "Ashburnham Place",
-        image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&auto=format&fit=crop&q=60",
+        image: "https://images.unsplash.com/photo-1510972527921-ce03766a1cf1?w=800&auto=format&fit=crop&q=60",
         spots: 5
     }
 ];
