@@ -18,7 +18,7 @@ const MemberRoute: React.FC = () => {
                 if (userDoc.exists()) {
                     const data = userDoc.data();
                     // Admins can also access member area
-                    if (['member', 'admin', 'super_admin'].includes(data.role)) {
+                    if (['user', 'member', 'admin', 'super_admin'].includes(data.role)) {
                         setIsAuthorized(true);
                     } else {
                         setIsAuthorized(false);
