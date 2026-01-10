@@ -26,7 +26,7 @@ const ChildrenLogin: React.FC = () => {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                if (userData.role === 'children_staff' || userData.role === 'admin') {
+                if (userData.role === 'children_staff' || userData.role === 'admin' || userData.role === 'super_admin') {
                     navigate('/children/dashboard');
                 } else {
                     setError('Access Denied: You are not authorized for the Children\'s Portal.');

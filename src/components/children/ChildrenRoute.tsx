@@ -43,7 +43,7 @@ const ChildrenRoute: React.FC = () => {
     }
 
     // Role check: Allow 'children_staff' AND 'admin'
-    if (role === 'children_staff' || role === 'admin') {
+    if (role === 'children_staff' || role === 'admin' || role === 'super_admin') {
         return <Outlet />;
     }
 
