@@ -1,8 +1,29 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiUserAdd, HiCalendar, HiChatAlt2, HiClipboardList, HiArrowRight, HiFire } from 'react-icons/hi';
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { EvangelismEvent } from '../../types/evangelism';
 
 const EvangelismDashboard: React.FC = () => {
+    const [nextEvent, setNextEvent] = useState<EvangelismEvent | null>(null);
+
+    useEffect(() => {
+        const fetchNextEvent = async () => {
+            try {
+                const q = query(collection(db, 'evangelism_events'), orderBy('date', 'asc'), limit(1));
+                const snapshot = await getDocs(q);
+                if (!snapshot.empty) {
+                    setNextEvent({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as EvangelismEvent);
+                }
+            } catch (error) {
+                console.error("Error fetching next event:", error);
+            }
+        };
+
+        fetchNextEvent();
+    }, []);
+
     return (
         <div className="space-y-6 font-sans">
             {/* Stats Bar */}
@@ -29,7 +50,7 @@ const EvangelismDashboard: React.FC = () => {
                     <div className="flex items-center gap-3">
                         <HiCalendar className="w-8 h-8 text-blue-500" />
                         <div>
-                            <span className="block text-xl font-black text-white leading-none">SAT</span>
+                            <span className="block text-xl font-black text-white leading-none">{nextEvent ? nextEvent.date.split(',')[0] : 'TBA'}</span>
                             <span className="text-xs font-bold text-stone-500 uppercase">Next Outreach</span>
                         </div>
                     </div>
@@ -53,9 +74,11 @@ const EvangelismDashboard: React.FC = () => {
                     <span className="inline-block px-3 py-1 bg-white/20 text-white text-[10px] font-bold uppercase rounded mb-4 backdrop-blur-sm">
                         Urgent Campaign
                     </span>
-                    <h2 className="text-3xl md:text-4xl font-black text-white mb-4 italic uppercase tracking-tight">"Operation: City Centre"</h2>
+                    <h2 className="text-3xl md:text-4xl font-black text-white mb-4 italic uppercase tracking-tight">
+                        {nextEvent ? `"${nextEvent.title}"` : "Awaiting Operation"}
+                    </h2>
                     <p className="text-orange-100 font-medium leading-relaxed mb-8 max-w-2xl">
-                        This Saturday, we are mobilizing all teams to the City Centre for a massive tract distribution and street preaching drive. We need 50 volunteers. The harvest is plentiful!
+                        {nextEvent ? `Mobilizing at ${nextEvent.location} on ${nextEvent.date} @ ${nextEvent.time}. ${nextEvent.urgency === 'high' ? 'High urgency deployment.' : 'Join the harvest.'}` : 'No immediate pending operations.'}
                     </p>
                     <div className="flex gap-4">
                         <button className="px-6 py-3 bg-white text-orange-600 font-black rounded-lg hover:bg-orange-50 transition-colors flex items-center gap-2 uppercase tracking-wide text-sm shadow-lg">

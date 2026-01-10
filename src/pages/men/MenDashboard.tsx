@@ -1,11 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiFire, HiCalendar, HiUserGroup, HiArrowRight } from 'react-icons/hi';
 import { motion } from 'framer-motion';
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { MenEvent, MenChallenge } from '../../types/men';
 
 const MenDashboard: React.FC = () => {
+    const [stats, setStats] = useState({
+        nextMission: null as MenEvent | null,
+        dailyChallenge: null as MenChallenge | null
+    });
+    // Removed unused loading state
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch next mission (closest upcoming event)
+                const missionQ = query(collection(db, 'men_events'), orderBy('date', 'asc'), limit(1));
+                const missionSnap = await getDocs(missionQ);
+                const nextMission = !missionSnap.empty ? { id: missionSnap.docs[0].id, ...missionSnap.docs[0].data() } as MenEvent : null;
+
+                // Fetch latest challenge
+                const challengeQ = query(collection(db, 'men_challenges'), orderBy('createdAt', 'desc'), limit(1));
+                const challengeSnap = await getDocs(challengeQ);
+                const dailyChallenge = !challengeSnap.empty ? { id: challengeSnap.docs[0].id, ...challengeSnap.docs[0].data() } as MenChallenge : null;
+
+                setStats({ nextMission, dailyChallenge });
+            } catch (error) {
+                console.error("Error fetching dashboard data:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
     return (
         <div className="space-y-8 font-sans">
-            {/* Hero / Verse of Day */}
+            {/* Hero / Verse of Day (Static for now, could also be dynamic) */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -27,8 +58,10 @@ const MenDashboard: React.FC = () => {
                     <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-6 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
                         <HiFire className="w-6 h-6" />
                     </div>
-                    <h3 className="text-xl font-black text-slate-900 mb-2 uppercase italic">Daily Challenge</h3>
-                    <p className="text-slate-500 text-sm mb-6 leading-relaxed font-medium">Read **Romans 12** today. How does "renewing your mind" apply to your leadership?</p>
+                    <h3 className="text-xl font-black text-slate-900 mb-2 uppercase italic">{stats.dailyChallenge?.title || 'Daily Challenge'}</h3>
+                    <p className="text-slate-500 text-sm mb-6 leading-relaxed font-medium">
+                        {stats.dailyChallenge?.content || 'Loading daily assignment...'}
+                    </p>
                     <span className="text-orange-600 text-xs font-bold uppercase tracking-wider flex items-center group-hover:translate-x-1 transition-transform">Accept Challenge <HiArrowRight className="ml-1" /></span>
                 </div>
 
@@ -37,7 +70,9 @@ const MenDashboard: React.FC = () => {
                         <HiCalendar className="w-6 h-6" />
                     </div>
                     <h3 className="text-xl font-black text-slate-900 mb-2 uppercase italic">Next Mission</h3>
-                    <p className="text-slate-500 text-sm mb-6 leading-relaxed font-medium">Men's Prayer Breakfast. Saturday @ 0800 Hours. Church Hall.</p>
+                    <p className="text-slate-500 text-sm mb-6 leading-relaxed font-medium">
+                        {stats.nextMission ? `${stats.nextMission.title}. ${stats.nextMission.date} @ ${stats.nextMission.time}.` : 'No upcoming missions.'}
+                    </p>
                     <span className="text-indigo-600 text-xs font-bold uppercase tracking-wider flex items-center group-hover:translate-x-1 transition-transform">RSVP Now <HiArrowRight className="ml-1" /></span>
                 </div>
 

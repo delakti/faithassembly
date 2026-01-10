@@ -1,31 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiCube, HiExclamation, HiCheck, HiPlus, HiSearch } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const INVENTORY_DATA = [
-    { id: 1, name: 'Tithe Envelopes (Standard)', category: 'Stationery', quantity: 450, minLevel: 200, status: 'good' },
-    { id: 2, name: 'First Time Guest Cards', category: 'Stationery', quantity: 45, minLevel: 100, status: 'low' },
-    { id: 3, name: 'Communion Cups (Box)', category: 'Sacraments', quantity: 12, minLevel: 5, status: 'good' },
-    { id: 4, name: 'Communion Wafers (Box)', category: 'Sacraments', quantity: 8, minLevel: 5, status: 'good' },
-    { id: 5, name: 'Staff Lanyards', category: 'Uniform', quantity: 15, minLevel: 20, status: 'low' },
-    { id: 6, name: 'Sanitization Wipes', category: 'Hygiene', quantity: 50, minLevel: 20, status: 'good' }
-];
+import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { UsherStockItem } from '../../types/ushering';
 
 const UsherStock: React.FC = () => {
-    const [inventory, setInventory] = useState(INVENTORY_DATA);
+    const [inventory, setInventory] = useState<UsherStockItem[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const handleUpdateStock = (id: number, delta: number) => {
-        setInventory(prev => prev.map(item => {
-            if (item.id === id) {
-                const newQuantity = Math.max(0, item.quantity + delta);
-                let newStatus = 'good';
-                if (newQuantity <= item.minLevel) newStatus = 'low';
-                return { ...item, quantity: newQuantity, status: newStatus };
-            }
-            return item;
-        }));
-        toast.success("Stock level updated");
+    useEffect(() => {
+        const q = query(collection(db, 'usher_stock'), orderBy('name', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setInventory(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UsherStockItem)));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleUpdateStock = async (id: string, delta: number, currentQty: number, minLevel: number) => {
+        try {
+            const newQuantity = Math.max(0, currentQty + delta);
+            const newStatus = newQuantity <= minLevel ? 'low' : 'good';
+
+            await updateDoc(doc(db, 'usher_stock', id), {
+                quantity: newQuantity,
+                status: newStatus
+            });
+            toast.success("Stock level updated");
+        } catch (error) {
+            toast.error("Failed to update stock");
+        }
     };
 
     const handleReorder = (itemName: string) => {
@@ -115,13 +119,13 @@ const UsherStock: React.FC = () => {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
-                                                    onClick={() => handleUpdateStock(item.id, -1)}
+                                                    onClick={() => handleUpdateStock(item.id, -1, item.quantity, item.minLevel)}
                                                     className="w-8 h-8 rounded border border-slate-200 flex items-center justify-center text-slate-500 hover:border-slate-300 hover:bg-slate-100"
                                                 >
                                                     -
                                                 </button>
                                                 <button
-                                                    onClick={() => handleUpdateStock(item.id, 1)}
+                                                    onClick={() => handleUpdateStock(item.id, 1, item.quantity, item.minLevel)}
                                                     className="w-8 h-8 rounded bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 shadow-sm"
                                                 >
                                                     <HiPlus />

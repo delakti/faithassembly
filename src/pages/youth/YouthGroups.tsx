@@ -81,14 +81,14 @@ const YouthGroups: React.FC = () => {
                             <button
                                 onClick={() => toggleJoin(group.id)}
                                 className={`w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all flex items-center justify-center gap-2 ${group.joined
-                                    ? 'bg-gray-800 text-gray-300 hover:bg-red-500/20 hover:text-red-400'
+                                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                                     : 'bg-purple-600 text-white hover:bg-purple-500 shadow-lg shadow-purple-600/30'
                                     }`}
                             >
                                 {group.joined ? (
-                                    <><HiCheck className="w-5 h-5" /> Joined</>
+                                    <><HiCheck className="w-5 h-5" /> JOINED</>
                                 ) : (
-                                    <><HiPlus className="w-5 h-5" /> Join Squad</>
+                                    <><HiPlus className="w-5 h-5" /> JOIN SQUAD</>
                                 )}
                             </button>
                         </div>

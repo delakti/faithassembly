@@ -1,7 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiCalendar, HiServer, HiExclamationCircle, HiCheckCircle, HiArrowRight } from 'react-icons/hi';
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { MediaBrief } from '../../types/media';
 
 const MediaDashboard: React.FC = () => {
+    const [brief, setBrief] = useState<MediaBrief | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBrief = async () => {
+            try {
+                const q = query(collection(db, 'media_briefs'), orderBy('date', 'desc'), limit(1));
+                const snapshot = await getDocs(q);
+                if (!snapshot.empty) {
+                    setBrief({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as MediaBrief);
+                }
+            } catch (error) {
+                console.error("Error fetching brief:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchBrief();
+    }, []);
+
     return (
         <div className="space-y-6 font-sans">
             {/* Status Bar */}
@@ -52,10 +75,21 @@ const MediaDashboard: React.FC = () => {
                     <span className="inline-block px-2 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] font-mono font-bold uppercase rounded mb-4">
                         Production Brief
                     </span>
-                    <h2 className="text-2xl font-bold text-white mb-4">Preparation for "Kingdom Come" Series</h2>
-                    <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-2xl">
-                        Team, for the new series starting Sunday, we are implementing a new lower-third style. Please ensure all OBS scenes are updated with the assets in the 'Nov 2025' folder. Sound check is pushed to 8:30 AM.
-                    </p>
+                    {loading ? (
+                        <div className="animate-pulse space-y-4">
+                            <div className="h-4 bg-slate-800 rounded w-3/4"></div>
+                            <div className="h-4 bg-slate-800 rounded w-1/2"></div>
+                        </div>
+                    ) : brief ? (
+                        <>
+                            <h2 className="text-2xl font-bold text-white mb-4">{brief.title}</h2>
+                            <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-2xl">
+                                {brief.content}
+                            </p>
+                        </>
+                    ) : (
+                        <p className="text-slate-500 italic mb-6">No active briefs.</p>
+                    )}
                     <button className="px-6 py-3 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-500 transition-colors flex items-center gap-2 text-sm font-mono uppercase">
                         Access Assets <HiArrowRight className="w-4 h-4" />
                     </button>

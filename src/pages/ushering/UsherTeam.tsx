@@ -1,29 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiMail, HiPhone, HiUserGroup, HiBadgeCheck } from 'react-icons/hi';
-
-const TEAM_DATA = [
-    {
-        name: "Team Alpha",
-        shift: "Sunday Morning (Week A)",
-        leader: "Dcn. Michael O.",
-        members: [
-            { id: 1, name: "Bro. David K.", role: "Senior Usher", phone: "07123 456789", email: "david.k@example.com", status: "active" },
-            { id: 2, name: "Sis. Sarah J.", role: "Usher", phone: "07987 654321", email: "sarah.j@example.com", status: "active" },
-            { id: 3, name: "Bro. Peter L.", role: "Trainee", phone: "07456 123789", email: "peter.l@example.com", status: "probation" },
-        ]
-    },
-    {
-        name: "Midweek Squad",
-        shift: "Wednesday Bible Study",
-        leader: "Sis. Ruth M.",
-        members: [
-            { id: 4, name: "Sis. Mary B.", role: "Usher", phone: "07555 123456", email: "mary.b@example.com", status: "active" },
-            { id: 5, name: "Bro. John D.", role: "Usher", phone: "07888 999000", email: "john.d@example.com", status: "leave" },
-        ]
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { UsherMember } from '../../types/ushering';
 
 const UsherTeam: React.FC = () => {
+    const [members, setMembers] = useState<UsherMember[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const q = query(collection(db, 'usher_team'), orderBy('name', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setMembers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UsherMember)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    // Group members by team
+    const teams = members.reduce((acc, member) => {
+        const teamName = member.team || 'Unassigned';
+        if (!acc[teamName]) {
+            acc[teamName] = { name: teamName, shift: 'To Be Assigned', leader: 'TBA', members: [] };
+        }
+        acc[teamName].members.push(member);
+        // Dumb logic to find leader for demo
+        if (member.role === 'Head Usher' && acc[teamName].leader === 'TBA') {
+            acc[teamName].leader = member.name;
+        }
+        return acc;
+    }, {} as Record<string, { name: string, shift: string, leader: string, members: UsherMember[] }>);
+
     return (
         <div className="font-sans text-slate-900 space-y-8">
             <header className="border-b border-slate-200 pb-6">
@@ -31,8 +38,11 @@ const UsherTeam: React.FC = () => {
                 <p className="text-slate-500 font-medium mt-2">Team structure and contact information.</p>
             </header>
 
+            {loading && <p className="text-slate-500">Loading directory...</p>}
+            {members.length === 0 && !loading && <p className="text-slate-500 italic">No squad members found.</p>}
+
             <div className="grid gap-8">
-                {TEAM_DATA.map((team, index) => (
+                {Object.values(teams).map((team, index) => (
                     <div key={index} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div className="bg-slate-50 p-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
@@ -61,7 +71,7 @@ const UsherTeam: React.FC = () => {
                                             <p className="text-xs text-amber-600 font-bold uppercase tracking-wide mt-0.5">{member.role}</p>
                                         </div>
                                         <span className={`w-2 h-2 rounded-full ${member.status === 'active' ? 'bg-green-500' :
-                                                member.status === 'probation' ? 'bg-amber-400' : 'bg-slate-300'
+                                            member.status === 'probation' ? 'bg-amber-400' : 'bg-slate-300'
                                             }`} title={member.status}></span>
                                     </div>
 

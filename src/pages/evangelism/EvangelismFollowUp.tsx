@@ -1,38 +1,22 @@
-import React from 'react';
-import { HiUserAdd, HiPhone, HiClock, HiArrowRight } from 'react-icons/hi';
+import React, { useState, useEffect } from 'react';
+import { HiPhone, HiClock, HiArrowRight } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const CONVERTS = [
-    {
-        id: 1,
-        name: "John Doe",
-        date: "Dec 09, 2025",
-        location: "City Centre",
-        status: "New",
-        contact: "07700 900123",
-        assignedTo: "Team Alpha"
-    },
-    {
-        id: 2,
-        name: "Jane Smith",
-        date: "Dec 05, 2025",
-        location: "Market Outreach",
-        status: "Contacted",
-        contact: "07700 900456",
-        assignedTo: "Sister Sarah"
-    },
-    {
-        id: 3,
-        name: "Michael Brown",
-        date: "Nov 28, 2025",
-        location: "Street Evangelism",
-        status: "Baptized",
-        contact: "07700 900789",
-        assignedTo: "Pastor Mark"
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { EvangelismConvert } from '../../types/evangelism';
 
 const EvangelismFollowUp: React.FC = () => {
+    const [converts, setConverts] = useState<EvangelismConvert[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const q = query(collection(db, 'evangelism_converts'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setConverts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EvangelismConvert)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
 
     const handleAction = (name: string, action: string) => {
         toast.success(`${action} recorded for ${name}`);
@@ -46,13 +30,16 @@ const EvangelismFollowUp: React.FC = () => {
                     <h1 className="text-3xl font-black text-white uppercase italic tracking-tight">New Convert Log</h1>
                 </div>
 
-                <button className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-black uppercase text-sm rounded-lg shadow-lg hover:shadow-green-600/20 transition-all flex items-center gap-2 whitespace-nowrap">
-                    <HiUserAdd className="w-5 h-5" /> Log New Soul
-                </button>
+                <div className="px-6 py-3 bg-stone-900 border border-stone-800 text-stone-500 font-bold text-xs rounded-lg">
+                    Admin Access Required for Full New Entry
+                </div>
             </div>
 
+            {loading && <p className="text-stone-500 animate-pulse">Loading harvest records...</p>}
+            {converts.length === 0 && !loading && <p className="text-stone-500 italic">No recent converts logged.</p>}
+
             <div className="grid gap-4">
-                {CONVERTS.map((person) => (
+                {converts.map((person) => (
                     <div key={person.id} className="bg-stone-950 border border-stone-800 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-stone-700 transition-all">
                         <div className="flex items-start gap-4">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 font-bold text-lg ${person.status === 'New' ? 'border-red-500 text-red-500 bg-red-900/20' :

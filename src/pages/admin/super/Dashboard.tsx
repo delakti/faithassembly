@@ -99,6 +99,44 @@ const SuperAdminDashboard: React.FC = () => {
                 </div>
             </div>
 
+            {/* Department Leader Panels */}
+            <div className="mb-8">
+                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <HiShieldCheck className="text-slate-400" /> Department Admin Panels
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[
+                        { name: 'Evangelism Admin', path: '/evangelism/leader', icon: <HiSpeakerphone className="w-6 h-6" />, color: 'bg-red-600', desc: 'Manage Outreach' },
+                        { name: 'Ushers Admin', path: '/ushering/leader', icon: <HiShieldCheck className="w-6 h-6" />, color: 'bg-amber-600', desc: 'Manage Rota & Stock' },
+                        { name: 'Hospitality Admin', path: '/hospitality/leader', icon: <HiHeart className="w-6 h-6" />, color: 'bg-pink-600', desc: 'Manage Welcome Team' },
+                        { name: 'Worship Admin', path: '/worship/leader', icon: <HiMusicNote className="w-6 h-6" />, color: 'bg-purple-600', desc: 'Manage Repertoire' },
+                        { name: 'Prayer Admin', path: '/prayer/leader', icon: <HiChatAlt2 className="w-6 h-6" />, color: 'bg-blue-600', desc: 'Manage Requests' },
+                        { name: 'Media Admin', path: '/media/leader', icon: <HiVideoCamera className="w-6 h-6" />, color: 'bg-indigo-600', desc: 'Manage Tech' },
+                        { name: 'Men Admin', path: '/men/leader', icon: <HiUserGroup className="w-6 h-6" />, color: 'bg-slate-800', desc: 'Manage Men\'s Ministry' },
+                        { name: 'Esther Admin', path: '/esther/leader', icon: <HiUserGroup className="w-6 h-6" />, color: 'bg-rose-600', desc: 'Manage Women\'s Ministry' },
+                        { name: 'Youth Admin', path: '/youth/leader', icon: <HiUserGroup className="w-6 h-6" />, color: 'bg-yellow-600', desc: 'Manage Youth' },
+                    ].map((portal, idx) => (
+                        <Link
+                            key={idx}
+                            to={portal.path}
+                            className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all group relative overflow-hidden"
+                        >
+                            <div className="relative z-10">
+                                <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-white ${portal.color} mb-4 shadow-md`}>
+                                    {portal.icon}
+                                </div>
+                                <h4 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{portal.name}</h4>
+                                <p className="text-sm text-slate-500 mt-1">{portal.desc}</p>
+
+                                <div className="mt-4 flex items-center text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-amber-500 transition-colors">
+                                    Open Admin <HiArrowRight className="ml-1 w-3 h-3" />
+                                </div>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            </div>
+
             {/* Quick Actions / Recent Activity Placeholder */}
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">

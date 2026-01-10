@@ -1,45 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiSpeakerphone, HiExclamation } from 'react-icons/hi';
-
-const ANNOUNCEMENTS = [
-    {
-        id: 1,
-        title: "Firmware Update Required: All Cameras",
-        date: "Dec 05, 2025",
-        author: "Tech Lead",
-        priority: "high",
-        content: "Please ensure all Sony A7III bodies are updated to v4.0 before Sunday service. The update fixes the HDMI output stability issue we faced last week."
-    },
-    {
-        id: 2,
-        title: "New Lower Thirds Style Guide",
-        date: "Dec 02, 2025",
-        author: "Creative Director",
-        priority: "medium",
-        content: "We have refreshed the lower thirds for the 'Kingdom Come' series. Please review the updated style guide in the Resources folder. Font size for names has been increased to 42pt."
-    },
-    {
-        id: 3,
-        title: "Cable Management Reminder",
-        date: "Nov 28, 2025",
-        author: "Stage Manager",
-        priority: "low",
-        content: "After service, please ensure all XLR cables are coiled properly using the over-under method. We found several tangled cables on stage left."
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 const MediaAnnouncements: React.FC = () => {
+    const [announcements, setAnnouncements] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const q = query(collection(db, 'media_announcements'), orderBy('date', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setAnnouncements(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
     return (
         <div className="space-y-8 font-sans">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
-                    <span className="text-cyan-500 font-mono font-bold text-xs mb-2 block tracking-widest uppercase"> production Briefs</span>
+                    <span className="text-cyan-500 font-mono font-bold text-xs mb-2 block tracking-widest uppercase">Production Briefs</span>
                     <h1 className="text-3xl font-bold text-white uppercase tracking-tight">Tech Intel</h1>
                 </div>
             </div>
 
+            {loading && <p className="text-slate-500 animate-pulse">Loading intel...</p>}
+            {announcements.length === 0 && !loading && <p className="text-slate-500 italic">No active announcements.</p>}
+
             <div className="space-y-4">
-                {ANNOUNCEMENTS.map((item) => (
+                {announcements.map((item) => (
                     <div key={item.id} className="bg-slate-900 border border-slate-800 rounded-xl p-6 md:p-8 relative overflow-hidden group hover:border-slate-700 transition-all">
                         {item.priority === 'high' && (
                             <div className="absolute top-0 right-0 p-4">
@@ -61,7 +51,7 @@ const MediaAnnouncements: React.FC = () => {
                                 <div className="flex items-center gap-3 text-xs font-mono text-slate-500 uppercase">
                                     <span>{item.date}</span>
                                     <span className="text-slate-700">|</span>
-                                    <span className="text-slate-400">Auth: {item.author}</span>
+                                    <span className="text-slate-400">Auth: {item.author || 'Admin'}</span>
                                 </div>
                             </div>
                         </div>

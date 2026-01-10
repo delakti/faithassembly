@@ -103,11 +103,13 @@ import MenAnnouncements from './pages/men/MenAnnouncements';
 import MenGroups from './pages/men/MenGroups';
 import MenForum from './pages/men/MenForum';
 import MenResources from './pages/men/MenResources';
+import MenLeaderPanel from './pages/men/MenLeaderPanel';
 
 // Worship & Choir Portal Imports
 import WorshipLogin from './pages/worship/WorshipLogin';
 import WorshipRoute from './components/worship/WorshipRoute';
 import WorshipLayout from './layouts/WorshipLayout';
+import WorshipLeaderPanel from './pages/worship/WorshipLeaderPanel';
 import WorshipDashboard from './pages/worship/WorshipDashboard';
 import WorshipEvents from './pages/worship/WorshipEvents';
 import WorshipAnnouncements from './pages/worship/WorshipAnnouncements';
@@ -121,6 +123,7 @@ import WorshipTeam from './pages/worship/WorshipTeam';
 import HospitalityLogin from './pages/hospitality/HospitalityLogin';
 import HospitalityRoute from './components/hospitality/HospitalityRoute';
 import HospitalityLayout from './layouts/HospitalityLayout';
+import HospitalityLeaderPanel from './pages/hospitality/HospitalityLeaderPanel';
 import HospitalityDashboard from './pages/hospitality/HospitalityDashboard';
 import HospitalitySchedule from './pages/hospitality/HospitalitySchedule';
 import HospitalityEvents from './pages/hospitality/HospitalityEvents';
@@ -147,6 +150,8 @@ import MediaEquipment from './pages/media/MediaEquipment';
 import MediaAnnouncements from './pages/media/MediaAnnouncements';
 import MediaTeam from './pages/media/MediaTeam';
 import MediaEvents from './pages/media/MediaEvents';
+import MediaLeaderPanel from './pages/media/MediaLeaderPanel';
+import PrayerLeaderPanel from './pages/prayer/PrayerLeaderPanel';
 
 import EvangelismLogin from './pages/evangelism/EvangelismLogin';
 import EvangelismRoute from './components/evangelism/EvangelismRoute';
@@ -155,6 +160,7 @@ import EvangelismDashboard from './pages/evangelism/EvangelismDashboard';
 import EvangelismSchedule from './pages/evangelism/EvangelismSchedule';
 import EvangelismFollowUp from './pages/evangelism/EvangelismFollowUp';
 import EvangelismTestimonies from './pages/evangelism/EvangelismTestimonies';
+import EvangelismLeaderPanel from './pages/evangelism/EvangelismLeaderPanel';
 import EvangelismAnnouncements from './pages/evangelism/EvangelismAnnouncements';
 import EvangelismTeam from './pages/evangelism/EvangelismTeam';
 import EvangelismEvents from './pages/evangelism/EvangelismEvents';
@@ -163,6 +169,7 @@ import EvangelismEvents from './pages/evangelism/EvangelismEvents';
 import UsherLogin from './pages/ushering/UsherLogin';
 import UsherRoute from './components/ushering/UsherRoute';
 import UsherLayout from './layouts/UsherLayout';
+import UsherLeaderPanel from './pages/ushering/UsherLeaderPanel';
 import UsherDashboard from './pages/ushering/UsherDashboard';
 import UsherSchedule from './pages/ushering/UsherSchedule';
 import UsherAttendance from './pages/ushering/UsherAttendance';
@@ -372,6 +379,7 @@ function App() {
                 <Route path="groups" element={<MenGroups />} />
                 <Route path="forum" element={<MenForum />} />
                 <Route path="resources" element={<MenResources />} />
+                <Route path="leader" element={<MenLeaderPanel />} />
               </Route>
             </Route>
 
@@ -385,6 +393,7 @@ function App() {
                 <Route path="announcements" element={<WorshipAnnouncements />} />
                 <Route path="library" element={<WorshipLibrary />} />
                 <Route path="team" element={<WorshipTeam />} />
+                <Route path="leader" element={<WorshipLeaderPanel />} />
               </Route>
             </Route>
 
@@ -398,6 +407,7 @@ function App() {
                 <Route path="events" element={<HospitalityEvents />} />
                 <Route path="announcements" element={<HospitalityAnnouncements />} />
                 <Route path="team" element={<HospitalityTeam />} />
+                <Route path="leader" element={<HospitalityLeaderPanel />} />
               </Route>
             </Route>
 
@@ -412,6 +422,7 @@ function App() {
                 <Route path="requests" element={<PrayerRequests />} />
                 <Route path="announcements" element={<PrayerAnnouncements />} />
                 <Route path="team" element={<PrayerTeam />} />
+                <Route path="leader" element={<PrayerLeaderPanel />} />
               </Route>
             </Route>
 
@@ -427,6 +438,7 @@ function App() {
                 <Route path="announcements" element={<MediaAnnouncements />} />
                 <Route path="team" element={<MediaTeam />} />
                 <Route path="events" element={<MediaEvents />} />
+                <Route path="leader" element={<MediaLeaderPanel />} />
               </Route>
             </Route>
 
@@ -442,6 +454,7 @@ function App() {
                 <Route path="announcements" element={<EvangelismAnnouncements />} />
                 <Route path="team" element={<EvangelismTeam />} />
                 <Route path="events" element={<EvangelismEvents />} />
+                <Route path="leader" element={<EvangelismLeaderPanel />} />
               </Route>
             </Route>
 
@@ -457,6 +470,7 @@ function App() {
                 <Route path="stock" element={<UsherStock />} />
                 <Route path="announcements" element={<UsherAnnouncements />} />
                 <Route path="team" element={<UsherTeam />} />
+                <Route path="leader" element={<UsherLeaderPanel />} />
               </Route>
             </Route>
 

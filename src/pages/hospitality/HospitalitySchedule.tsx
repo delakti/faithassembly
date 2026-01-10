@@ -1,52 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiCalendar, HiRefresh, HiCheckCircle, HiClock, HiUserGroup, HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const SHIFTS = [
-    {
-        id: 1,
-        date: "Sunday, Nov 19",
-        event: "Morning Service",
-        time: "08:00 AM - 12:30 PM",
-        role: "Coffee Team Lead",
-        location: "Main Foyer",
-        status: "Confirmed",
-        team: ["Sarah J.", "Mike T.", "Lisa M."]
-    },
-    {
-        id: 2,
-        date: "Sunday, Nov 26",
-        event: "Special Guest Lunch",
-        time: "12:30 PM - 03:00 PM",
-        role: "Setup Crew",
-        location: "Fellowship Hall",
-        status: "Pending",
-        team: ["David R.", "Chris E."]
-    },
-    {
-        id: 3,
-        date: "Wednesday, Nov 29",
-        event: "Midweek Bible Study",
-        time: "06:30 PM - 08:30 PM",
-        role: "Greeter",
-        location: "North Entrance",
-        status: "Swap Requested",
-        team: ["John D."]
-    }
-];
+import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { HospitalityShift } from '../../types/hospitality';
 
 const HospitalitySchedule: React.FC = () => {
-    const [assignments, setAssignments] = useState(SHIFTS);
-    const currentMonth = 'November 2023';
+    const [assignments, setAssignments] = useState<HospitalityShift[]>([]);
+    const [loading, setLoading] = useState(true);
+    const currentMonth = 'Current Rota';
 
-    const handleConfirm = (id: number) => {
-        setAssignments(prev => prev.map(a => a.id === id ? { ...a, status: 'Confirmed' } : a));
-        toast.success('Thank you for serving!');
+    useEffect(() => {
+        const q = query(collection(db, 'hospitality_schedule'), orderBy('date', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setAssignments(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as HospitalityShift)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleConfirm = async (id: string) => {
+        try {
+            await updateDoc(doc(db, 'hospitality_schedule', id), {
+                status: 'Confirmed'
+            });
+            toast.success('Thank you for serving!');
+        } catch (error) {
+            toast.error("Failed to confirm shift");
+        }
     };
 
-    const handleSwapRequest = (id: number) => {
-        setAssignments(prev => prev.map(a => a.id === id ? { ...a, status: 'Swap Requested' } : a));
-        toast('Swap request posted to the board.', { icon: '📌' });
+    const handleSwapRequest = async (id: string) => {
+        try {
+            await updateDoc(doc(db, 'hospitality_schedule', id), {
+                status: 'Swap Requested'
+            });
+            toast('Swap request posted to the board.', { icon: '📌' });
+        } catch (error) {
+            toast.error("Failed to request swap");
+        }
     };
 
     return (
@@ -70,6 +62,9 @@ const HospitalitySchedule: React.FC = () => {
                 </div>
             </div>
 
+            {loading && <p className="text-stone-500">Loading schedule...</p>}
+            {assignments.length === 0 && !loading && <p className="text-stone-500 italic">No shifts assigned yet.</p>}
+
             <div className="grid gap-6">
                 {assignments.map((item) => (
                     <div key={item.id} className="bg-white border border-stone-200 rounded-2xl p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row gap-8 relative overflow-hidden">
@@ -83,8 +78,8 @@ const HospitalitySchedule: React.FC = () => {
                         <div className="md:w-48 flex-shrink-0">
                             <div className="bg-stone-50 rounded-xl p-6 border border-stone-100 text-center h-full flex flex-col justify-center">
                                 <span className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-1">{item.date.split(',')[0]}</span>
-                                <span className="text-3xl font-serif font-black text-stone-800">{item.date.split(' ')[2]}</span>
-                                <span className="text-xs font-bold text-orange-500 uppercase tracking-widest mt-1">{item.date.split(' ')[1]}</span>
+                                <span className="text-3xl font-serif font-black text-stone-800">{item.date.split(' ')[2] || '?'}</span>
+                                <span className="text-xs font-bold text-orange-500 uppercase tracking-widest mt-1">{item.date.split(' ')[1] || 'TBD'}</span>
                             </div>
                         </div>
 
@@ -107,14 +102,11 @@ const HospitalitySchedule: React.FC = () => {
                             </div>
 
                             <div className="flex -space-x-3">
-                                {item.team.map((member, idx) => (
+                                {item.team && item.team.map((member, idx) => (
                                     <div key={idx} className="w-10 h-10 rounded-full bg-stone-100 border-2 border-white flex items-center justify-center text-xs font-bold text-stone-600 shadow-sm" title={member}>
                                         {member.charAt(0)}
                                     </div>
                                 ))}
-                                <div className="w-10 h-10 rounded-full bg-orange-100 border-2 border-white flex items-center justify-center text-xs font-bold text-orange-600 shadow-sm">
-                                    +{item.team.length + 2}
-                                </div>
                             </div>
                         </div>
 

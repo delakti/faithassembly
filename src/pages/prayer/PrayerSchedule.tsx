@@ -1,53 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiClock, HiCalendar, HiCheckCircle, HiRefresh, HiUser } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const WATCH_SLOTS = [
-    {
-        id: 1,
-        day: "Monday",
-        time: "06:00 AM - 07:00 AM",
-        focus: "Morning Glory",
-        status: "Assigned",
-        assignedTo: "You"
-    },
-    {
-        id: 2,
-        day: "Wednesday",
-        time: "12:00 PM - 01:00 PM",
-        focus: "Midday Intercession",
-        status: "Open",
-        assignedTo: null
-    },
-    {
-        id: 3,
-        day: "Friday",
-        time: "11:00 PM - 12:00 AM",
-        focus: "Night Vigil",
-        status: "Assigned",
-        assignedTo: "Brother James"
-    },
-    {
-        id: 4,
-        day: "Sunday",
-        time: "08:30 AM - 09:00 AM",
-        focus: "Pre-Service Prayer",
-        status: "Open",
-        assignedTo: null
-    }
-];
+import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { PrayerSlot } from '../../types/prayer';
 
 const PrayerSchedule: React.FC = () => {
-    const [slots, setSlots] = useState(WATCH_SLOTS);
+    const [slots, setSlots] = useState<PrayerSlot[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleCommit = (id: number) => {
-        setSlots(prev => prev.map(s => s.id === id ? { ...s, status: 'Assigned', assignedTo: 'You' } : s));
-        toast.success('You have taken the watch.');
+    useEffect(() => {
+        const q = query(collection(db, 'prayer_slots'), orderBy('day', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setSlots(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PrayerSlot)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleCommit = async (id: string) => {
+        try {
+            await updateDoc(doc(db, 'prayer_slots', id), {
+                status: 'Assigned',
+                assignedTo: 'You' // In real app, use auth user name
+            });
+            toast.success('You have taken the watch.');
+        } catch (error) {
+            toast.error("Failed to take slot");
+        }
     };
 
-    const handleRelease = (id: number) => {
-        setSlots(prev => prev.map(s => s.id === id ? { ...s, status: 'Open', assignedTo: null } : s));
-        toast('Watch slot released.', { icon: '🕊️' });
+    const handleRelease = async (id: string) => {
+        try {
+            await updateDoc(doc(db, 'prayer_slots', id), {
+                status: 'Open',
+                assignedTo: null
+            });
+            toast('Watch slot released.', { icon: '🕊️' });
+        } catch (error) {
+            toast.error("Failed to release slot");
+        }
     };
 
     return (
@@ -62,11 +54,14 @@ const PrayerSchedule: React.FC = () => {
                 </div>
             </div>
 
+            {loading && <p className="text-slate-500 animate-pulse">Loading schedule...</p>}
+            {slots.length === 0 && !loading && <p className="text-slate-500 italic">No watch slots configured.</p>}
+
             <div className="grid gap-4">
                 {slots.map((slot) => (
                     <div key={slot.id} className={`border rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 transition-all ${slot.status === 'Assigned' && slot.assignedTo === 'You'
-                            ? 'bg-indigo-900/20 border-indigo-500/50 shadow-lg shadow-indigo-900/20'
-                            : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
+                        ? 'bg-indigo-900/20 border-indigo-500/50 shadow-lg shadow-indigo-900/20'
+                        : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
                         }`}>
 
                         <div className="flex-shrink-0 w-16 h-16 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center">

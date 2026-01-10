@@ -1,39 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiCalendar, HiUser, HiRefresh, HiCheckCircle, HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const SERVICES = [
-    {
-        id: 1,
-        date: "Sunday, Dec 03",
-        time: "09:00 AM",
-        event: "Sunday Celebration Service",
-        series: "Kingdom Come (Week 1)",
-        team: {
-            sound: "Mike T.",
-            visuals: "Sarah J.",
-            stream: "You",
-            camera1: "David K.",
-            camera2: "Open",
-            photo: "Jessica M."
-        }
-    },
-    {
-        id: 2,
-        date: "Wednesday, Dec 06",
-        time: "07:00 PM",
-        event: "Bible Study (Midweek)",
-        series: "Ephesians Study",
-        team: {
-            sound: "Jamal R.",
-            visuals: "You",
-            stream: "Open",
-            camera1: "-",
-            camera2: "-",
-            photo: "-"
-        }
-    }
-];
+import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { db, auth } from '../../firebase';
+import type { MediaService } from '../../types/media';
 
 const ROLES = [
     { key: 'sound', label: 'FOH Sound' },
@@ -45,16 +15,39 @@ const ROLES = [
 ];
 
 const MediaSchedule: React.FC = () => {
-    const [currentWeek, setCurrentWeek] = useState(0); // 0 = current, 1 = next, etc.
+    const [currentWeek, setCurrentWeek] = useState(0);
+    const [services, setServices] = useState<MediaService[]>([]);
 
+    useEffect(() => {
+        const q = query(collection(db, 'media_services'), orderBy('date', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setServices(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MediaService)));
+        });
+        return () => unsubscribe();
+    }, []);
 
-
-    const handleSwap = (serviceId: number, role: string) => {
-        toast(`Swap request for ${role} (Service ${serviceId}) sent.`, { icon: '🔄' });
+    const handleSwap = (role: string) => {
+        toast(`Swap request for ${role} sent.`, { icon: '🔄' });
     };
 
-    const handleVolunteer = (serviceId: number, role: string) => {
-        toast.success(`You have volunteered for ${role} at Service ${serviceId}`);
+    const handleVolunteer = async (serviceId: string, roleKey: string, roleLabel: string) => {
+        if (!auth.currentUser) {
+            toast.error("Please login to volunteer");
+            return;
+        }
+
+        try {
+            const serviceRef = doc(db, 'media_services', serviceId);
+
+            await updateDoc(serviceRef, {
+                [`team.${roleKey}`]: auth.currentUser.displayName || "Volunteer"
+            });
+
+            toast.success(`You volunteered for ${roleLabel}!`);
+        } catch (error) {
+            toast.error("Failed to volunteer");
+            console.error(error);
+        }
     };
 
     return (
@@ -79,14 +72,16 @@ const MediaSchedule: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-                {SERVICES.map((service) => (
+                {services.length === 0 && <p className="text-slate-500 italic">No services scheduled.</p>}
+                {services.map((service) => (
                     <div key={service.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
                         {/* Service Header */}
                         <div className="bg-slate-950 p-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-center">
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase">{service.date.split(',')[0].substr(0, 3)}</span>
-                                    <span className="text-lg font-bold text-white">{service.date.split(' ')[2]}</span>
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase">DEC</span>
+                                    {/* Assuming date string format like "Sunday, Dec 03" */}
+                                    <span className="text-lg font-bold text-white">{service.date.split ? service.date.split(' ')[2] : '00'}</span>
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-bold text-white">{service.event}</h2>
@@ -109,7 +104,7 @@ const MediaSchedule: React.FC = () => {
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-800">
                             {ROLES.map((roleDef) => {
                                 const assignee = (service.team as any)[roleDef.key];
-                                const isAssignedToMe = assignee === 'You';
+                                const isAssignedToMe = assignee === 'You' || assignee === auth.currentUser?.displayName;
                                 const isOpen = assignee === 'Open';
                                 const isNotNeeded = assignee === '-';
 
@@ -122,7 +117,7 @@ const MediaSchedule: React.FC = () => {
                                                 <span className="text-slate-700 font-mono text-sm uppercase">-- Not Required --</span>
                                             ) : isOpen ? (
                                                 <button
-                                                    onClick={() => handleVolunteer(service.id, roleDef.label)}
+                                                    onClick={() => handleVolunteer(service.id, roleDef.key, roleDef.label)}
                                                     className="px-3 py-1 bg-green-500/10 text-green-500 border border-green-500/20 text-xs font-bold uppercase rounded hover:bg-green-500/20 transition-colors"
                                                 >
                                                     Volunteer
@@ -141,7 +136,7 @@ const MediaSchedule: React.FC = () => {
                                             isAssignedToMe ? (
                                                 <div className="flex gap-2">
                                                     <button
-                                                        onClick={() => handleSwap(service.id, roleDef.label)}
+                                                        onClick={() => handleSwap(roleDef.label)}
                                                         className="text-slate-600 hover:text-yellow-500 transition-colors"
                                                         title="Request Swap"
                                                     >

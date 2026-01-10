@@ -1,68 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiMail, HiPhone, HiStar } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const TEAM = [
-    {
-        id: 1,
-        name: "Sarah Jenkins",
-        role: "Worship Leader",
-        section: "Vocals",
-        part: "Soprano",
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop&q=60",
-        email: "sarah.j@faith.com"
-    },
-    {
-        id: 2,
-        name: "David Chen",
-        role: "Musical Director",
-        section: "Band",
-        part: "Keys / MD",
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=60",
-        email: "david.c@faith.com"
-    },
-    {
-        id: 3,
-        name: "Marcus Johnson",
-        role: "Member",
-        section: "Band",
-        part: "Drums",
-        image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&auto=format&fit=crop&q=60",
-        email: "marcus.j@faith.com"
-    },
-    {
-        id: 4,
-        name: "Emily Davis",
-        role: "Section Leader",
-        section: "Vocals",
-        part: "Alto",
-        image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&auto=format&fit=crop&q=60",
-        email: "emily.d@faith.com"
-    },
-    {
-        id: 5,
-        name: "James Wilson",
-        role: "Member",
-        section: "Vocals",
-        part: "Tenor",
-        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&auto=format&fit=crop&q=60",
-        email: "james.w@faith.com"
-    },
-    {
-        id: 6,
-        name: "Michael Brown",
-        role: "Member",
-        section: "Band",
-        part: "Bass",
-        image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&auto=format&fit=crop&q=60",
-        email: "michael.b@faith.com"
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { WorshipMember } from '../../types/worship';
 
 const WorshipTeam: React.FC = () => {
+    const [members, setMembers] = useState<WorshipMember[]>([]);
     const [activeTab, setActiveTab] = useState('All');
+    const [loading, setLoading] = useState(true);
 
-    const filteredTeam = activeTab === 'All' ? TEAM : TEAM.filter(m => m.section === activeTab);
+    useEffect(() => {
+        const q = query(collection(db, 'worship_team'), orderBy('name', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setMembers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WorshipMember)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const filteredTeam = activeTab === 'All' ? members : members.filter(m => m.section === activeTab);
 
     const handleContact = (name: string) => {
         toast.success(`Opening mail client for ${name}...`);
@@ -94,12 +51,18 @@ const WorshipTeam: React.FC = () => {
                 ))}
             </div>
 
+            {loading && <p className="text-gray-500">Loading ensemble...</p>}
+
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredTeam.map((member) => (
                     <div key={member.id} className="bg-neutral-900/30 border border-white/10 rounded-2xl p-6 flex items-center gap-6 hover:bg-neutral-900/60 hover:border-pink-500/30 transition-all group">
                         <div className="relative">
-                            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-pink-500 transition-colors">
-                                <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-pink-500 transition-colors bg-neutral-800">
+                                {member.image ? (
+                                    <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-gray-600">{member.name.charAt(0)}</div>
+                                )}
                             </div>
                             {(member.role === 'Worship Leader' || member.role === 'Musical Director') && (
                                 <div className="absolute -bottom-1 -right-1 bg-yellow-500 text-black rounded-full p-1 border-2 border-black" title="Leader">

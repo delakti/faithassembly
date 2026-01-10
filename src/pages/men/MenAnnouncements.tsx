@@ -1,28 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiLightningBolt } from 'react-icons/hi';
-
-const POSTS = [
-    {
-        id: 1,
-        title: "Protocol: Watch Your Six",
-        author: "Pastor David",
-        date: "Oct 24, 2023",
-        preview: "In spiritual warfare, you cannot fight alone. Who is covering your blind spots? We discuss the importance of accountability partners.",
-        image: "https://images.unsplash.com/photo-1505536561118-2830230206b1?q=80&w=2940&auto=format&fit=crop",
-        tags: ["Brotherhood", "Warfare"]
-    },
-    {
-        id: 2,
-        title: "Discipline Equals Freedom",
-        author: "Bro. Michael",
-        date: "Oct 22, 2023",
-        preview: "Exploring how spiritual disciplines—prayer, fasting, and study—liberate us from the bondage of sin and mediocrity.",
-        image: "https://images.unsplash.com/photo-1549488390-d5a2390886c5?w=800&auto=format&fit=crop&q=60",
-        tags: ["Discipline", "Growth"]
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { MenAnnouncement } from '../../types/men';
 
 const MenAnnouncements: React.FC = () => {
+    const [posts, setPosts] = useState<MenAnnouncement[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const q = query(collection(db, 'men_announcements'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setPosts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenAnnouncement)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
     return (
         <div className="space-y-8 font-sans">
             <div className="mb-12 border-l-4 border-orange-600 pl-6">
@@ -33,20 +27,29 @@ const MenAnnouncements: React.FC = () => {
                 </p>
             </div>
 
+            {loading && <p className="text-slate-500 animate-pulse">Loading intel...</p>}
+            {posts.length === 0 && !loading && <p className="text-slate-500 italic">No new gathered intel.</p>}
+
             <div className="grid gap-8">
-                {POSTS.map((post) => (
+                {posts.map((post) => (
                     <article key={post.id} className="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl transition-all flex flex-col md:flex-row group">
                         <div className="md:w-1/3 h-64 md:h-auto overflow-hidden relative">
-                            <img
-                                src={post.image}
-                                alt={post.title}
-                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                            />
+                            {post.image ? (
+                                <img
+                                    src={post.image}
+                                    alt={post.title}
+                                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+                                    <HiLightningBolt className="w-20 h-20 text-orange-500/20" />
+                                </div>
+                            )}
                             <div className="absolute inset-0 bg-indigo-900/20 group-hover:bg-transparent transition-colors"></div>
                         </div>
                         <div className="p-8 md:p-10 flex-1 flex flex-col justify-center">
                             <div className="flex gap-2 mb-4">
-                                {post.tags.map(tag => (
+                                {post.tags && post.tags.map(tag => (
                                     <span key={tag} className="bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded">
                                         {tag}
                                     </span>
@@ -55,13 +58,13 @@ const MenAnnouncements: React.FC = () => {
                             <h2 className="text-3xl font-black text-slate-900 mb-4 uppercase italic group-hover:text-indigo-600 transition-colors">
                                 {post.title}
                             </h2>
-                            <p className="text-slate-500 font-medium mb-6 leading-relaxed">
+                            <p className="text-slate-500 font-medium mb-6 leading-relaxed line-clamp-3">
                                 {post.preview}
                             </p>
                             <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-auto">
                                 <div className="flex items-center gap-2">
                                     <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-500">
-                                        {post.author[0]}
+                                        {post.author ? post.author[0] : 'A'}
                                     </div>
                                     <div className="text-xs">
                                         <span className="font-bold text-slate-900 block uppercase">{post.author}</span>

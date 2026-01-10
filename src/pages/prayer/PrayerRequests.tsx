@@ -1,46 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiPlus, HiLockClosed, HiHand, HiCheck, HiGlobe } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const REQUESTS = [
-    {
-        id: 1,
-        author: "Sister Mary",
-        category: "Healing",
-        date: "2 hours ago",
-        content: "Please pray for my brother undergoing surgery tomorrow. Pray for the surgeon's hands and a swift recovery.",
-        praying: 12,
-        isPrivate: true,
-        answered: false
-    },
-    {
-        id: 2,
-        author: "Pastor Solomon",
-        category: "Church Growth",
-        date: "Yesterday",
-        content: "Let us intercede for the upcoming evangelism outreach. Pray for softened hearts and harvest of souls.",
-        praying: 45,
-        isPrivate: false,
-        answered: false
-    },
-    {
-        id: 3,
-        author: "Anonymous",
-        category: "Deliverance",
-        date: "3 days ago",
-        content: "Praying for a breakthrough in a family situation involving addiction. Asking for God's intervention.",
-        praying: 28,
-        isPrivate: true,
-        answered: false
-    }
-];
+import { collection, query, orderBy, onSnapshot, addDoc, doc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { PrayerRequest } from '../../types/prayer';
 
 const PrayerRequests: React.FC = () => {
-    const [requests, setRequests] = useState(REQUESTS);
+    const [requests, setRequests] = useState<PrayerRequest[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [newRequest, setNewRequest] = useState({
+        author: '', category: 'General', content: '', isPrivate: false
+    });
 
-    const handlePray = (id: number) => {
-        setRequests(prev => prev.map(r => r.id === id ? { ...r, praying: r.praying + 1 } : r));
-        toast.success('Prayer recorded. Heaven hears.');
+    useEffect(() => {
+        const q = query(collection(db, 'prayer_requests'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setRequests(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PrayerRequest)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handlePray = async (id: string) => {
+        try {
+            const reqRef = doc(db, 'prayer_requests', id);
+            await updateDoc(reqRef, {
+                praying: increment(1)
+            });
+            toast.success('Prayer recorded. Heaven hears.');
+        } catch (error) {
+            toast.error("Failed to action");
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, 'prayer_requests'), {
+                ...newRequest,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                praying: 0,
+                answered: false,
+                createdAt: serverTimestamp()
+            });
+            toast.success("Request Submitted");
+            setIsFormOpen(false);
+            setNewRequest({ author: '', category: 'General', content: '', isPrivate: false });
+        } catch (error) {
+            toast.error("Failed to submit request");
+        }
     };
 
     return (
@@ -53,10 +62,62 @@ const PrayerRequests: React.FC = () => {
                         "Bear one another's burdens, and so fulfill the law of Christ." — Galatians 6:2
                     </p>
                 </div>
-                <button className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/30 hover:bg-indigo-500 transition-colors flex items-center gap-2">
+                <button
+                    onClick={() => setIsFormOpen(!isFormOpen)}
+                    className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/30 hover:bg-indigo-500 transition-colors flex items-center gap-2"
+                >
                     <HiPlus className="w-5 h-5" /> Share Burden
                 </button>
             </div>
+
+            {isFormOpen && (
+                <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 mb-8 animate-in slide-in-from-top-4">
+                    <h3 className="font-bold text-white mb-4">Submit Prayer Request</h3>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <input
+                                type="text"
+                                placeholder="Your Name (or Anonymous)"
+                                value={newRequest.author}
+                                onChange={e => setNewRequest({ ...newRequest, author: e.target.value })}
+                                className="bg-slate-950 border border-slate-700 rounded p-2 text-white"
+                                required
+                            />
+                            <select
+                                value={newRequest.category}
+                                onChange={e => setNewRequest({ ...newRequest, category: e.target.value })}
+                                className="bg-slate-950 border border-slate-700 rounded p-2 text-white"
+                            >
+                                <option value="General">General</option>
+                                <option value="Healing">Healing</option>
+                                <option value="Deliverance">Deliverance</option>
+                                <option value="Salvation">Salvation</option>
+                                <option value="Family">Family</option>
+                            </select>
+                        </div>
+                        <textarea
+                            placeholder="What should we pray for?"
+                            value={newRequest.content}
+                            onChange={e => setNewRequest({ ...newRequest, content: e.target.value })}
+                            className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-white h-24"
+                            required
+                        />
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                checked={newRequest.isPrivate}
+                                onChange={e => setNewRequest({ ...newRequest, isPrivate: e.target.checked })}
+                                id="private"
+                            />
+                            <label htmlFor="private" className="text-sm text-slate-400">Mark as Private (Only Leaders can see)</label>
+                        </div>
+                        <button className="w-full py-2 bg-indigo-600 text-white font-bold rounded hover:bg-indigo-700">Submit</button>
+                    </form>
+                </div>
+            )}
+
+            {loading && <p className="text-slate-500 animate-pulse">Loading requests...</p>}
+            {requests.length === 0 && !loading && <p className="text-slate-500 italic">No active requests.</p>}
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {requests.map((req) => (
@@ -100,17 +161,6 @@ const PrayerRequests: React.FC = () => {
                         </div>
                     </div>
                 ))}
-
-                {/* Add New Placeholder/Cta */}
-                <div className="bg-slate-950 border border-dashed border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center text-center hover:border-indigo-500/30 transition-colors cursor-pointer group">
-                    <div className="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center text-slate-500 mb-4 group-hover:text-indigo-400 transition-colors">
-                        <HiPlus className="w-6 h-6" />
-                    </div>
-                    <h3 className="font-bold text-white mb-2">Submit a Request</h3>
-                    <p className="text-slate-500 text-sm max-w-xs">
-                        Share a testimony or a prayer point with the team. Confidentiality is maintained.
-                    </p>
-                </div>
             </div>
         </div>
     );

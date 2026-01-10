@@ -1,42 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiCalendar, HiLocationMarker, HiTicket } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const MOCK_EVENTS = [
-    {
-        id: '1',
-        title: 'Friday Night Live: GLOW',
-        date: 'Friday, Oct 27 @ 7:00 PM',
-        location: 'Main Auditorium',
-        desc: 'Wear white or neon! A night of worship, games, and the Word. Food truck afterparty.',
-        image: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=800&auto=format&fit=crop&q=60',
-        attending: false
-    },
-    {
-        id: '2',
-        title: 'Squad Wars: Dodgeball',
-        date: 'Saturday, Nov 4 @ 2:00 PM',
-        location: 'Uxbridge Sports Centre',
-        desc: 'Bring your A-game. Winning squad gets the Golden Trophy and Nando\'s vouchers.',
-        image: 'https://images.unsplash.com/photo-1526676037777-05a232554f77?w=800&auto=format&fit=crop&q=60',
-        attending: true
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { YouthEvent } from '../../types/youth';
 
 const YouthEvents: React.FC = () => {
-    // In real app, this state would come from Firestore via `events` collection
-    const [events, setEvents] = useState(MOCK_EVENTS);
+    const [events, setEvents] = useState<YouthEvent[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const toggleRSVP = (id: string) => {
-        setEvents(events.map(ev => {
-            if (ev.id === id) {
-                const newStatus = !ev.attending;
-                toast.success(newStatus ? "You're on the list! 🔥" : "RSVP Cancelled");
-                return { ...ev, attending: newStatus };
-            }
-            return ev;
-        }));
+    useEffect(() => {
+        const q = query(collection(db, 'youth_events'), orderBy('date', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const eventsData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            })) as YouthEvent[];
+            setEvents(eventsData);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const toggleRSVP = (_id: string, link?: string) => {
+        if (link) {
+            window.open(link, '_blank');
+            return;
+        }
+        toast.success("RSVP feature coming soon!");
     };
+
+    if (loading) {
+        return <div className="text-white text-center py-20">Loading events...</div>;
+    }
 
     return (
         <div className="space-y-8">
@@ -47,47 +44,51 @@ const YouthEvents: React.FC = () => {
                 </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-                {events.map((event) => (
-                    <div key={event.id} className="bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden group hover:border-yellow-400 transition-all">
-                        <div className="h-48 overflow-hidden relative">
-                            <img
-                                src={event.image}
-                                alt={event.title}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                            />
-                            <div className="absolute top-4 right-4 bg-black/80 backdrop-blur text-yellow-400 px-3 py-1 rounded-full text-xs font-bold uppercase border border-yellow-400/20">
-                                Upcoming
+            {events.length === 0 ? (
+                <div className="text-gray-500 text-center py-20 bg-gray-900/50 rounded-3xl border border-gray-800">
+                    <p className="text-xl font-bold">No upcoming events yet.</p>
+                    <p className="text-sm">Check back soon for the next move.</p>
+                </div>
+            ) : (
+                <div className="grid md:grid-cols-2 gap-8">
+                    {events.map((event) => (
+                        <div key={event.id} className="bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden group hover:border-yellow-400 transition-all">
+                            <div className="h-48 overflow-hidden relative bg-black">
+                                <img
+                                    src={event.image}
+                                    alt={event.title}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+                                />
+                                <div className="absolute top-4 right-4 bg-black/80 backdrop-blur text-yellow-400 px-3 py-1 rounded-full text-xs font-bold uppercase border border-yellow-400/20">
+                                    Upcoming
+                                </div>
                             </div>
-                        </div>
-                        <div className="p-6">
-                            <h3 className="text-2xl font-black text-white italic uppercase mb-2">{event.title}</h3>
-                            <div className="flex items-center text-gray-400 text-sm mb-1">
-                                <HiCalendar className="w-4 h-4 mr-2" />
-                                {event.date}
-                            </div>
-                            <div className="flex items-center text-gray-400 text-sm mb-4">
-                                <HiLocationMarker className="w-4 h-4 mr-2" />
-                                {event.location}
-                            </div>
-                            <p className="text-gray-300 mb-6 leading-relaxed text-sm">
-                                {event.desc}
-                            </p>
+                            <div className="p-6">
+                                <h3 className="text-2xl font-black text-white italic uppercase mb-2">{event.title}</h3>
+                                <div className="flex items-center text-gray-400 text-sm mb-1">
+                                    <HiCalendar className="w-4 h-4 mr-2" />
+                                    {event.date}
+                                </div>
+                                <div className="flex items-center text-gray-400 text-sm mb-4">
+                                    <HiLocationMarker className="w-4 h-4 mr-2" />
+                                    {event.location}
+                                </div>
+                                <p className="text-gray-300 mb-6 leading-relaxed text-sm line-clamp-3">
+                                    {event.desc}
+                                </p>
 
-                            <button
-                                onClick={() => toggleRSVP(event.id)}
-                                className={`w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all flex items-center justify-center gap-2 ${event.attending
-                                        ? 'bg-green-500 text-white hover:bg-green-600'
-                                        : 'bg-yellow-400 text-black hover:bg-yellow-300'
-                                    }`}
-                            >
-                                <HiTicket className="w-5 h-5" />
-                                {event.attending ? "I'm Going!" : "RSVP Now"}
-                            </button>
+                                <button
+                                    onClick={() => toggleRSVP(event.id, event.registrationLink)}
+                                    className="w-full py-3 rounded-xl font-bold uppercase tracking-wide transition-all flex items-center justify-center gap-2 bg-yellow-400 text-black hover:bg-yellow-300"
+                                >
+                                    <HiTicket className="w-5 h-5" />
+                                    {event.registrationLink ? "Register Now" : "RSVP Now"}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

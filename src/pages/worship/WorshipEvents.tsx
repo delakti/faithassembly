@@ -1,57 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiClock, HiLocationMarker, HiCheck, HiX } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-interface WorshipEvent {
-    id: number;
-    title: string;
-    type: string;
-    date: string;
-    time: string;
-    location: string;
-    setlist: string[];
-    attending: boolean | null;
-}
-
-const EVENTS: WorshipEvent[] = [
-    {
-        id: 1,
-        title: "Midweek Rehearsal",
-        type: "Rehearsal",
-        date: "Thursday, Nov 16",
-        time: "19:00 - 21:00",
-        location: "Main Sanctuary",
-        setlist: ["Way Maker", "Goodness of God", "Firm Foundation"],
-        attending: null
-    },
-    {
-        id: 2,
-        title: "Sunday Celebration",
-        type: "Service",
-        date: "Sunday, Nov 19",
-        time: "08:30 Call Time",
-        location: "Green Room",
-        setlist: ["Way Maker", "Goodness of God", "Firm Foundation", "The Blessing"],
-        attending: null
-    },
-    {
-        id: 3,
-        title: "Christmas Special Recording",
-        type: "Special Event",
-        date: "Friday, Dec 01",
-        time: "18:00 - 22:00",
-        location: "Studio B",
-        setlist: ["O Holy Night", "Joy to the World"],
-        attending: null
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { WorshipEvent } from '../../types/worship';
 
 const WorshipEvents: React.FC = () => {
-    const [events, setEvents] = useState<WorshipEvent[]>(EVENTS);
+    const [events, setEvents] = useState<WorshipEvent[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleRsvp = (id: number, status: boolean) => {
-        setEvents(events.map(e => e.id === id ? { ...e, attending: status } : e));
-        toast.success(status ? "Attendance Confirmed" : "Absence Noted");
+    useEffect(() => {
+        const q = query(collection(db, 'worship_events'), orderBy('date', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setEvents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WorshipEvent)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleRsvp = async (id: string, status: boolean) => {
+        try {
+            // Logic to update user status
+            // await updateDoc(doc(db, 'worship_events', id), { ... });
+            console.log(`Setting status ${status} for event ${id}`);
+            toast.success(status ? "Attendance Confirmed" : "Absence Noted");
+        } catch (error) {
+            toast.error("Failed to update status");
+        }
     };
 
     return (
@@ -64,6 +39,9 @@ const WorshipEvents: React.FC = () => {
                 </p>
             </div>
 
+            {loading && <p className="text-gray-500">Loading call sheets...</p>}
+            {events.length === 0 && !loading && <p className="text-gray-500 italic">No call sheets active.</p>}
+
             <div className="space-y-6">
                 {events.map((event) => (
                     <div key={event.id} className="bg-neutral-900/50 border border-white/10 rounded-2xl p-6 md:p-8 hover:border-white/20 transition-all flex flex-col md:flex-row gap-6 relative overflow-hidden group">
@@ -75,8 +53,8 @@ const WorshipEvents: React.FC = () => {
                         {/* Date Block */}
                         <div className="md:w-32 flex-shrink-0 flex flex-col justify-center items-center bg-black/30 rounded-xl p-4 border border-white/5">
                             <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">{event.date.split(',')[0]}</span>
-                            <span className="text-2xl font-bold text-white">{event.date.split(' ')[2]}</span>
-                            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">{event.date.split(' ')[1]}</span>
+                            <span className="text-2xl font-bold text-white">{event.date.split(' ')[2] || '?'}</span>
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">{event.date.split(' ')[1] || 'TBD'}</span>
                         </div>
 
                         {/* Details */}
@@ -104,40 +82,30 @@ const WorshipEvents: React.FC = () => {
                             <div className="bg-black/20 rounded-lg p-4 mb-6">
                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Setlist</span>
                                 <div className="flex flex-wrap gap-2">
-                                    {event.setlist.map((song, idx) => (
+                                    {event.setlist && event.setlist.length > 0 ? event.setlist.map((song, idx) => (
                                         <span key={idx} className="text-xs font-medium text-gray-300 bg-white/5 px-2 py-1 rounded border border-white/5">
                                             {song}
                                         </span>
-                                    ))}
+                                    )) : <span className="text-xs text-gray-600">No setlist yet.</span>}
                                 </div>
                             </div>
                         </div>
 
                         {/* Actions */}
                         <div className="md:w-48 flex flex-col justify-center gap-3">
-                            {event.attending === null ? (
-                                <>
-                                    <button
-                                        onClick={() => handleRsvp(event.id, true)}
-                                        className="w-full py-3 bg-white text-black font-bold uppercase tracking-widest text-xs rounded hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        <HiCheck className="w-4 h-4" /> Confirm
-                                    </button>
-                                    <button
-                                        onClick={() => handleRsvp(event.id, false)}
-                                        className="w-full py-3 bg-transparent border border-white/20 text-gray-400 font-bold uppercase tracking-widest text-xs rounded hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        <HiX className="w-4 h-4" /> Decline
-                                    </button>
-                                </>
-                            ) : (
-                                <div className={`w-full py-4 text-center font-bold uppercase tracking-widest text-xs rounded border ${event.attending
-                                    ? 'bg-green-500/10 border-green-500/50 text-green-400'
-                                    : 'bg-red-500/10 border-red-500/50 text-red-400'
-                                    }`}>
-                                    {event.attending ? 'Confirmed' : 'Declined'}
-                                </div>
-                            )}
+                            {/* Simplified logic for demo since we haven't implemented per-user attending state completely in backend yet */}
+                            <button
+                                onClick={() => handleRsvp(event.id, true)}
+                                className="w-full py-3 bg-white text-black font-bold uppercase tracking-widest text-xs rounded hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <HiCheck className="w-4 h-4" /> Confirm
+                            </button>
+                            <button
+                                onClick={() => handleRsvp(event.id, false)}
+                                className="w-full py-3 bg-transparent border border-white/20 text-gray-400 font-bold uppercase tracking-widest text-xs rounded hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <HiX className="w-4 h-4" /> Decline
+                            </button>
                         </div>
                     </div>
                 ))}

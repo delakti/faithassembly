@@ -1,52 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiDownload, HiFolder, HiSearch, HiCloudUpload } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const RESOURCES = [
-    {
-        id: 1,
-        name: "Kingdom Come - Series Graphics",
-        type: "folder",
-        size: "1.2 GB",
-        date: "Nov 28, 2025",
-        items: 12
-    },
-    {
-        id: 2,
-        name: "Sunday Service Run Sheet Template.pdf",
-        type: "file",
-        size: "2.4 MB",
-        date: "Oct 15, 2025",
-        items: null
-    },
-    {
-        id: 3,
-        name: "Lower Thirds (Clean).png",
-        type: "file",
-        size: "5.1 MB",
-        date: "Sep 01, 2025",
-        items: null
-    },
-    {
-        id: 4,
-        name: "OBS Scene Collection Backup",
-        type: "file",
-        size: "45 KB",
-        date: "Dec 01, 2025",
-        items: null
-    },
-    {
-        id: 5,
-        name: "Announcement Loop (Winter)",
-        type: "folder",
-        size: "4.5 GB",
-        date: "Dec 02, 2025",
-        items: 8
-    }
-];
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { MediaResource } from '../../types/media';
 
 const MediaResources: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [resources, setResources] = useState<MediaResource[]>([]);
+
+    useEffect(() => {
+        const q = query(collection(db, 'media_resources'), orderBy('date', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setResources(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MediaResource)));
+        });
+        return () => unsubscribe();
+    }, []);
 
     const handleDownload = (name: string) => {
         toast.promise(
@@ -59,7 +28,26 @@ const MediaResources: React.FC = () => {
         );
     };
 
-    const filteredResources = RESOURCES.filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const handleUpload = async () => {
+        const dummyName = window.prompt("Simulate Upload: Enter file name");
+        if (!dummyName) return;
+
+        try {
+            await addDoc(collection(db, 'media_resources'), {
+                name: dummyName,
+                type: 'file',
+                size: '2.5 MB',
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+                items: null,
+                createdAt: serverTimestamp()
+            });
+            toast.success("File uploaded");
+        } catch (error) {
+            toast.error("Upload failed");
+        }
+    };
+
+    const filteredResources = resources.filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     return (
         <div className="space-y-8 font-sans">
@@ -69,7 +57,10 @@ const MediaResources: React.FC = () => {
                     <h1 className="text-3xl font-bold text-white uppercase tracking-tight">Media Repository</h1>
                 </div>
 
-                <button className="px-6 py-3 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-500 transition-colors flex items-center gap-2 font-mono uppercase text-sm">
+                <button
+                    onClick={handleUpload}
+                    className="px-6 py-3 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-500 transition-colors flex items-center gap-2 font-mono uppercase text-sm"
+                >
                     <HiCloudUpload className="w-5 h-5" /> Upload Asset
                 </button>
             </div>
@@ -91,8 +82,8 @@ const MediaResources: React.FC = () => {
                     <div key={resource.id} className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-cyan-500/30 transition-all group">
                         <div className="flex items-start justify-between mb-4">
                             <div className={`w-12 h-12 rounded-lg flex items-center justify-center border ${resource.type === 'folder'
-                                    ? 'bg-cyan-900/10 border-cyan-500/20 text-cyan-500'
-                                    : 'bg-slate-950 border-slate-700 text-slate-400'
+                                ? 'bg-cyan-900/10 border-cyan-500/20 text-cyan-500'
+                                : 'bg-slate-950 border-slate-700 text-slate-400'
                                 }`}>
                                 <HiFolder className="w-6 h-6" />
                             </div>

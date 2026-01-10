@@ -1,34 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiCalendar, HiLocationMarker, HiClock, HiCheck, HiShieldCheck } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const EVENTS = [
-    {
-        id: 1,
-        title: "Men's Prayer Breakfast",
-        objective: "Spiritual Fortification",
-        date: "Sat, Nov 11",
-        time: "0800 Hours",
-        location: "Church Hall",
-        image: "https://images.unsplash.com/photo-1543807568-1ec2520deb7b?w=800&auto=format&fit=crop&q=60",
-        spots: 24
-    },
-    {
-        id: 2,
-        title: "Operation: Community Outreach",
-        objective: "Service & Evangelism",
-        date: "Sat, Dec 02",
-        time: "1000 Hours",
-        location: "City Center",
-        image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop&q=60",
-        spots: 10
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { MenEvent } from '../../types/men';
 
 const MenEvents: React.FC = () => {
-    const [rsvpState, setRsvpState] = useState<Record<number, boolean>>({});
+    const [events, setEvents] = useState<MenEvent[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [rsvpState, setRsvpState] = useState<Record<string, boolean>>({});
 
-    const handleRSVP = (id: number) => {
+    useEffect(() => {
+        const q = query(collection(db, 'men_events'), orderBy('date', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setEvents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenEvent)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleRSVP = (id: string) => {
         setRsvpState(prev => {
             const newState = !prev[id];
             toast.success(newState ? "Mission Accepted. Stand by for details." : "Mission Aborted.");
@@ -46,12 +37,21 @@ const MenEvents: React.FC = () => {
                 </p>
             </div>
 
+            {loading && <p className="text-slate-500 animate-pulse">Loading mission parameters...</p>}
+            {events.length === 0 && !loading && <p className="text-slate-500 italic">No active missions detected.</p>}
+
             <div className="grid lg:grid-cols-2 gap-8">
-                {EVENTS.map((event) => (
+                {events.map((event) => (
                     <div key={event.id} className="bg-white rounded-xl border border-slate-200 shadow-lg hover:shadow-2xl transition-all group flex flex-col overflow-hidden">
 
                         <div className="h-64 overflow-hidden relative">
-                            <img src={event.image} alt={event.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 contrast-125" />
+                            {event.image ? (
+                                <img src={event.image} alt={event.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 contrast-125" />
+                            ) : (
+                                <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+                                    <HiShieldCheck className="w-20 h-20 text-indigo-900" />
+                                </div>
+                            )}
                             <div className="absolute top-0 right-0 bg-indigo-600 text-white px-4 py-2 font-black uppercase tracking-wider text-xs rounded-bl-xl shadow-lg">
                                 {event.spots} Slots Open
                             </div>
@@ -87,8 +87,8 @@ const MenEvents: React.FC = () => {
                             <button
                                 onClick={() => handleRSVP(event.id)}
                                 className={`w-full py-4 rounded-lg font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg ${rsvpState[event.id]
-                                        ? 'bg-green-600 text-white shadow-green-500/30'
-                                        : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-500/30'
+                                    ? 'bg-green-600 text-white shadow-green-500/30'
+                                    : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-500/30'
                                     }`}
                             >
                                 {rsvpState[event.id] ? <><HiCheck className="w-5 h-5" /> Mission Confirmed</> : 'Accept Mission'}

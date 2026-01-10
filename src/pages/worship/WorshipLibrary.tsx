@@ -1,59 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiMusicNote, HiSearch, HiFilter, HiPlay, HiDocumentText, HiPlus } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const SONGS = [
-    {
-        id: 1,
-        title: "Way Maker",
-        artist: "Sinach",
-        key: "G",
-        tempo: "Slow",
-        theme: "Worship",
-        lyrics: true,
-        chords: true,
-        demo: true
-    },
-    {
-        id: 2,
-        title: "Goodness of God",
-        artist: "Bethel Music",
-        key: "Ab",
-        tempo: "Mid",
-        theme: "Thanksgiving",
-        lyrics: true,
-        chords: true,
-        demo: true
-    },
-    {
-        id: 3,
-        title: "Firm Foundation (He Won't)",
-        artist: "Maverick City",
-        key: "Bb",
-        tempo: "Up",
-        theme: "Faith",
-        lyrics: true,
-        chords: false,
-        demo: true
-    },
-    {
-        id: 4,
-        title: "I Speak Jesus",
-        artist: "Charity Gayle",
-        key: "E",
-        tempo: "Slow",
-        theme: "Healing",
-        lyrics: true,
-        chords: true,
-        demo: false
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+import type { WorshipSong } from '../../types/worship';
 
 const WorshipLibrary: React.FC = () => {
+    const [songs, setSongs] = useState<WorshipSong[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterKey, setFilterKey] = useState('All');
+    const [loading, setLoading] = useState(true);
 
-    const filteredSongs = SONGS.filter(song =>
+    useEffect(() => {
+        const q = query(collection(db, 'worship_songs'), orderBy('title', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setSongs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WorshipSong)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const filteredSongs = songs.filter(song =>
         (song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             song.artist.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (filterKey === 'All' || song.key === filterKey)
@@ -110,6 +77,8 @@ const WorshipLibrary: React.FC = () => {
                 </div>
             </div>
 
+            {loading && <p className="text-gray-500">Loading songs...</p>}
+
             {/* Song Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSongs.map((song) => (
@@ -156,7 +125,7 @@ const WorshipLibrary: React.FC = () => {
                 ))}
             </div>
 
-            {filteredSongs.length === 0 && (
+            {filteredSongs.length === 0 && !loading && (
                 <div className="text-center py-20 opacity-50">
                     <HiMusicNote className="w-16 h-16 mx-auto mb-4 text-gray-600" />
                     <p className="text-xl text-gray-400 font-serif">No songs found in the archives.</p>
