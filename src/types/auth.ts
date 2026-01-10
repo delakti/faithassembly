@@ -42,7 +42,9 @@ export type UserRole =
     | 'sunday_admin'
     // House Fellowship
     | 'house_member'
-    | 'house_leader';
+    | 'house_leader'
+    // Bookstore
+    | 'bookstore_manager';
 
 export interface UserProfile {
     uid: string;

@@ -119,9 +119,15 @@ const UserManager: React.FC = () => {
                             <option value="hospitality_leader">Hospitality Leader</option>
                             <option value="worship_leader">Worship Leader</option>
                             <option value="media_leader">Media Leader</option>
-                            <option value="media_leader">Media Leader</option>
                             <option value="prayer_leader">Prayer Leader</option>
                             <option value="house_leader">House Fellowship Leader</option>
+                            {/* Portal Leaders */}
+                            <option value="youth_leader">Youth Ministry Leader</option>
+                            <option value="children_staff">Children's Ministry Leader</option>
+                            <option value="esther_leader">Women's Ministry Leader</option>
+                            <option value="mens_leader">Men's Ministry Leader</option>
+                            <option value="sunday_admin">Life Discussion Leader</option>
+                            <option value="bookstore_manager">Bookstore Manager</option>
                         </optgroup>
                         <optgroup label="General">
                             <option value="volunteer">Volunteer</option>
@@ -181,9 +187,15 @@ const UserManager: React.FC = () => {
                                                     <option value="hospitality_leader">Hospitality Leader</option>
                                                     <option value="worship_leader">Worship Leader</option>
                                                     <option value="media_leader">Media Leader</option>
-                                                    <option value="media_leader">Media Leader</option>
                                                     <option value="prayer_leader">Prayer Leader</option>
                                                     <option value="house_leader">House Fellowship Leader</option>
+                                                    {/* Portal Leaders */}
+                                                    <option value="youth_leader">Youth Ministry Leader</option>
+                                                    <option value="children_staff">Children's Ministry Leader</option>
+                                                    <option value="esther_leader">Women's Ministry Leader</option>
+                                                    <option value="mens_leader">Men's Ministry Leader</option>
+                                                    <option value="sunday_admin">Life Discussion Leader</option>
+                                                    <option value="bookstore_manager">Bookstore Manager</option>
                                                 </optgroup>
                                                 <optgroup label="Members">
                                                     <option value="usher_member">Usher Member</option>
