@@ -59,3 +59,13 @@ export interface Incident {
     severity: IncidentSeverity;
     createdAt?: any;
 }
+
+export interface GalleryItem {
+    id?: string;
+    title: string;
+    url: string;
+    description: string;
+    uploadedBy: string;
+    date: string;
+    createdAt?: any;
+}
