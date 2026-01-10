@@ -20,7 +20,7 @@ const MINISTRIES = [
         target: "Ages 3-12",
         icon: <FaChild className="w-8 h-8" />,
         color: "bg-yellow-100 text-yellow-600",
-        link: "/children/login"
+        link: "/ministries/children"
     },
     {
         title: "Youth Ministry",
@@ -28,7 +28,7 @@ const MINISTRIES = [
         target: "Ages 13-19",
         icon: <HiSparkles className="w-8 h-8" />,
         color: "bg-purple-100 text-purple-600",
-        link: "/groups"
+        link: "/ministries/youth"
     },
     {
         title: "Women of Faith",
@@ -36,7 +36,7 @@ const MINISTRIES = [
         target: "All Women",
         icon: <HiHeart className="w-8 h-8" />,
         color: "bg-pink-100 text-pink-600",
-        link: "/groups"
+        link: "/ministries/women"
     },
     {
         title: "Men's Fellowship",
@@ -44,7 +44,7 @@ const MINISTRIES = [
         target: "All Men",
         icon: <HiBriefcase className="w-8 h-8" />,
         color: "bg-blue-100 text-blue-600",
-        link: "/groups"
+        link: "/ministries/men"
     },
     {
         title: "Worship & Choir",
@@ -52,7 +52,7 @@ const MINISTRIES = [
         target: "Musicians & Vocalists",
         icon: <HiMusicNote className="w-8 h-8" />,
         color: "bg-orange-100 text-orange-600",
-        link: "/volunteer"
+        link: "/ministries/worship"
     },
     {
         title: "Evangelism",
@@ -60,7 +60,7 @@ const MINISTRIES = [
         target: "Everyone",
         icon: <HiGlobeAlt className="w-8 h-8" />,
         color: "bg-green-100 text-green-600",
-        link: "/volunteer"
+        link: "/ministries/evangelism"
     },
     {
         title: "Media & Tech",
@@ -68,7 +68,7 @@ const MINISTRIES = [
         target: "Tech Savvy",
         icon: <HiDesktopComputer className="w-8 h-8" />,
         color: "bg-indigo-100 text-indigo-600",
-        link: "/volunteer"
+        link: "/ministries/media"
     },
     {
         title: "Prayer Team",
@@ -76,7 +76,7 @@ const MINISTRIES = [
         target: "Prayer Warriors",
         icon: <FaPrayingHands className="w-8 h-8" />,
         color: "bg-red-100 text-red-600",
-        link: "/prayer"
+        link: "/ministries/prayer"
     },
     {
         title: "Ushering & Hospitality",
@@ -84,7 +84,7 @@ const MINISTRIES = [
         target: "Everyone",
         icon: <HiUserGroup className="w-8 h-8" />,
         color: "bg-teal-100 text-teal-600",
-        link: "/volunteer"
+        link: "/ministries/hosting"
     }
 ];
 

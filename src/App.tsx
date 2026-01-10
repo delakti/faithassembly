@@ -233,6 +233,17 @@ import MemberManager from './pages/store/admin/MemberManager';
 import { SearchProvider } from './context/SearchContext';
 import SearchOverlay from './components/SearchOverlay';
 
+// Ministry Landing Pages
+import ChildrensChurch from './pages/ministries/ChildrensChurch';
+import YouthMinistry from './pages/ministries/YouthMinistry';
+import WomenOfFaith from './pages/ministries/WomenOfFaith';
+import MensFellowship from './pages/ministries/MensFellowship';
+import WorshipChoir from './pages/ministries/WorshipChoir';
+import Evangelism from './pages/ministries/Evangelism';
+import MediaTech from './pages/ministries/MediaTech';
+import PrayerTeamPage from './pages/ministries/PrayerTeam';
+import UsheringHospitality from './pages/ministries/UsheringHospitality';
+
 function App() {
   return (
     <div className="antialiased">
@@ -247,6 +258,15 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/ministries" element={<Ministries />} />
+              <Route path="/ministries/children" element={<ChildrensChurch />} />
+              <Route path="/ministries/youth" element={<YouthMinistry />} />
+              <Route path="/ministries/women" element={<WomenOfFaith />} />
+              <Route path="/ministries/men" element={<MensFellowship />} />
+              <Route path="/ministries/worship" element={<WorshipChoir />} />
+              <Route path="/ministries/evangelism" element={<Evangelism />} />
+              <Route path="/ministries/media" element={<MediaTech />} />
+              <Route path="/ministries/prayer" element={<PrayerTeamPage />} />
+              <Route path="/ministries/hosting" element={<UsheringHospitality />} />
               <Route path="/mission" element={<Mission />} />
               <Route path="/leadership" element={<Leadership />} />
               <Route path="/services" element={<ServiceTimes />} />
