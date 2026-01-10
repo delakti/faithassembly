@@ -43,6 +43,24 @@ const EstherGroups: React.FC = () => {
         }
     };
 
+    const handlePropose = async () => {
+        const proposal = prompt("What kind of group would you like to start? (e.g. 'Monday Night Bible Study for Moms')");
+        if (!proposal) return;
+
+        try {
+            await addDoc(collection(db, 'esther_group_proposals'), {
+                proposal: proposal,
+                proposerId: "mock_user_" + Date.now(),
+                createdAt: serverTimestamp(),
+                status: 'pending'
+            });
+            toast.success("Thank you! Your proposal has been sent to leadership.");
+        } catch (error) {
+            console.error("Error submitting proposal:", error);
+            toast.error("Could not submit proposal.");
+        }
+    };
+
     return (
         <div className="space-y-8 font-sans">
             <div className="text-center max-w-2xl mx-auto mb-12">
@@ -88,7 +106,10 @@ const EstherGroups: React.FC = () => {
                     <p className="text-gray-500 text-sm mb-6 max-w-xs">
                         Called to lead? Propose a new prayer circle or bible study group.
                     </p>
-                    <button className="px-6 py-3 bg-white text-rose-600 font-bold rounded-xl hover:bg-rose-100 transition-colors shadow-sm">
+                    <button
+                        onClick={handlePropose}
+                        className="px-6 py-3 bg-white text-rose-600 font-bold rounded-xl hover:bg-rose-100 transition-colors shadow-sm"
+                    >
                         Propose Group
                     </button>
                 </div>
