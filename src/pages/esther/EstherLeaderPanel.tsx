@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import EstherDevotionalManager from './EstherDevotionalManager';
 import EstherEventManager from './EstherEventManager';
 import EstherResourceManager from './EstherResourceManager';
+import EstherGroupManager from './EstherGroupManager';
 
 
 const EstherLeaderPanel: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'devotionals' | 'events' | 'resources'>('devotionals');
+    const [activeTab, setActiveTab] = useState<'devotionals' | 'events' | 'resources' | 'groups'>('devotionals');
 
     return (
         <div className="space-y-8 font-sans">
@@ -28,6 +29,12 @@ const EstherLeaderPanel: React.FC = () => {
                         Events
                     </button>
                     <button
+                        onClick={() => setActiveTab('groups')}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === 'groups' ? 'bg-rose-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        Groups
+                    </button>
+                    <button
                         onClick={() => setActiveTab('resources')}
                         className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === 'resources' ? 'bg-rose-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
                     >
@@ -47,6 +54,12 @@ const EstherLeaderPanel: React.FC = () => {
                 {activeTab === 'events' && (
                     <div className="p-0">
                         <EstherEventManager />
+                    </div>
+                )}
+
+                {activeTab === 'groups' && (
+                    <div className="p-0">
+                        <EstherGroupManager />
                     </div>
                 )}
 

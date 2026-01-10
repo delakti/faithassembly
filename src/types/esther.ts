@@ -47,3 +47,26 @@ export interface EstherResource {
     url: string; // Download/Watch link
     createdAt?: any;
 }
+
+export interface EstherGroup {
+    id?: string;
+    name: string;
+    leader: string;
+    schedule: string;
+    desc: string;
+    image: string;
+    createdAt?: any;
+    // Computed fields
+    memberCount?: number;
+    members?: number; // compat
+    joined?: boolean; // client-side
+}
+
+export interface GroupMember {
+    id?: string;
+    groupId: string;
+    userId: string;
+    userName: string; // Snapshot of name
+    userEmail?: string;
+    joinedAt: any;
+}
