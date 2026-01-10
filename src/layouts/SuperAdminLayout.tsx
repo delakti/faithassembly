@@ -19,18 +19,18 @@ const SuperAdminLayout: React.FC = () => {
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            navigate('/super-admin/login');
+            navigate('/admin/super/login');
         } catch (error) {
             console.error('Error signing out:', error);
         }
     };
 
     const navItems = [
-        { path: '/super-admin/dashboard', label: 'Dashboard', icon: <HiHome className="w-5 h-5" /> },
-        { path: '/super-admin/users', label: 'User Management', icon: <HiUsers className="w-5 h-5" /> },
-        { path: '/super-admin/portals', label: 'Portal Oversight', icon: <HiViewGrid className="w-5 h-5" /> },
-        { path: '/super-admin/analytics', label: 'Analytics & Logs', icon: <HiChartBar className="w-5 h-5" /> },
-        { path: '/super-admin/settings', label: 'System Settings', icon: <HiCog className="w-5 h-5" /> },
+        { path: '/admin/super/dashboard', label: 'Dashboard', icon: <HiHome className="w-5 h-5" /> },
+        { path: '/admin/super/users', label: 'User Management', icon: <HiUsers className="w-5 h-5" /> },
+        { path: '/admin/super/portals', label: 'Portal Oversight', icon: <HiViewGrid className="w-5 h-5" /> },
+        { path: '/admin/super/analytics', label: 'Analytics & Logs', icon: <HiChartBar className="w-5 h-5" /> },
+        { path: '/admin/super/settings', label: 'System Settings', icon: <HiCog className="w-5 h-5" /> },
     ];
 
     return (
@@ -53,8 +53,8 @@ const SuperAdminLayout: React.FC = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center px-4 py-3 rounded-lg transition-colors group ${isActive
-                                        ? 'bg-red-600 text-white shadow-md'
-                                        : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                    ? 'bg-red-600 text-white shadow-md'
+                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                                     }`}
                             >
                                 <span className={`mr-3 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>

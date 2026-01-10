@@ -251,6 +251,7 @@ function App() {
               <Route path="/leadership" element={<Leadership />} />
               <Route path="/services" element={<ServiceTimes />} />
               {/* Super Admin Routes */}
+              <Route path="/super-admin/*" element={<Navigate to="/admin/super/dashboard" replace />} />
               <Route path="/admin/super/login" element={<SuperAdminLogin />} />
               <Route path="/admin/super/setup" element={<AdminSetup />} />
               <Route element={<SuperAdminRoute />}>

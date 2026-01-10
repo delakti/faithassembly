@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getAuth } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'; // Import signIn
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
-import { HiShieldCheck, HiUser } from 'react-icons/hi';
+import { HiShieldCheck, HiUser, HiLockClosed } from 'react-icons/hi';
 import { toast, Toaster } from 'react-hot-toast';
 
 const AdminSetup: React.FC = () => {
@@ -11,20 +11,43 @@ const AdminSetup: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [currentRole, setCurrentRole] = useState('loading...');
 
+    // Login State
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+
     useEffect(() => {
-        const checkUser = async () => {
-            if (auth.currentUser) {
-                setUser(auth.currentUser);
-                const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+        // Authenticated State Checker
+        const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
                 if (userDoc.exists()) {
                     setCurrentRole(userDoc.data().role || 'none');
                 } else {
                     setCurrentRole('No Database Entry');
                 }
+            } else {
+                setUser(null);
+                setCurrentRole('');
             }
-        };
-        checkUser();
+        });
+        return () => unsubscribe();
     }, [auth, db]);
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoggingIn(true);
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            toast.success('Logged in successfully');
+        } catch (error: any) {
+            console.error(error);
+            toast.error('Login failed: ' + error.message);
+        } finally {
+            setIsLoggingIn(false);
+        }
+    };
 
     const handlePromote = async () => {
         if (!user) return;
@@ -51,12 +74,52 @@ const AdminSetup: React.FC = () => {
         }
     };
 
-    if (!auth.currentUser) {
+    // If NOT logged in, show simple login form
+    if (!user) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <h2 className="text-xl font-bold">Please Login First</h2>
-                    <a href="/admin/super/login" className="text-blue-600 hover:underline">Go to Login</a>
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+                <Toaster />
+                <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 text-center space-y-6">
+                    <h2 className="text-xl font-bold text-slate-800">Setup Login</h2>
+                    <p className="text-sm text-slate-500">Log in to your account to enable promotion.</p>
+
+                    <form onSubmit={handleLogin} className="space-y-4 text-left">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Email</label>
+                            <div className="relative">
+                                <HiUser className="absolute left-3 top-3 text-slate-400" />
+                                <input
+                                    type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                    placeholder="your@email.com"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Password</label>
+                            <div className="relative">
+                                <HiLockClosed className="absolute left-3 top-3 text-slate-400" />
+                                <input
+                                    type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={isLoggingIn}
+                            className="w-full py-2 bg-slate-800 text-white rounded-lg font-bold hover:bg-slate-900 transition"
+                        >
+                            {isLoggingIn ? 'Verifying...' : 'Login for Setup'}
+                        </button>
+                    </form>
                 </div>
             </div>
         );
@@ -85,10 +148,6 @@ const AdminSetup: React.FC = () => {
                         <span className="text-xs text-slate-400 uppercase font-bold">Current Role:</span>
                         <span className="ml-2 text-xs font-mono bg-slate-200 px-2 py-1 rounded">{currentRole}</span>
                     </div>
-                    <div>
-                        <span className="text-xs text-slate-400 uppercase font-bold">UID:</span>
-                        <span className="ml-2 text-xs font-mono text-slate-500 break-all">{user?.uid}</span>
-                    </div>
                 </div>
 
                 <button
@@ -107,6 +166,10 @@ const AdminSetup: React.FC = () => {
                         Go to Dashboard →
                     </a>
                 )}
+
+                <button onClick={() => auth.signOut()} className="text-xs text-slate-400 hover:text-slate-600 underline">
+                    Sign Out
+                </button>
             </div>
         </div>
     );

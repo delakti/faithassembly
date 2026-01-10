@@ -6,8 +6,7 @@ import {
     getDocs,
     doc,
     updateDoc,
-    limit,
-    orderBy
+    limit
 } from 'firebase/firestore';
 import { HiSearch, HiFilter, HiUserCircle, HiPencilAlt, HiBan, HiCheckCircle } from 'react-icons/hi';
 import type { UserProfile, UserRole } from '../../../../types/auth';
@@ -26,7 +25,7 @@ const UserManager: React.FC = () => {
         try {
             // Basic query - in production would need algolia or advanced firestore logic for deeper search
             const usersRef = collection(db, 'users');
-            const q = query(usersRef, orderBy('createdAt', 'desc'), limit(50));
+            const q = query(usersRef, limit(50));
 
             const snapshot = await getDocs(q);
             const userBox: UserProfile[] = [];
@@ -71,12 +70,14 @@ const UserManager: React.FC = () => {
         if (roleFilter !== 'all') {
             // Handle grouping of roles if needed, currently exact match
             matchesRole = user.role === roleFilter;
+            if (!user.role && roleFilter === 'user') matchesRole = true; // Treat no role as 'user' if desired, or just strict match
         }
 
         return matchesSearch && matchesRole;
     });
 
-    const getRoleBadgeColor = (role: string) => {
+    const getRoleBadgeColor = (role?: string) => {
+        if (!role) return 'bg-slate-100 text-slate-500 border-slate-200';
         if (role === 'super_admin') return 'bg-red-100 text-red-800 border-red-200';
         if (role === 'admin') return 'bg-orange-100 text-orange-800 border-orange-200';
         if (role.includes('leader')) return 'bg-purple-100 text-purple-800 border-purple-200';
@@ -191,7 +192,7 @@ const UserManager: React.FC = () => {
                                         </div>
                                     ) : (
                                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getRoleBadgeColor(user.role)}`}>
-                                            {user.role?.replace(/_/g, ' ')}
+                                            {(user.role || 'No Role').replace(/_/g, ' ')}
                                         </span>
                                     )}
                                 </td>
