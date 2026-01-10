@@ -68,6 +68,7 @@ import AnnouncementManager from './pages/admin/super/content/AnnouncementManager
 import GroupManager from './pages/admin/super/content/GroupManager';
 import SystemSettings from './pages/admin/super/settings/SystemSettings';
 import AdminSetup from './pages/admin/super/AdminSetup';
+import PortalManager from './pages/admin/super/portals/PortalManager';
 
 // Youth Portal Imports
 import YouthLogin from './pages/youth/YouthLogin';
@@ -290,8 +291,9 @@ function App() {
                   <Route path="logs" element={<ActivityLogViewer />} />
                   <Route path="announcements" element={<AnnouncementManager />} />
                   <Route path="groups" element={<GroupManager />} />
+                  <Route path="portals" element={<PortalManager />} />
                   <Route path="settings" element={<SystemSettings />} />
-                  {/* Future routes: portals, content, etc. */}
+                  {/* Future routes: content, etc. */}
                 </Route>
               </Route>
 
