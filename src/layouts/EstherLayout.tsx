@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import {
     HiHome,
     HiBookOpen,
@@ -9,13 +10,31 @@ import {
     HiLogout,
     HiHeart,
     HiChatAlt2,
-    HiCollection
+    HiCollection,
+    HiShieldCheck
 } from 'react-icons/hi';
 
 const EstherLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const auth = getAuth();
+    const db = getFirestore();
+    const [isLeader, setIsLeader] = useState(false);
+
+    useEffect(() => {
+        const checkRole = async () => {
+            if (auth.currentUser) {
+                const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+                if (userDoc.exists()) {
+                    const role = userDoc.data().role;
+                    if (['esther_leader', 'super_admin', 'admin'].includes(role)) {
+                        setIsLeader(true);
+                    }
+                }
+            }
+        };
+        checkRole();
+    }, [auth.currentUser]);
 
     const handleLogout = async () => {
         try {
@@ -35,6 +54,10 @@ const EstherLayout: React.FC = () => {
         { path: '/esther/resources', label: 'Library', icon: <HiCollection className="w-5 h-5" /> },
     ];
 
+    if (isLeader) {
+        navItems.push({ path: '/esther/leader', label: 'Leader Panel', icon: <HiShieldCheck className="w-5 h-5" /> });
+    }
+
     return (
         <div className="flex h-screen bg-rose-50 font-serif overflow-hidden">
             {/* Sidebar */}
@@ -48,7 +71,7 @@ const EstherLayout: React.FC = () => {
                     </div>
                 </div>
 
-                <nav className="flex-1 px-6 space-y-2 mt-8">
+                <nav className="flex-1 px-6 space-y-2 mt-8 overflow-y-auto">
                     {navItems.map((item) => {
                         const isActive = location.pathname.startsWith(item.path);
                         return (
@@ -80,7 +103,7 @@ const EstherLayout: React.FC = () => {
 
             {/* Mobile Bottom Nav */}
             <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-rose-100 flex justify-around p-3 z-50 safe-area-bottom shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-                {navItems.map((item) => (
+                {navItems.slice(0, 5).map((item) => (
                     <Link
                         key={item.path}
                         to={item.path}
@@ -90,6 +113,15 @@ const EstherLayout: React.FC = () => {
                         <span className="text-[10px] mt-1 font-medium">{item.label}</span>
                     </Link>
                 ))}
+                {isLeader && (
+                    <Link
+                        to="/esther/leader"
+                        className={`flex flex-col items-center p-2 rounded-lg ${location.pathname.startsWith('/esther/leader') ? 'text-rose-600 bg-rose-50' : 'text-gray-400'}`}
+                    >
+                        <HiShieldCheck className="w-5 h-5" />
+                        <span className="text-[10px] mt-1 font-medium">Manage</span>
+                    </Link>
+                )}
             </div>
 
             {/* Main Content */}

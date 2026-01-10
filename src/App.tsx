@@ -91,6 +91,7 @@ import EstherEvents from './pages/esther/EstherEvents';
 import EstherGroups from './pages/esther/EstherGroups';
 import EstherForum from './pages/esther/EstherForum';
 import EstherResources from './pages/esther/EstherResources';
+import EstherLeaderPanel from './pages/esther/EstherLeaderPanel';
 
 // Men's Fellowship Portal Imports
 import MenLogin from './pages/men/MenLogin';
@@ -324,6 +325,7 @@ function App() {
                   <Route path="groups" element={<EstherGroups />} />
                   <Route path="forum" element={<EstherForum />} />
                   <Route path="resources" element={<EstherResources />} />
+                  <Route path="leader" element={<EstherLeaderPanel />} />
                 </Route>
               </Route>
 
