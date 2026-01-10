@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
-import { ref, query, orderByChild, equalTo, get } from 'firebase/database';
+import { ref, query, orderByChild, equalTo, get, update } from 'firebase/database';
 import { database } from '../firebase';
 import { FaHome, FaClipboardList, FaHandHoldingHeart, FaCalendarAlt, FaComments, FaFolderOpen, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 
@@ -30,13 +30,15 @@ interface HouseContextType {
     members: Member[];
     loading: boolean;
     refreshFellowship: () => Promise<void>;
+    updateMember: (memberId: string, data: Partial<Member>) => Promise<void>;
 }
 
 const HouseContext = createContext<HouseContextType>({
     fellowship: null,
     members: [],
     loading: true,
-    refreshFellowship: async () => { }
+    refreshFellowship: async () => { },
+    updateMember: async () => { }
 });
 
 export const useHouseFellowship = () => useContext(HouseContext);
@@ -252,8 +254,54 @@ const HouseLayout: React.FC = () => {
         { to: '/members/fellowship/resources', icon: FaFolderOpen, label: 'Resources', restricted: false },
     ];
 
+    const updateMember = async (memberId: string, data: Partial<Member>) => {
+        if (!memberId) return;
+        try {
+            const db = database;
+            const updates: any = {};
+
+            // Map our Member interface back to DB keys
+            if (data.firstName !== undefined) updates['First Name'] = data.firstName;
+            if (data.lastName !== undefined) updates['Last Name'] = data.lastName; // or Surname depending on consistency, but sticking to Last Name as primary
+            if (data.phone !== undefined) updates['Mobile'] = data.phone;
+
+            // Split address if needed or update raw fields
+            // Assuming address string "123 Street" needs to be split or just updated as one if DB allows?
+            // The read logic combines 'House Number' and 'Street Name'.
+            // For simple editing, let's just attempt to update 'Street Name' with the full string for now 
+            // OR if the user provides specific address parts. 
+            // Let's assume the UI sends 'address' as one string.
+            // A robust way: check if starts with number.
+            if (data.address !== undefined) {
+                // Simple heuristic split
+                const match = data.address.match(/^(\d+)\s+(.*)$/);
+                if (match) {
+                    updates['House Number'] = match[1];
+                    updates['Street Name'] = match[2];
+                } else {
+                    updates['House Number'] = '';
+                    updates['Street Name'] = data.address;
+                }
+            }
+
+            if (data.city !== undefined) updates['City'] = data.city;
+            if (data.postcode !== undefined) updates['Postcode'] = data.postcode;
+            if (data.birthDate !== undefined) updates['birthDate'] = data.birthDate;
+
+            // Perform Update
+            const memberRef = ref(db, `donor/${memberId}`);
+            await update(memberRef, updates);
+
+            // Refresh local state
+            await fetchFellowshipData();
+        } catch (error) {
+            console.error("Error updating member:", error);
+            throw error;
+        }
+    };
+
     return (
-        <HouseContext.Provider value={{ fellowship, members, loading, refreshFellowship: fetchFellowshipData }}>
+        <HouseContext.Provider value={{ fellowship, members, loading, refreshFellowship: fetchFellowshipData, updateMember }}>
             <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
                 {/* Sidebar Navigation */}
                 <aside className="bg-white border-r border-gray-200 md:w-64 flex-shrink-0">
