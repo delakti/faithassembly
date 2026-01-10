@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@paypal/react-paypal-js": "^8.9.2",
+    "@stripe/react-stripe-js": "^5.4.1",
+    "@stripe/stripe-js": "^8.6.1",
     "chart.js": "^4.5.1",
     "date-fns": "^4.1.0",
     "firebase": "^12.7.0",
@@ -26,7 +28,8 @@
     "react-qr-code": "^2.0.18",
     "react-router-dom": "^6.30.2",
     "react-square-web-payments-sdk": "^3.3.0",
-    "square": "^43.2.1"
+    "square": "^43.2.1",
+    "stripe": "^20.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
