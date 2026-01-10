@@ -39,7 +39,10 @@ export type UserRole =
     // Life Discussion (Sunday School)
     | 'sunday_student'
     | 'sunday_teacher'
-    | 'sunday_admin';
+    | 'sunday_admin'
+    // House Fellowship
+    | 'house_member'
+    | 'house_leader';
 
 export interface UserProfile {
     uid: string;

@@ -119,7 +119,9 @@ const UserManager: React.FC = () => {
                             <option value="hospitality_leader">Hospitality Leader</option>
                             <option value="worship_leader">Worship Leader</option>
                             <option value="media_leader">Media Leader</option>
+                            <option value="media_leader">Media Leader</option>
                             <option value="prayer_leader">Prayer Leader</option>
+                            <option value="house_leader">House Fellowship Leader</option>
                         </optgroup>
                         <optgroup label="General">
                             <option value="volunteer">Volunteer</option>
@@ -179,11 +181,14 @@ const UserManager: React.FC = () => {
                                                     <option value="hospitality_leader">Hospitality Leader</option>
                                                     <option value="worship_leader">Worship Leader</option>
                                                     <option value="media_leader">Media Leader</option>
+                                                    <option value="media_leader">Media Leader</option>
                                                     <option value="prayer_leader">Prayer Leader</option>
+                                                    <option value="house_leader">House Fellowship Leader</option>
                                                 </optgroup>
                                                 <optgroup label="Members">
                                                     <option value="usher_member">Usher Member</option>
                                                     <option value="evangelism_member">Evangelism Member</option>
+                                                    <option value="house_member">House Fellowship Member</option>
                                                     <option value="member">General Member</option>
                                                     <option value="user">User</option>
                                                 </optgroup>

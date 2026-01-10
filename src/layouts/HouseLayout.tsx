@@ -72,9 +72,32 @@ const HouseLayout: React.FC = () => {
                     // Logic: user.displayName or parts of it inside leadersString? 
                     // Or precise name match? For now, we'll do a simple includes check if displayName exists
                     // Ideally, we'd have a list of leader UIDs, but we work with what we have.
-                    const isLeader = user.displayName
+                    // Check if current user is a leader
+                    // 1. Check if name is in list (Legacy/Simple method)
+                    let isLeader = user.displayName
                         ? leadersString.toLowerCase().includes(user.displayName.toLowerCase())
                         : false;
+
+                    // 2. Check Firestore Role (Stronger method)
+                    // We need to import getDoc and doc from firebase/firestore if not already imported?
+                    // NOTE: HouseLayout didn't import them. Let's assume we need to or fail gracefully.
+                    // Actually, let's do a dynamic import or add imports at the top. 
+                    // To keep this clean, let's just use the fact that we might have fetched the user role in a context/parent?
+                    // No, MemberRoute does it but doesn't pass it down. 
+                    // Let's do a quick fetch here.
+                    try {
+                        const { getDoc, doc, getFirestore } = await import('firebase/firestore');
+                        const dbFS = getFirestore();
+                        const userDoc = await getDoc(doc(dbFS, 'users', user.uid));
+                        if (userDoc.exists()) {
+                            const data = userDoc.data();
+                            if (['house_leader', 'admin', 'super_admin'].includes(data.role)) {
+                                isLeader = true;
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Error determining leader role", err);
+                    }
 
                     let details = null;
 
