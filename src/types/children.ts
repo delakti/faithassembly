@@ -69,3 +69,15 @@ export interface GalleryItem {
     date: string;
     createdAt?: any;
 }
+
+export interface Message {
+    id?: string;
+    recipients: 'All' | 'Creche' | 'Primary' | 'Teens' | string[]; // Group or array of IDs
+    recipientCount: number;
+    subject: string;
+    body: string;
+    sender: string;
+    status: 'Sent' | 'Draft';
+    sentAt?: any;
+    createdAt?: any;
+}
