@@ -18,3 +18,15 @@ export interface Child {
     createdAt?: any;
     updatedAt?: any;
 }
+
+export interface Lesson {
+    id?: string;
+    title: string;
+    topic: string;
+    date: string;
+    assignedGroup: ChildGroup | 'All';
+    scriptureReference: string;
+    content: string;
+    resourceLink?: string;
+    createdAt?: any;
+}
