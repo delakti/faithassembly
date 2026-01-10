@@ -52,11 +52,14 @@ const HouseDashboard: React.FC = () => {
                                 {members.map(member => (
                                     <li key={member.id} className="p-4 hover:bg-gray-50 transition flex items-center space-x-4">
                                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 flex items-center justify-center font-bold text-sm">
-                                            {member.firstName[0]}{member.lastName[0]}
+                                            {(member.firstName?.[0] || '?')}{(member.lastName?.[0] || '')}
                                         </div>
                                         <div>
                                             <p className="font-medium text-gray-900">{member.firstName} {member.lastName}</p>
-                                            <p className="text-xs text-gray-500">{member.email}</p>
+                                            <div className="flex flex-col sm:flex-row sm:gap-4 text-xs text-gray-500">
+                                                <span>{member.email}</span>
+                                                {member.phone && <span>• {member.phone}</span>}
+                                            </div>
                                         </div>
                                     </li>
                                 ))}

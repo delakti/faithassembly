@@ -124,10 +124,10 @@ const HouseLayout: React.FC = () => {
                         Object.keys(memData).forEach(key => {
                             memberList.push({
                                 id: key,
-                                firstName: memData[key].FirstName || '',
-                                lastName: memData[key].Surname || '',
+                                firstName: memData[key]['First Name'] || memData[key].FirstName || 'Unknown',
+                                lastName: memData[key]['Last Name'] || memData[key].Surname || '',
                                 email: memData[key].Email || '',
-                                phone: memData[key].MobileNumber || memData[key].Mobile || '',
+                                phone: memData[key].Mobile || memData[key].MobileNumber || memData[key]['Mobile Phone'] || '',
                             });
                         });
                         memberList.sort((a, b) => a.firstName.localeCompare(b.firstName));

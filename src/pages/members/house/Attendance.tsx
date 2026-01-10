@@ -119,7 +119,7 @@ const HouseAttendance: React.FC = () => {
                                 <div className="flex items-center space-x-4">
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${isPresent ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500'
                                         }`}>
-                                        {isPresent ? <FaCheck /> : `${member.firstName[0]}${member.lastName[0]}`}
+                                        {isPresent ? <FaCheck /> : `${member.firstName?.[0] || '?'}${member.lastName?.[0] || ''}`}
                                     </div>
                                     <div>
                                         <p className={`font-medium ${isPresent ? 'text-blue-900' : 'text-gray-900'}`}>
