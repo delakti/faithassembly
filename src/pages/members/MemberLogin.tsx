@@ -28,16 +28,35 @@ const MemberLogin: React.FC = () => {
             if (userDoc.exists()) {
                 const userData = userDoc.data();
 
-                // Allow super_admin, admin, member
-                if (userData && ['member', 'admin', 'super_admin'].includes(userData.role)) {
+                // Allow super_admin, admin, member, user
+                if (userData && ['user', 'member', 'admin', 'super_admin'].includes(userData.role)) {
                     navigate('/members/dashboard');
                 } else {
-                    setError('e');
+                    // Valid profile but restricted role? (Shouldn't happen with above check, but good for safety)
+                    setError('Access restricted.');
                     await auth.signOut();
                 }
             } else {
-                setError('Profile not found. Please contact an administrator.');
-                await auth.signOut();
+                // PROFILE MISSING: Auto-create it (Lazy Sync)
+                try {
+                    const { setDoc, doc, Timestamp } = await import('firebase/firestore');
+                    await setDoc(doc(db, 'users', user.uid), {
+                        uid: user.uid,
+                        displayName: user.displayName || 'Unknown User',
+                        email: user.email,
+                        role: 'user', // Default to basic user
+                        createdAt: Timestamp.now(),
+                        photoURL: user.photoURL || null,
+                        syncedFromAuth: true
+                    });
+
+                    // Proceed to dashboard
+                    navigate('/members/dashboard');
+                } catch (createErr) {
+                    console.error("Error creating profile:", createErr);
+                    setError('Failed to initialize account profile.');
+                    await auth.signOut();
+                }
             }
 
         } catch (err: any) {
