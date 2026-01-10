@@ -119,6 +119,40 @@ const HouseLayout: React.FC = () => {
                         }
                     }
 
+
+                    // Helper to format phone numbers
+                    const formatPhoneNumber = (raw: any): string => {
+                        if (!raw) return '';
+                        let clean = String(raw).trim();
+
+                        // Handle formatting like "4.4074E+12" (scientific notation)
+                        if (clean.includes('E+')) {
+                            try {
+                                const num = Number(clean);
+                                if (!isNaN(num)) clean = num.toLocaleString('fullwide', { useGrouping: false });
+                            } catch (e) {
+                                // ignore
+                            }
+                        }
+
+                        // Remove trailing .0, .00, .000 etc
+                        clean = clean.replace(/\.0+$/, '');
+
+                        // Remove all non-digits (except leading +)
+                        clean = clean.replace(/[^\d+]/g, '');
+
+                        // If it's a UK number starting with 44 and no +, add +
+                        if (clean.startsWith('44') && clean.length >= 12) {
+                            clean = '+' + clean;
+                        }
+
+                        // If it's 07... (UK mobile), maybe format nicely? 
+                        // For now, raw clean number is better than decimal.
+
+                        return clean;
+                    };
+
+
                     // 3. Fetch Members
                     const membersQ = query(donorRef, orderByChild('HouseFellowship'), equalTo(fellowshipName));
                     const memSnapshot = await get(membersQ);
@@ -131,7 +165,7 @@ const HouseLayout: React.FC = () => {
                                 firstName: memData[key]['First Name'] || memData[key].FirstName || 'Unknown',
                                 lastName: memData[key]['Last Name'] || memData[key].Surname || '',
                                 email: memData[key].Email || '',
-                                phone: memData[key].Mobile || memData[key].MobileNumber || memData[key]['Mobile Phone'] || '',
+                                phone: formatPhoneNumber(memData[key].Mobile || memData[key].MobileNumber || memData[key]['Mobile Phone']),
                                 address: `${memData[key]['House Number'] || ''} ${memData[key]['Street Name'] || ''}`.trim(),
                                 city: memData[key]['City'] || '',
                                 postcode: memData[key]['Postcode'] || '',
