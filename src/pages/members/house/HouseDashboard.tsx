@@ -4,11 +4,12 @@ import { FaUserCircle, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
 
 const HouseDashboard: React.FC = () => {
     const { fellowship, members, loading } = useHouseFellowship();
+    const [selectedMember, setSelectedMember] = React.useState<any | null>(null);
 
     if (loading) return null; // Layout handles main loader
 
     return (
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-5xl mx-auto space-y-8 relative">
             {/* Header / Info Card */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
@@ -50,12 +51,16 @@ const HouseDashboard: React.FC = () => {
                         ) : (
                             <ul className="divide-y divide-gray-50">
                                 {members.map(member => (
-                                    <li key={member.id} className="p-4 hover:bg-gray-50 transition flex items-center space-x-4">
+                                    <li
+                                        key={member.id}
+                                        onClick={() => setSelectedMember(member)}
+                                        className="p-4 hover:bg-gray-50 transition flex items-center space-x-4 cursor-pointer"
+                                    >
                                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 flex items-center justify-center font-bold text-sm">
                                             {(member.firstName?.[0] || '?')}{(member.lastName?.[0] || '')}
                                         </div>
                                         <div>
-                                            <p className="font-medium text-gray-900">{member.firstName} {member.lastName}</p>
+                                            <p className="font-medium text-gray-900 group-hover:text-blue-600">{member.firstName} {member.lastName}</p>
                                             <div className="flex flex-col sm:flex-row sm:gap-4 text-xs text-gray-500">
                                                 <span>{member.email}</span>
                                                 {member.phone && <span>• {member.phone}</span>}
@@ -92,6 +97,78 @@ const HouseDashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Member Details Modal */}
+            {selectedMember && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedMember(null)}></div>
+                    <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="bg-blue-600 p-6 text-center">
+                            <div className="w-20 h-20 mx-auto bg-white text-blue-600 rounded-full flex items-center justify-center text-2xl font-bold mb-3 shadow-lg">
+                                {(selectedMember.firstName?.[0] || '?')}{(selectedMember.lastName?.[0] || '')}
+                            </div>
+                            <h3 className="text-xl font-bold text-white">{selectedMember.firstName} {selectedMember.lastName}</h3>
+                            <p className="text-blue-100 text-sm">Fellowship Member</p>
+                            <button
+                                onClick={() => setSelectedMember(null)}
+                                className="absolute top-4 right-4 text-white/70 hover:text-white p-1"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-[24px_1fr] gap-3 items-start">
+                                <span className="text-gray-400 mt-1">📧</span>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase">Email</p>
+                                    <p className="text-sm font-medium text-gray-900">{selectedMember.email}</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-[24px_1fr] gap-3 items-start">
+                                <span className="text-gray-400 mt-1">📱</span>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase">Phone</p>
+                                    <p className="text-sm font-medium text-gray-900">{selectedMember.phone || 'N/A'}</p>
+                                </div>
+                            </div>
+
+                            {(selectedMember.address || selectedMember.city) && (
+                                <div className="grid grid-cols-[24px_1fr] gap-3 items-start">
+                                    <span className="text-gray-400 mt-1">📍</span>
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-400 uppercase">Address</p>
+                                        <p className="text-sm font-medium text-gray-900">
+                                            {selectedMember.address}<br />
+                                            {selectedMember.city} {selectedMember.postcode}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedMember.birthDate && (
+                                <div className="grid grid-cols-[24px_1fr] gap-3 items-start">
+                                    <span className="text-gray-400 mt-1">🎂</span>
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-400 uppercase">Birthday</p>
+                                        <p className="text-sm font-medium text-gray-900">{selectedMember.birthDate}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                            <button
+                                onClick={() => setSelectedMember(null)}
+                                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

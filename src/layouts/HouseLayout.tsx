@@ -19,6 +19,10 @@ interface Member {
     lastName: string;
     email: string;
     phone: string;
+    address?: string;
+    city?: string;
+    postcode?: string;
+    birthDate?: string;
 }
 
 interface HouseContextType {
@@ -128,6 +132,10 @@ const HouseLayout: React.FC = () => {
                                 lastName: memData[key]['Last Name'] || memData[key].Surname || '',
                                 email: memData[key].Email || '',
                                 phone: memData[key].Mobile || memData[key].MobileNumber || memData[key]['Mobile Phone'] || '',
+                                address: `${memData[key]['House Number'] || ''} ${memData[key]['Street Name'] || ''}`.trim(),
+                                city: memData[key]['City'] || '',
+                                postcode: memData[key]['Postcode'] || '',
+                                birthDate: memData[key]['birthDate'] || '',
                             });
                         });
                         memberList.sort((a, b) => a.firstName.localeCompare(b.firstName));
