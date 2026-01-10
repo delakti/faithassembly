@@ -68,7 +68,8 @@ const LifeDiscussionLayout: React.FC = () => {
             { path: '/life-discussion/rota', name: 'Teacher Rota', icon: <HiCalendar className="w-5 h-5" /> },
             { path: '/life-discussion/classes', name: 'Manage Groups', icon: <HiUserGroup className="w-5 h-5" /> },
             { path: '/life-discussion/assignments', name: 'Assignments', icon: <HiClipboardList className="w-5 h-5" /> },
-            { path: '/life-discussion/resources', name: 'Lesson Plans', icon: <HiBookOpen className="w-5 h-5" /> }
+            { path: '/life-discussion/resources', name: 'Lesson Plans', icon: <HiBookOpen className="w-5 h-5" /> },
+            { path: '/life-discussion/leader', name: 'Leader Panel', icon: <HiAcademicCap className="w-5 h-5" /> }
         );
     } else {
         // Student items
@@ -100,8 +101,8 @@ const LifeDiscussionLayout: React.FC = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                                        ? 'bg-sky-50 text-sky-700 font-semibold shadow-sm ring-1 ring-sky-100'
-                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                    ? 'bg-sky-50 text-sky-700 font-semibold shadow-sm ring-1 ring-sky-100'
+                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                     }`}
                             >
                                 <span className={`${isActive ? 'text-sky-600' : 'text-slate-400 group-hover:text-slate-600'}`}>
@@ -192,8 +193,8 @@ const LifeDiscussionLayout: React.FC = () => {
                                         to={item.path}
                                         onClick={() => setIsSidebarOpen(false)}
                                         className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${location.pathname.startsWith(item.path)
-                                                ? 'bg-sky-50 text-sky-700 font-semibold ring-1 ring-sky-100'
-                                                : 'text-slate-600 hover:bg-slate-50'
+                                            ? 'bg-sky-50 text-sky-700 font-semibold ring-1 ring-sky-100'
+                                            : 'text-slate-600 hover:bg-slate-50'
                                             }`}
                                     >
                                         <span className={location.pathname.startsWith(item.path) ? 'text-sky-600' : 'text-slate-400'}>

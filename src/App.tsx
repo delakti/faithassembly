@@ -245,6 +245,7 @@ import LifeAssignmentsTeacher from './pages/life-discussion/learning/LifeAssignm
 import LifeAssignmentsStudent from './pages/life-discussion/learning/LifeAssignmentsStudent';
 import LifeAnnouncements from './pages/life-discussion/announcements/LifeAnnouncements';
 import LifeResources from './pages/life-discussion/resources/LifeResources';
+import LifeLeaderPanel from './pages/life-discussion/LifeLeaderPanel';
 
 // Admin Imports
 import MemberManager from './pages/store/admin/MemberManager';
@@ -492,6 +493,7 @@ function App() {
                 <Route path="my-assignments" element={<LifeAssignmentsStudent />} />
                 <Route path="announcements" element={<LifeAnnouncements />} />
                 <Route path="resources" element={<LifeResources />} />
+                <Route path="leader" element={<LifeLeaderPanel />} />
               </Route>
             </Route>
 
