@@ -22,3 +22,15 @@ export interface EstherEvent {
     spots: number;
     createdAt?: any;
 }
+
+export interface WallPost {
+    id?: string;
+    author: string;
+    avatar?: string; // Optional avatar URL
+    category: 'Prayer Request' | 'Testimony';
+    title: string;
+    content: string;
+    likes: number;
+    comments: number;
+    createdAt?: any;
+}

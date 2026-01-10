@@ -1,34 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiChatAlt2, HiHeart, HiPencilAlt } from 'react-icons/hi';
-
-const THREADS = [
-    {
-        id: 1,
-        author: "Sister Grace",
-        avatar: "",
-        category: "Testimony",
-        title: "God showed up for my family!",
-        content: "I requested prayer last week for my son's surgery. I want to testify that the procedure was a success and he is recovering well! Jehovah Rapha is faithful.",
-        likes: 24,
-        comments: 5,
-        time: "2h ago"
-    },
-    {
-        id: 2,
-        author: "Anonymous",
-        avatar: "",
-        category: "Prayer Request",
-        title: "Praying for breakthrough in my career",
-        content: "Sisters, please join me in prayer. I have been facing stagnation at work and I am trusting God for a new door to open.",
-        likes: 12,
-        comments: 8,
-        time: "5h ago"
-    }
-];
+import { db } from '../../firebase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import type { WallPost } from '../../types/esther';
+import WallPostModal from './WallPostModal';
 
 const EstherForum: React.FC = () => {
-    const [threads] = useState(THREADS);
+    const [threads, setThreads] = useState<WallPost[]>([]);
     const [activeTab, setActiveTab] = useState<'all' | 'prayer' | 'testimony'>('all');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const q = query(collection(db, 'esther_wall'), orderBy('createdAt', 'desc'));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WallPost));
+            setThreads(posts);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching wall posts:", error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const filteredThreads = threads.filter(thread => {
+        if (activeTab === 'all') return true;
+        if (activeTab === 'prayer') return thread.category === 'Prayer Request';
+        if (activeTab === 'testimony') return thread.category === 'Testimony';
+        return true;
+    });
+
+    const formatTime = (timestamp: any) => {
+        if (!timestamp) return 'Just now';
+        const date = timestamp.toDate();
+        const now = new Date();
+        const diffInHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
+
+        if (diffInHours < 1) return 'Just now';
+        if (diffInHours < 24) return `${Math.floor(diffInHours)}h ago`;
+        return date.toLocaleDateString();
+    };
 
     return (
         <div className="grid lg:grid-cols-3 gap-8 font-sans h-[calc(100vh-140px)]">
@@ -59,37 +73,43 @@ const EstherForum: React.FC = () => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    {threads.map((thread) => (
-                        <div key={thread.id} className="border-b border-gray-100 pb-6 last:border-0">
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center font-serif text-rose-600 font-bold shrink-0">
-                                    {thread.author[0]}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <h3 className="font-bold text-gray-900">{thread.author}</h3>
-                                        <span className="text-xs text-gray-400">{thread.time}</span>
+                    {loading ? (
+                        <div className="text-center py-12 text-gray-400">Loading posts...</div>
+                    ) : filteredThreads.length === 0 ? (
+                        <div className="text-center py-12 text-gray-400">No posts yet. Be the first to share!</div>
+                    ) : (
+                        filteredThreads.map((thread) => (
+                            <div key={thread.id} className="border-b border-gray-100 pb-6 last:border-0 hover:bg-gray-50/50 p-4 rounded-xl transition-colors">
+                                <div className="flex items-start gap-4">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-serif font-bold shrink-0 ${thread.author === 'Anonymous' ? 'bg-gray-200 text-gray-500' : 'bg-rose-100 text-rose-600'}`}>
+                                        {thread.author[0]}
                                     </div>
-                                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-2 ${thread.category === 'Testimony' ? 'bg-green-50 text-green-600' : 'bg-purple-50 text-purple-600'
-                                        }`}>
-                                        {thread.category}
-                                    </span>
-                                    <h4 className="font-serif text-lg text-rose-950 mb-2">{thread.title}</h4>
-                                    <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                                        {thread.content}
-                                    </p>
-                                    <div className="flex gap-6 text-gray-400 text-sm">
-                                        <button className="flex items-center hover:text-rose-500 transition-colors">
-                                            <HiHeart className="w-5 h-5 mr-1" /> {thread.likes} Praying
-                                        </button>
-                                        <button className="flex items-center hover:text-blue-500 transition-colors">
-                                            <HiChatAlt2 className="w-5 h-5 mr-1" /> {thread.comments} Comments
-                                        </button>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <h3 className="font-bold text-gray-900">{thread.author}</h3>
+                                            <span className="text-xs text-gray-400">{formatTime(thread.createdAt)}</span>
+                                        </div>
+                                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-2 ${thread.category === 'Testimony' ? 'bg-green-50 text-green-600' : 'bg-purple-50 text-purple-600'
+                                            }`}>
+                                            {thread.category}
+                                        </span>
+                                        <h4 className="font-serif text-lg text-rose-950 mb-2">{thread.title}</h4>
+                                        <p className="text-gray-600 text-sm leading-relaxed mb-4 whitespace-pre-wrap">
+                                            {thread.content}
+                                        </p>
+                                        <div className="flex gap-6 text-gray-400 text-sm">
+                                            <button className="flex items-center hover:text-rose-500 transition-colors">
+                                                <HiHeart className="w-5 h-5 mr-1" /> {thread.likes} Praying
+                                            </button>
+                                            <button className="flex items-center hover:text-blue-500 transition-colors">
+                                                <HiChatAlt2 className="w-5 h-5 mr-1" /> {thread.comments} Comments
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
 
@@ -103,7 +123,10 @@ const EstherForum: React.FC = () => {
                     <p className="text-rose-100 text-sm mb-6">
                         Have a testimony of God's goodness? Need sisters to stand in the gap for you?
                     </p>
-                    <button className="w-full py-3 bg-white text-rose-600 font-bold rounded-xl hover:bg-rose-50 transition-colors">
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="w-full py-3 bg-white text-rose-600 font-bold rounded-xl hover:bg-rose-50 transition-colors shadow-sm"
+                    >
                         Post to Wall
                     </button>
                 </div>
@@ -118,6 +141,15 @@ const EstherForum: React.FC = () => {
                     </ul>
                 </div>
             </div>
+
+            {isModalOpen && (
+                <WallPostModal
+                    onClose={() => setIsModalOpen(false)}
+                    onPostCreated={() => {
+                        // Real-time listener handles the update, but we could add a toast here if we wanted extra feedback
+                    }}
+                />
+            )}
         </div>
     );
 };
