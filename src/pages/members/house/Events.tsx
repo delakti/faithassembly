@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useHouseFellowship } from '../../../layouts/HouseLayout';
 import { db } from '../../../firebase';
 import { collection, addDoc, getDocs, query, orderBy, Timestamp, deleteDoc, doc } from 'firebase/firestore';
-import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaPlus, FaTrash, FaCheck } from 'react-icons/fa';
+import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaPlus, FaTrash } from 'react-icons/fa';
 
 interface HouseEvent {
     id: string;
