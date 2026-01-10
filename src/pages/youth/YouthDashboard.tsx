@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const YouthDashboard: React.FC = () => {
     return (
-        <div className="space-y-8 pt-28">
+        <div className="space-y-8">
             {/* Welcome Banner */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
