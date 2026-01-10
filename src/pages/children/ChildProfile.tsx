@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { doc, getDoc, updateDoc, serverTimestamp, addDoc, collection } from 'firebase/firestore';
 import { FaUser, FaPhone, FaNotesMedical, FaSave, FaArrowLeft } from 'react-icons/fa';
+import type { Child } from '../../types/children';
 
 const ChildProfile: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -37,7 +38,14 @@ const ChildProfile: React.FC = () => {
             const docRef = doc(db, 'children', childId);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
-                setFormData(docSnap.data() as any);
+                const data = docSnap.data() as Child;
+                setFormData({
+                    ...data,
+                    parentEmail: data.parentEmail || '',
+                    address: data.address || '',
+                    allergies: data.allergies || '',
+                    medicalNotes: data.medicalNotes || ''
+                } as any);
             }
         } catch (error) {
             console.error("Error fetching child:", error);

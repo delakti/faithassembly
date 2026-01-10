@@ -4,9 +4,12 @@ import { collection, query, getDocs, orderBy } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import { FaSearch, FaPlus, FaFilter } from 'react-icons/fa';
 
+import type { Child } from '../../types/children';
+
 const ChildDirectory: React.FC = () => {
-    const [children, setChildren] = useState<any[]>([]);
-    const [filteredChildren, setFilteredChildren] = useState<any[]>([]);
+    const [children, setChildren] = useState<Child[]>([]);
+
+    const [filteredChildren, setFilteredChildren] = useState<Child[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [filterGroup, setFilterGroup] = useState('All');
@@ -23,7 +26,7 @@ const ChildDirectory: React.FC = () => {
         try {
             const q = query(collection(db, 'children'), orderBy('firstName', 'asc'));
             const snap = await getDocs(q);
-            const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Child));
             setChildren(data);
             setFilteredChildren(data);
         } catch (error) {
@@ -99,7 +102,7 @@ const ChildDirectory: React.FC = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredChildren.map((child: any) => (
+                    {filteredChildren.map((child: Child) => (
                         <Link to={`/children/profile/${child.id}`} key={child.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="w-14 h-14 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-2xl font-bold">

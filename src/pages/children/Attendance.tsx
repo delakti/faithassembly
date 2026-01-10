@@ -3,9 +3,12 @@ import { db } from '../../firebase';
 import { collection, query, getDocs, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import { FaUserCheck, FaUserTimes, FaSave, FaFilter, FaCheckDouble } from 'react-icons/fa';
 
+import type { Child } from '../../types/children';
+
 const Attendance: React.FC = () => {
-    const [children, setChildren] = useState<any[]>([]);
-    const [filteredChildren, setFilteredChildren] = useState<any[]>([]);
+    const [children, setChildren] = useState<(Child & { id: string })[]>([]);
+
+    const [filteredChildren, setFilteredChildren] = useState<(Child & { id: string })[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterGroup, setFilterGroup] = useState('All');
     const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
@@ -24,7 +27,7 @@ const Attendance: React.FC = () => {
         try {
             const q = query(collection(db, 'children'), orderBy('firstName', 'asc'));
             const snap = await getDocs(q);
-            const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Child & { id: string }));
             setChildren(data);
             setFilteredChildren(data);
         } catch (error) {
@@ -140,11 +143,14 @@ const Attendance: React.FC = () => {
                 <div className="text-center py-12 text-gray-400">Loading list...</div>
             ) : filteredChildren.length === 0 ? (
                 <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-                    <p className="text-gray-500">No children found in this group.</p>
+                    <p className="text-gray-500 mb-4">No children found in this group.</p>
+                    <a href="/children/directory" className="inline-flex items-center px-4 py-2 bg-sky-100 text-sky-700 rounded-lg font-bold hover:bg-sky-200 transition">
+                        Manage Directory
+                    </a>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredChildren.map((child: any) => {
+                    {filteredChildren.map((child: Child & { id: string }) => {
                         const isPresent = presentList.has(child.id);
                         return (
                             <div
