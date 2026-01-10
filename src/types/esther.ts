@@ -10,3 +10,15 @@ export interface Devotional {
     createdAt?: any;
     status: 'Draft' | 'Published';
 }
+
+export interface EstherEvent {
+    id?: string;
+    title: string;
+    date: string;
+    time: string;
+    location: string;
+    description?: string;
+    image: string;
+    spots: number;
+    createdAt?: any;
+}

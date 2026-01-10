@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { HiPlus, HiCalendar } from 'react-icons/hi';
 import EstherDevotionalManager from './EstherDevotionalManager';
+import EstherEventManager from './EstherEventManager';
 
 
 const EstherLeaderPanel: React.FC = () => {
@@ -38,22 +38,8 @@ const EstherLeaderPanel: React.FC = () => {
                 )}
 
                 {activeTab === 'events' && (
-                    <div className="p-6">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-gray-800 flex items-center">
-                                <HiCalendar className="w-5 h-5 mr-2 text-rose-500" />
-                                Manage Events
-                            </h2>
-                            <button className="flex items-center px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors text-sm font-bold">
-                                <HiPlus className="w-4 h-4 mr-2" />
-                                New Event
-                            </button>
-                        </div>
-
-                        <div className="text-center py-20 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                            <p className="text-gray-500 font-medium">Event management list will appear here.</p>
-                            <p className="text-sm text-gray-400 mt-2">Connect to Firestore to list and edit events.</p>
-                        </div>
+                    <div className="p-0">
+                        <EstherEventManager />
                     </div>
                 )}
             </div>
