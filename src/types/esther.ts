@@ -34,3 +34,16 @@ export interface WallPost {
     comments: number;
     createdAt?: any;
 }
+
+export interface EstherResource {
+    id?: string;
+    title: string;
+    type: 'document' | 'video';
+    author: string;
+    size?: string; // e.g. "2.4 MB" for documents
+    duration?: string; // e.g. "1h 12m" for videos
+    desc: string;
+    image: string; // Thumbnail
+    url: string; // Download/Watch link
+    createdAt?: any;
+}
