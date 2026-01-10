@@ -1,15 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../../firebase';
-import { collection, getDocs, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { FaUsers, FaMapMarkerAlt, FaClock, FaCheck, FaPlus } from 'react-icons/fa';
+import { getDatabase, ref, get, set } from 'firebase/database';
+import { FaUsers, FaMapMarkerAlt, FaClock, FaPlus, FaTimes, FaUserTie } from 'react-icons/fa';
+
+interface Group {
+    id: string;
+    title: string;
+    description: string;
+    image?: string;
+    leaderName?: string;
+    leaderEmail?: string;
+    leaderPhone?: string;
+    meetingDays?: string;
+    venue?: string;
+}
 
 const Groups: React.FC = () => {
     const auth = getAuth();
     const user = auth.currentUser;
-    const [groups, setGroups] = useState<any[]>([]);
-    const [myGroupIds, setMyGroupIds] = useState<string[]>([]);
+    const [groups, setGroups] = useState<Group[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Modal State
+    const [showModal, setShowModal] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+    const [formData, setFormData] = useState({
+        phone: '',
+        message: ''
+    });
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         fetchGroups();
@@ -17,17 +36,21 @@ const Groups: React.FC = () => {
 
     const fetchGroups = async () => {
         try {
-            // Fetch all groups (assuming 'small_groups' collection)
-            // If the user's groups are stored in their profile, we could fetch that too.
-            // For now, we'll assume groups have a 'members' array we can check.
-            const groupsSnap = await getDocs(collection(db, 'small_groups'));
-            const groupsList = groupsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-            setGroups(groupsList);
+            const db = getDatabase();
+            const groupsRef = ref(db, 'churchGroups');
+            const snapshot = await get(groupsRef);
 
-            // Determine which groups the user is in
-            if (user) {
-                const myGroups = groupsList.filter((g: any) => g.members?.includes(user.uid)).map((g: any) => g.id);
-                setMyGroupIds(myGroups);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const groupsList = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                }));
+                // Sort by title alphabetically
+                groupsList.sort((a, b) => a.title.localeCompare(b.title));
+                setGroups(groupsList);
+            } else {
+                setGroups([]);
             }
         } catch (error) {
             console.error("Error fetching groups:", error);
@@ -36,43 +59,48 @@ const Groups: React.FC = () => {
         }
     };
 
-    const handleJoin = async (groupId: string) => {
-        if (!user) return;
-        try {
-            const groupRef = doc(db, 'small_groups', groupId);
-            await updateDoc(groupRef, {
-                members: arrayUnion(user.uid)
-            });
-            setMyGroupIds(prev => [...prev, groupId]);
-            // Also update user profile? Optional but good for redundancy.
-            await updateDoc(doc(db, 'users', user.uid), {
-                groups: arrayUnion(groupId)
-            });
-        } catch (error) {
-            console.error("Error joining group:", error);
-            alert("Failed to join group.");
-        }
+    const handleJoinClick = (group: Group) => {
+        setSelectedGroup(group);
+        setShowModal(true);
     };
 
-    const handleLeave = async (groupId: string) => {
-        if (!user) return;
-        if (!window.confirm("Are you sure you want to leave this group?")) return;
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user || !selectedGroup) return;
+
+        setSubmitting(true);
         try {
-            const groupRef = doc(db, 'small_groups', groupId);
-            await updateDoc(groupRef, {
-                members: arrayRemove(user.uid)
+            const db = getDatabase();
+            // Path: groupJoinRequests / {groupId} / {userId}
+            // Using a timestamp in the key or just userId depending on if we want multiple requests.
+            // Let's use userId to prevent spamming, or maybe existing logic allows one request.
+            // For now, simpler is one request per user per group context.
+            const requestRef = ref(db, `groupJoinRequests/${selectedGroup.id}/${user.uid}`);
+
+            await set(requestRef, {
+                userId: user.uid,
+                userName: user.displayName || 'Anonymous',
+                userEmail: user.email,
+                userPhone: formData.phone,
+                message: formData.message,
+                groupName: selectedGroup.title,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
             });
-            setMyGroupIds(prev => prev.filter(id => id !== groupId));
-            await updateDoc(doc(db, 'users', user.uid), {
-                groups: arrayRemove(groupId)
-            });
+
+            alert(`Request to join ${selectedGroup.title} sent successfully! A leader will contact you soon.`);
+            setShowModal(false);
+            setFormData({ phone: '', message: '' });
         } catch (error) {
-            console.error("Error leaving group:", error);
+            console.error("Error creating join request:", error);
+            alert("Failed to send request. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
     return (
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto relative">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                     <FaUsers className="mr-3 text-blue-600" /> Small Groups
@@ -80,53 +108,144 @@ const Groups: React.FC = () => {
                 <p className="text-gray-600 mt-2">Connect with others, grow in faith, and do life together.</p>
             </div>
 
-            {loading ? <p className="text-center py-12 text-gray-400">Loading directory...</p> : (
+            {loading ? (
+                <div className="flex justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+            ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {groups.map(group => {
-                        const isMember = myGroupIds.includes(group.id);
-                        return (
-                            <div key={group.id} className={`rounded-xl shadow-sm border ${isMember ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-200'} bg-white overflow-hidden flex flex-col`}>
-                                <div className="h-32 bg-gray-100 relative">
-                                    {group.image && <img src={group.image} alt={group.name} className="w-full h-full object-cover" />}
-                                    {isMember && (
-                                        <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center shadow">
-                                            <FaCheck className="mr-1" /> MEMBER
+                    {groups.map(group => (
+                        <div key={group.id} className="rounded-xl shadow-sm border border-gray-200 bg-white overflow-hidden flex flex-col hover:shadow-md transition">
+                            <div className="h-40 bg-gray-100 relative">
+                                {group.image ? (
+                                    <img src={group.image} alt={group.title} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-200">
+                                        <FaUsers className="text-4xl" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="p-5 flex-1 flex flex-col">
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">{group.title}</h3>
+                                {group.leaderName && (
+                                    <div className="flex items-center text-sm text-blue-600 mb-3 font-medium">
+                                        <FaUserTie className="mr-2" /> {group.leaderName}
+                                    </div>
+                                )}
+
+                                <div className="text-sm text-gray-500 space-y-2 mb-4 flex-1">
+                                    {group.meetingDays && (
+                                        <div className="flex items-start">
+                                            <FaClock className="mr-2 mt-0.5 text-gray-400 shrink-0" />
+                                            <span>{group.meetingDays}</span>
                                         </div>
                                     )}
-                                </div>
-                                <div className="p-5 flex-1 flex flex-col">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">{group.name}</h3>
-                                    <div className="text-sm text-gray-500 space-y-2 mb-4 flex-1">
-                                        <div className="flex items-center"><FaClock className="mr-2" /> {group.meetingTime || 'TBA'}</div>
-                                        <div className="flex items-center"><FaMapMarkerAlt className="mr-2" /> {group.location || 'Online'}</div>
-                                        <p className="line-clamp-2">{group.description}</p>
-                                    </div>
-
-                                    {isMember ? (
-                                        <button
-                                            onClick={() => handleLeave(group.id)}
-                                            className="w-full border border-gray-300 text-gray-600 py-2 rounded-lg hover:bg-gray-50 text-sm font-medium transition"
-                                        >
-                                            Leave Group
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleJoin(group.id)}
-                                            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 text-sm font-bold transition flex items-center justify-center"
-                                        >
-                                            <FaPlus className="mr-2" /> Join Group
-                                        </button>
+                                    {group.venue && (
+                                        <div className="flex items-start">
+                                            <FaMapMarkerAlt className="mr-2 mt-0.5 text-gray-400 shrink-0" />
+                                            <span>{group.venue}</span>
+                                        </div>
+                                    )}
+                                    {group.description && (
+                                        <p className="line-clamp-3 text-gray-600 mt-2 text-xs leading-relaxed">
+                                            {group.description}
+                                        </p>
                                     )}
                                 </div>
+
+                                <button
+                                    onClick={() => handleJoinClick(group)}
+                                    className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 text-sm font-bold transition flex items-center justify-center"
+                                >
+                                    <FaPlus className="mr-2" /> Join Group
+                                </button>
                             </div>
-                        );
-                    })}
+                        </div>
+                    ))}
                 </div>
             )}
 
             {!loading && groups.length === 0 && (
                 <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
                     <p className="text-gray-500">No active small groups found at the moment.</p>
+                </div>
+            )}
+
+            {/* Interest Modal */}
+            {showModal && selectedGroup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl relative">
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+                        >
+                            <FaTimes className="text-xl" />
+                        </button>
+
+                        <h3 className="text-xl font-bold text-gray-900 mb-1">Join {selectedGroup.title}</h3>
+                        <p className="text-sm text-gray-500 mb-6">Complete the form below to express your interest.</p>
+
+                        <form onSubmit={handleFormSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <input
+                                    type="text"
+                                    value={user?.displayName || ''}
+                                    disabled
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 focus:outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <input
+                                    type="email"
+                                    value={user?.email || ''}
+                                    disabled
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 focus:outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number <span className="text-red-500">*</span></label>
+                                <input
+                                    type="tel"
+                                    required
+                                    placeholder="e.g. 07123 456789"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Message (Optional)</label>
+                                <textarea
+                                    rows={3}
+                                    placeholder="Any questions or specific availability?"
+                                    value={formData.message}
+                                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                                ></textarea>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={submitting}
+                                className={`w-full py-2 rounded-lg text-white font-bold transition flex items-center justify-center ${submitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                                    }`}
+                            >
+                                {submitting ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        Sending...
+                                    </>
+                                ) : (
+                                    'Submit Request'
+                                )}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

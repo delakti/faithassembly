@@ -65,6 +65,7 @@ import UserManager from './pages/admin/super/users/UserManager';
 import AnalyticsDashboard from './pages/admin/super/analytics/AnalyticsDashboard';
 import ActivityLogViewer from './pages/admin/super/analytics/ActivityLogViewer';
 import AnnouncementManager from './pages/admin/super/content/AnnouncementManager';
+import GroupManager from './pages/admin/super/content/GroupManager';
 import SystemSettings from './pages/admin/super/settings/SystemSettings';
 import AdminSetup from './pages/admin/super/AdminSetup';
 
@@ -282,6 +283,7 @@ function App() {
                   <Route path="analytics" element={<AnalyticsDashboard />} />
                   <Route path="logs" element={<ActivityLogViewer />} />
                   <Route path="announcements" element={<AnnouncementManager />} />
+                  <Route path="groups" element={<GroupManager />} />
                   <Route path="settings" element={<SystemSettings />} />
                   {/* Future routes: portals, content, etc. */}
                 </Route>

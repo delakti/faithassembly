@@ -35,24 +35,32 @@ const MemberDashboard: React.FC = () => {
 
                     if (donorData.HouseFellowship) {
                         const houseFellowshipName = donorData.HouseFellowship;
-                        let groupDetails = null;
-
-                        // 2. Fetch churchGroups to get details matching the name
-                        const groupsRef = ref(db, 'churchGroups');
-                        const groupsQ = query(groupsRef, orderByChild('title'), equalTo(houseFellowshipName));
-                        const groupsSnapshot = await get(groupsQ);
-
-                        if (groupsSnapshot.exists()) {
-                            const groupsVal = groupsSnapshot.val();
-                            const groupKey = Object.keys(groupsVal)[0];
-                            groupDetails = groupsVal[groupKey];
-                        }
-
-                        setMyGroup({
+                        // Set basic info IMMEDIATELY so UI shows something
+                        const basicGroupInfo = {
                             name: houseFellowshipName,
                             leaders: donorData.HouseFellowshipLeaders || 'Contact Admin',
-                            details: groupDetails
-                        });
+                            details: null
+                        };
+                        setMyGroup(basicGroupInfo);
+
+                        try {
+                            // 2. Try Fetch churchGroups to get details matching the name
+                            const groupsRef = ref(db, 'churchGroups');
+                            const groupsQ = query(groupsRef, orderByChild('title'), equalTo(houseFellowshipName));
+                            const groupsSnapshot = await get(groupsQ);
+
+                            if (groupsSnapshot.exists()) {
+                                const groupsVal = groupsSnapshot.val();
+                                const groupKey = Object.keys(groupsVal)[0];
+                                const groupDetails = groupsVal[groupKey];
+
+                                // Update with details
+                                setMyGroup(prev => prev ? ({ ...prev, details: groupDetails }) : null);
+                            }
+                        } catch (detailErr) {
+                            console.warn("Could not fetch extra group details:", detailErr);
+                            // Do nothing, basic info is already set
+                        }
                     }
                 }
             } catch (error) {

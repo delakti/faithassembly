@@ -115,6 +115,10 @@ const SuperAdminDashboard: React.FC = () => {
                             Create Announcement
                             <HiArrowRight className="text-slate-300 group-hover:text-slate-500" />
                         </button>
+                        <Link to="/admin/super/groups" className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium text-slate-700 transition flex items-center justify-between group">
+                            Manage Groups
+                            <HiArrowRight className="text-slate-300 group-hover:text-slate-500" />
+                        </Link>
                         <button className="w-full text-left px-4 py-3 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm font-medium text-slate-700 transition flex items-center justify-between group">
                             Audit User Permissions
                             <HiArrowRight className="text-slate-300 group-hover:text-slate-500" />
