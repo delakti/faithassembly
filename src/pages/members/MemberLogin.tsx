@@ -28,8 +28,10 @@ const MemberLogin: React.FC = () => {
             if (userDoc.exists()) {
                 const userData = userDoc.data();
 
-                // Allow super_admin, admin, member, user
-                if (userData && ['user', 'member', 'admin', 'super_admin'].includes(userData.role)) {
+                // Allow access if role is valid (essentially all roles in UserRole type)
+                // We could check against a comprehensive list, or just check that a role exists.
+                // Since this is the "Member Portal", basically anyone in the system should have access.
+                if (userData && userData.role) {
                     navigate('/members/dashboard');
                 } else {
                     // Valid profile but restricted role? (Shouldn't happen with above check, but good for safety)

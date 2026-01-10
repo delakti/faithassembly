@@ -17,8 +17,9 @@ const MemberRoute: React.FC = () => {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists()) {
                     const data = userDoc.data();
-                    // Admins can also access member area
-                    if (['user', 'member', 'admin', 'super_admin'].includes(data.role)) {
+                    // Allow access to Member Dashboard for ANY valid user with a role
+                    // This includes 'user', 'member', 'admin', 'volunteer', and all ministry leaders/members
+                    if (data.role) {
                         setIsAuthorized(true);
                     } else {
                         setIsAuthorized(false);
