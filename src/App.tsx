@@ -186,6 +186,7 @@ import MemberGroups from './pages/members/Groups';
 import CheckIn from './pages/members/CheckIn';
 import MemberNews from './pages/members/MemberNews';
 import Appointments from './pages/members/Appointments';
+import MemberProfile from './pages/members/MemberProfile';
 
 import HouseLayout from './layouts/HouseLayout';
 import HouseDashboard from './pages/members/house/HouseDashboard';
@@ -513,6 +514,7 @@ function App() {
                 <Route path="news" element={<MemberNews />} />
                 <Route path="appointments" element={<Appointments />} />
                 <Route path="prayer" element={<NeedPrayer />} />
+                <Route path="profile" element={<MemberProfile />} />
               </Route>
 
               {/* House Fellowship Portal (Protected by MemberRoute, uses HouseLayout) */}
