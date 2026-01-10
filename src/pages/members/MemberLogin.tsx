@@ -27,13 +27,12 @@ const MemberLogin: React.FC = () => {
 
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                console.log("Member Login Debug:", { uid: user.uid, role: userData?.role, userData });
 
                 // Allow super_admin, admin, member
                 if (userData && ['member', 'admin', 'super_admin'].includes(userData.role)) {
                     navigate('/members/dashboard');
                 } else {
-                    setError('Access Denied: You are not registered as a member. Please contact the church office.');
+                    setError('e');
                     await auth.signOut();
                 }
             } else {
