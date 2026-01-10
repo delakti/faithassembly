@@ -16,6 +16,7 @@ const DEFAULT_CONTENT: EstherDashboardContent = {
             title: "New Devotional",
             desc: "Finding Peace in the Chaos - Sister Beatrice explores how we can stay grounded.",
             action: "Read More",
+            url: "/esther/devotionals",
             color: "yellow",
             icon: "sparkles"
         },
@@ -24,6 +25,7 @@ const DEFAULT_CONTENT: EstherDashboardContent = {
             title: "Morning Prayer",
             desc: "Join us this Saturday at 7:00 AM for our monthly intercession circle.",
             action: "RSVP Now",
+            url: "/esther/events",
             color: "blue",
             icon: "calendar"
         },
@@ -32,6 +34,7 @@ const DEFAULT_CONTENT: EstherDashboardContent = {
             title: "Mentoring Groups",
             desc: "Applications for the Spring mentorship cohort are now open.",
             action: "Learn More",
+            url: "/esther/groups",
             color: "green",
             icon: "users"
         }
@@ -91,7 +94,12 @@ const EstherDashboard: React.FC = () => {
                         </div>
                         <h3 className="text-lg font-serif text-gray-900 mb-2">{item.title}</h3>
                         <p className="text-gray-500 text-sm mb-4">{item.desc}</p>
-                        <button className="text-rose-500 text-sm font-medium hover:text-rose-600 transition-colors">{item.action} &rarr;</button>
+                        <button
+                            onClick={() => item.url ? window.location.href = item.url : {}}
+                            className="text-rose-500 text-sm font-medium hover:text-rose-600 transition-colors"
+                        >
+                            {item.action} &rarr;
+                        </button>
                     </div>
                 ))}
             </div>

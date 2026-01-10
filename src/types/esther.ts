@@ -82,6 +82,7 @@ export interface EstherDashboardContent {
         title: string;
         desc: string;
         action: string;
+        url?: string;
         color: 'yellow' | 'blue' | 'green';
         icon: 'sparkles' | 'calendar' | 'users';
     }[];

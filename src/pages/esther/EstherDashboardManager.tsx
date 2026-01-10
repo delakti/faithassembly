@@ -16,6 +16,7 @@ const DEFAULT_CONTENT: EstherDashboardContent = {
             title: "New Devotional",
             desc: "Finding Peace in the Chaos - Sister Beatrice explores how we can stay grounded.",
             action: "Read More",
+            url: "/esther/devotionals",
             color: "yellow",
             icon: "sparkles"
         },
@@ -24,6 +25,7 @@ const DEFAULT_CONTENT: EstherDashboardContent = {
             title: "Morning Prayer",
             desc: "Join us this Saturday at 7:00 AM for our monthly intercession circle.",
             action: "RSVP Now",
+            url: "/esther/events",
             color: "blue",
             icon: "calendar"
         },
@@ -32,6 +34,7 @@ const DEFAULT_CONTENT: EstherDashboardContent = {
             title: "Mentoring Groups",
             desc: "Applications for the Spring mentorship cohort are now open.",
             action: "Learn More",
+            url: "/esther/groups",
             color: "green",
             icon: "users"
         }
@@ -141,6 +144,15 @@ const EstherDashboardManager: React.FC = () => {
                                     <input
                                         value={highlight.action}
                                         onChange={(e) => updateHighlight(index, 'action', e.target.value)}
+                                        className="w-full p-2 border rounded-lg text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Button URL</label>
+                                    <input
+                                        value={highlight.url || ''}
+                                        onChange={(e) => updateHighlight(index, 'url', e.target.value)}
+                                        placeholder="/esther/..."
                                         className="w-full p-2 border rounded-lg text-sm"
                                     />
                                 </div>
