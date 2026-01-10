@@ -27,7 +27,7 @@ const MemberLogin: React.FC = () => {
 
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                if (userData.role === 'member' || userData.role === 'admin') {
+                if (['member', 'admin', 'super_admin'].includes(userData.role)) {
                     navigate('/members/dashboard');
                 } else {
                     setError('Access Denied: You are not registered as a member. Please contact the church office.');
