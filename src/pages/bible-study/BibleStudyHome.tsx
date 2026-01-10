@@ -48,7 +48,7 @@ const BibleStudyHome: React.FC = () => {
     const categories = ['All', 'Faith', 'Discipleship', 'Prayer', 'Prophecy', 'Family'];
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen bg-gray-50 pb-20 pt-24">
             {/* Header / Hero */}
             <div className="bg-purple-900 text-white py-16 px-4">
                 <div className="max-w-7xl mx-auto text-center">
