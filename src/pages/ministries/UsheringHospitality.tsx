@@ -63,7 +63,7 @@ const UsheringHospitality: React.FC = () => {
                                 Managing seating, maintaining order, and handling the offering with integrity.
                             </p>
                             <Link
-                                to="/usher/login"
+                                to="/ushering/login"
                                 className="mt-auto px-8 py-3 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 transition w-full"
                             >
                                 Usher Portal <HiArrowRight className="inline ml-1" />

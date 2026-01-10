@@ -55,7 +55,7 @@ const YouthMinistry: React.FC = () => {
                         >
                             Login to Portal <HiArrowRight className="inline ml-2" />
                         </Link>
-                        <p className="text-xs text-slate-400 mt-4">Ages 13-19 only.</p>
+                        <p className="text-xs text-slate-400 mt-4">Youth & Young Adults only.</p>
                     </div>
 
                     <div className="order-1 md:order-2">
