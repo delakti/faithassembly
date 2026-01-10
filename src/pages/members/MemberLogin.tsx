@@ -136,7 +136,7 @@ const MemberLogin: React.FC = () => {
 
                     <div className="mt-6 text-center">
                         <p className="text-sm text-gray-600">
-                            Not a member yet? <Link to="/contact" className="font-medium text-blue-600 hover:text-blue-500">Contact us to join</Link>
+                            Not a member yet? <Link to="/members/register" className="font-medium text-blue-600 hover:text-blue-500">Create an account</Link>
                         </p>
                     </div>
                 </div>

@@ -174,6 +174,7 @@ import UsherTeam from './pages/ushering/UsherTeam';
 
 // Member Portal Imports
 import MemberLogin from './pages/members/MemberLogin';
+import MemberRegister from './pages/members/MemberRegister';
 import MemberRoute from './components/members/MemberRoute';
 import MemberLayout from './layouts/MemberLayout';
 import MemberDashboard from './pages/members/MemberDashboard';
@@ -486,6 +487,7 @@ function App() {
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/team/login" element={<VolunteerLogin />} />
             <Route path="/members/login" element={<MemberLogin />} />
+            <Route path="/members/register" element={<MemberRegister />} />
 
             {/* Volunteer Portal (Team) Routes */}
             <Route path="/team" element={<VolunteerRoute />}>
