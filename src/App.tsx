@@ -20,6 +20,7 @@ import TestimonyCards from './pages/TestimonyCards';
 import EventDetail from './pages/EventDetail';
 import Groups from './pages/Groups';
 import Give from './pages/Give';
+import Giving from './pages/Giving';
 import Volunteer from './pages/Volunteer';
 import Salvation from './pages/Salvation';
 import NeedPrayer from './pages/NeedPrayer';
@@ -304,6 +305,7 @@ function App() {
               <Route path="/testimony" element={<TestimonyCards />} />
               <Route path="/groups" element={<Groups />} />
               <Route path="/give" element={<Give />} />
+              <Route path="/giving" element={<Giving />} />
               <Route path="/volunteer" element={<Volunteer />} />
               <Route path="/salvation" element={<Salvation />} />
               <Route path="/prayer" element={<NeedPrayer />} />
