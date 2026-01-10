@@ -70,3 +70,19 @@ export interface GroupMember {
     userEmail?: string;
     joinedAt: any;
 }
+
+export interface EstherDashboardContent {
+    id?: string; // e.g. 'main'
+    verse: {
+        text: string;
+        reference: string;
+    };
+    highlights: {
+        id: number;
+        title: string;
+        desc: string;
+        action: string;
+        color: 'yellow' | 'blue' | 'green';
+        icon: 'sparkles' | 'calendar' | 'users';
+    }[];
+}

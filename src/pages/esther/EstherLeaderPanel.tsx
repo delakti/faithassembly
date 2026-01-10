@@ -3,10 +3,11 @@ import EstherDevotionalManager from './EstherDevotionalManager';
 import EstherEventManager from './EstherEventManager';
 import EstherResourceManager from './EstherResourceManager';
 import EstherGroupManager from './EstherGroupManager';
+import EstherDashboardManager from './EstherDashboardManager';
 
 
 const EstherLeaderPanel: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'devotionals' | 'events' | 'resources' | 'groups'>('devotionals');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'devotionals' | 'events' | 'resources' | 'groups'>('dashboard');
 
     return (
         <div className="space-y-8 font-sans">
@@ -15,7 +16,13 @@ const EstherLeaderPanel: React.FC = () => {
                     <h1 className="text-3xl font-serif text-rose-950">Leader Panel</h1>
                     <p className="text-gray-500">Manage devotionals, events, and ministry resources.</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        onClick={() => setActiveTab('dashboard')}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === 'dashboard' ? 'bg-rose-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        Dashboard
+                    </button>
                     <button
                         onClick={() => setActiveTab('devotionals')}
                         className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === 'devotionals' ? 'bg-rose-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
@@ -45,6 +52,12 @@ const EstherLeaderPanel: React.FC = () => {
 
             {/* Content Area */}
             <div className="bg-white rounded-2xl border border-rose-100 shadow-sm overflow-hidden min-h-[500px]">
+                {activeTab === 'dashboard' && (
+                    <div className="p-0">
+                        <EstherDashboardManager />
+                    </div>
+                )}
+
                 {activeTab === 'devotionals' && (
                     <div className="p-0">
                         <EstherDevotionalManager />

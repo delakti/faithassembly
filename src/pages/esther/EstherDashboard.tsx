@@ -1,8 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiSparkles, HiCalendar, HiUserGroup } from 'react-icons/hi';
 import { motion } from 'framer-motion';
+import { db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import type { EstherDashboardContent } from '../../types/esther';
+
+const DEFAULT_CONTENT: EstherDashboardContent = {
+    verse: {
+        text: "She is clothed with strength and dignity; she can laugh at the days to come.",
+        reference: "Proverbs 31:25"
+    },
+    highlights: [
+        {
+            id: 1,
+            title: "New Devotional",
+            desc: "Finding Peace in the Chaos - Sister Beatrice explores how we can stay grounded.",
+            action: "Read More",
+            color: "yellow",
+            icon: "sparkles"
+        },
+        {
+            id: 2,
+            title: "Morning Prayer",
+            desc: "Join us this Saturday at 7:00 AM for our monthly intercession circle.",
+            action: "RSVP Now",
+            color: "blue",
+            icon: "calendar"
+        },
+        {
+            id: 3,
+            title: "Mentoring Groups",
+            desc: "Applications for the Spring mentorship cohort are now open.",
+            action: "Learn More",
+            color: "green",
+            icon: "users"
+        }
+    ]
+};
 
 const EstherDashboard: React.FC = () => {
+    const [content, setContent] = useState<EstherDashboardContent>(DEFAULT_CONTENT);
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const docRef = doc(db, 'esther_content', 'dashboard');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    setContent(docSnap.data() as EstherDashboardContent);
+                }
+            } catch (error) {
+                console.error("Error fetching dashboard content:", error);
+            }
+        };
+        fetchContent();
+    }, []);
+
     return (
         <div className="space-y-8 font-sans">
             {/* Hero / Verse of Day */}
@@ -14,9 +67,9 @@ const EstherDashboard: React.FC = () => {
                 <div className="relative z-10 max-w-3xl">
                     <span className="inline-block px-3 py-1 bg-rose-50 text-rose-600 text-xs font-bold tracking-widest uppercase rounded-full mb-6">Verse of the Day</span>
                     <blockquote className="font-serif text-3xl md:text-4xl text-rose-950 leading-snug mb-6 italic">
-                        "She is clothed with strength and dignity; she can laugh at the days to come."
+                        "{content.verse.text}"
                     </blockquote>
-                    <cite className="text-gray-500 font-medium not-italic block">— Proverbs 31:25</cite>
+                    <cite className="text-gray-500 font-medium not-italic block">— {content.verse.reference}</cite>
                 </div>
                 {/* Decorative Floral */}
                 <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-1/4 translate-y-1/4">
@@ -27,32 +80,20 @@ const EstherDashboard: React.FC = () => {
             </motion.div>
 
             <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-10 h-10 bg-yellow-50 rounded-full flex items-center justify-center mb-4 text-yellow-600">
-                        <HiSparkles className="w-5 h-5" />
+                {content.highlights.map((item, index) => (
+                    <div key={index} className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-4 
+                            ${item.color === 'yellow' ? 'bg-yellow-50 text-yellow-600' :
+                                item.color === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'}`}>
+                            {item.icon === 'sparkles' && <HiSparkles className="w-5 h-5" />}
+                            {item.icon === 'calendar' && <HiCalendar className="w-5 h-5" />}
+                            {item.icon === 'users' && <HiUserGroup className="w-5 h-5" />}
+                        </div>
+                        <h3 className="text-lg font-serif text-gray-900 mb-2">{item.title}</h3>
+                        <p className="text-gray-500 text-sm mb-4">{item.desc}</p>
+                        <button className="text-rose-500 text-sm font-medium hover:text-rose-600 transition-colors">{item.action} &rarr;</button>
                     </div>
-                    <h3 className="text-lg font-serif text-gray-900 mb-2">New Devotional</h3>
-                    <p className="text-gray-500 text-sm mb-4">"Finding Peace in the Chaos" - Sister Beatrice explores how we can stay grounded.</p>
-                    <button className="text-rose-500 text-sm font-medium hover:text-rose-600 transition-colors">Read More &rarr;</button>
-                </div>
-
-                <div className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mb-4 text-blue-600">
-                        <HiCalendar className="w-5 h-5" />
-                    </div>
-                    <h3 className="text-lg font-serif text-gray-900 mb-2">Morning Prayer</h3>
-                    <p className="text-gray-500 text-sm mb-4">Join us this Saturday at 7:00 AM for our monthly intercession circle.</p>
-                    <button className="text-rose-500 text-sm font-medium hover:text-rose-600 transition-colors">RSVP Now &rarr;</button>
-                </div>
-
-                <div className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center mb-4 text-green-600">
-                        <HiUserGroup className="w-5 h-5" />
-                    </div>
-                    <h3 className="text-lg font-serif text-gray-900 mb-2">Mentoring Groups</h3>
-                    <p className="text-gray-500 text-sm mb-4">Applications for the Spring mentorship cohort are now open.</p>
-                    <button className="text-rose-500 text-sm font-medium hover:text-rose-600 transition-colors">Learn More &rarr;</button>
-                </div>
+                ))}
             </div>
 
         </div>
