@@ -184,7 +184,13 @@ import CheckIn from './pages/members/CheckIn';
 import MemberNews from './pages/members/MemberNews';
 import Appointments from './pages/members/Appointments';
 
-import Prayer from './pages/members/Prayer';
+import HouseLayout from './layouts/HouseLayout';
+import HouseDashboard from './pages/members/house/HouseDashboard';
+import HouseAttendance from './pages/members/house/Attendance';
+import HouseOfferings from './pages/members/house/Offerings';
+import HouseEvents from './pages/members/house/Events';
+import HouseChat from './pages/members/house/Chat';
+import HouseResources from './pages/members/house/Resources';
 
 // Children's Portal Imports
 import ChildrenLogin from './pages/children/ChildrenLogin';
@@ -500,7 +506,19 @@ function App() {
                 <Route path="check-in" element={<CheckIn />} />
                 <Route path="news" element={<MemberNews />} />
                 <Route path="appointments" element={<Appointments />} />
-                <Route path="prayer" element={<Prayer />} />
+                <Route path="prayer" element={<NeedPrayer />} />
+              </Route>
+
+              {/* House Fellowship Portal (Protected by MemberRoute, uses HouseLayout) */}
+              <Route path="fellowship" element={<HouseLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<HouseDashboard />} />
+                <Route path="attendance" element={<HouseAttendance />} />
+                <Route path="offerings" element={<HouseOfferings />} />
+                <Route path="events" element={<HouseEvents />} />
+                <Route path="events" element={<HouseEvents />} />
+                <Route path="chat" element={<HouseChat />} />
+                <Route path="resources" element={<HouseResources />} />
               </Route>
             </Route>
 
