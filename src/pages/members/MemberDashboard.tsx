@@ -2,8 +2,9 @@ import React from 'react';
 import { getAuth } from 'firebase/auth';
 import { FaHandHoldingHeart, FaCalendarAlt, FaStar, FaArrowRight, FaTimes } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { ref, query, orderByChild, equalTo, get } from 'firebase/database';
-import { database } from '../../firebase';
+import { ref, query as rtdbQuery, orderByChild, equalTo, get } from 'firebase/database';
+import { db, database } from '../../firebase';
+import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
 const MemberDashboard: React.FC = () => {
     const auth = getAuth();
@@ -16,6 +17,31 @@ const MemberDashboard: React.FC = () => {
     const [loadingGroup, setLoadingGroup] = React.useState(true);
     const [showModal, setShowModal] = React.useState(false);
 
+    // Announcement State
+    const [announcements, setAnnouncements] = React.useState<any[]>([]);
+    const [loadingAnnouncements, setLoadingAnnouncements] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchAnnouncements = async () => {
+            try {
+                const q = query(
+                    collection(db, 'announcements'),
+                    where('status', '==', 'Active'),
+                    orderBy('createdAt', 'desc'),
+                    limit(5)
+                );
+                const snapshot = await getDocs(q);
+                const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setAnnouncements(data);
+            } catch (err) {
+                console.error("Failed to load announcements", err);
+            } finally {
+                setLoadingAnnouncements(false);
+            }
+        };
+        fetchAnnouncements();
+    }, []);
+
     React.useEffect(() => {
         const fetchMyGroup = async () => {
             if (!user?.email) return;
@@ -26,7 +52,7 @@ const MemberDashboard: React.FC = () => {
                 // 1. Fetch Donor to get HouseFellowship name
                 // Note: 'donor' query might also need index on 'Email'
                 const donorRef = ref(db, 'donor');
-                const donorQ = query(donorRef, orderByChild('Email'), equalTo(user.email));
+                const donorQ = rtdbQuery(donorRef, orderByChild('Email'), equalTo(user.email));
                 const donorSnapshot = await get(donorQ);
 
                 if (donorSnapshot.exists()) {
@@ -126,19 +152,42 @@ const MemberDashboard: React.FC = () => {
             {/* Recent Activity / News Placeholder */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">Latest Announcements</h2>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                            <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">General</span>
-                            <h3 className="font-bold text-gray-800 mt-1">Mid-Week Service Resumes</h3>
-                            <p className="text-sm text-gray-600 mt-1">Join us this Wednesday at 7PM for our Bible Study series.</p>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                            <span className="text-xs font-bold text-green-600 uppercase tracking-wide">Groups</span>
-                            <h3 className="font-bold text-gray-800 mt-1">New Small Groups Launching</h3>
-                            <p className="text-sm text-gray-600 mt-1">Sign up for the Fall semester groups starting next week.</p>
-                        </div>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-gray-900">Latest Announcements</h2>
+                        <Link to="/members/news" className="text-sm text-blue-600 font-medium hover:underline">View All</Link>
                     </div>
+
+                    {loadingAnnouncements ? (
+                        <div className="space-y-4 animate-pulse">
+                            {[1, 2].map(i => (
+                                <div key={i} className="h-24 bg-gray-100 rounded-lg"></div>
+                            ))}
+                        </div>
+                    ) : announcements.length === 0 ? (
+                        <p className="text-gray-500 text-sm">No new announcements.</p>
+                    ) : (
+                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                            {announcements.map((ann) => (
+                                <div key={ann.id} className={`p-4 rounded-lg border-l-4 ${ann.type === 'Alert' ? 'bg-red-50 border-red-500' :
+                                    ann.type === 'Warning' ? 'bg-yellow-50 border-yellow-500' :
+                                        ann.type === 'Success' ? 'bg-green-50 border-green-500' :
+                                            'bg-blue-50 border-blue-500'
+                                    }`}>
+                                    <div className="flex justify-between items-start">
+                                        <span className={`text-[10px] font-bold uppercase tracking-wide ${ann.type === 'Alert' ? 'text-red-600' :
+                                            ann.type === 'Warning' ? 'text-yellow-700' :
+                                                ann.type === 'Success' ? 'text-green-600' :
+                                                    'text-blue-600'
+                                            }`}>
+                                            {ann.type} • {new Date(ann.date).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 mt-1">{ann.title}</h3>
+                                    <p className="text-sm text-gray-700 mt-1 leading-relaxed">{ann.message}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

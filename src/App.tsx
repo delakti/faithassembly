@@ -76,6 +76,8 @@ import GroupManager from './pages/admin/super/content/GroupManager';
 import SystemSettings from './pages/admin/super/settings/SystemSettings';
 import AdminSetup from './pages/admin/super/AdminSetup';
 import PortalManager from './pages/admin/super/portals/PortalManager';
+import AttendanceReports from './pages/admin/super/reports/AttendanceReports';
+import ServiceQRGenerator from './pages/admin/super/attendance/ServiceQRGenerator';
 
 // Youth Portal Imports
 import YouthLogin from './pages/youth/YouthLogin';
@@ -299,7 +301,9 @@ function App() {
 
               <Route path="/contact" element={<Contact />} />
               <Route path="/plan-visit" element={<PlanVisit />} />
+              <Route path="/plan-visit" element={<PlanVisit />} />
               <Route path="/visit" element={<Visit />} />
+              <Route path="/attendance/check-in" element={<AttendanceLog />} />
 
               {/* New Routes */}
               <Route path="/events" element={<Events />} />
@@ -350,6 +354,8 @@ function App() {
                 <Route path="announcements" element={<AnnouncementManager />} />
                 <Route path="groups" element={<GroupManager />} />
                 <Route path="portals" element={<PortalManager />} />
+                <Route path="reports" element={<AttendanceReports />} />
+                <Route path="qr-generator" element={<ServiceQRGenerator />} />
                 <Route path="settings" element={<SystemSettings />} />
               </Route>
             </Route>
