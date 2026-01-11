@@ -28,6 +28,7 @@ const Footer: React.FC = () => {
                             <li><Link to="/services" className="hover:text-white transition">Service Times</Link></li>
                             <li><Link to="/events" className="hover:text-white transition">Events Calendar</Link></li>
                             <li><Link to="/contact" className="hover:text-white transition">Contact Us</Link></li>
+                            <li><Link to="/support" className="hover:text-white transition">Customer Support</Link></li>
                         </ul>
                     </div>
 
@@ -58,7 +59,13 @@ const Footer: React.FC = () => {
                 </div>
 
                 <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500 text-sm">
-                    <p>&copy; {new Date().getFullYear()} Faith Assembly. All rights reserved.</p>
+                    <div className="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-4">
+                        <p>&copy; {new Date().getFullYear()} Faith Assembly. All rights reserved.</p>
+                        <span className="hidden md:inline">|</span>
+                        <Link to="/privacy" className="hover:text-gray-300 transition">Privacy Policy</Link>
+                        <span className="hidden md:inline">|</span>
+                        <Link to="/terms" className="hover:text-gray-300 transition">Terms of Service</Link>
+                    </div>
                 </div>
             </div>
         </footer>

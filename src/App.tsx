@@ -31,6 +31,11 @@ import StoreHome from './pages/store/StoreHome';
 import ProductDetail from './pages/store/ProductDetail';
 import Checkout from './pages/store/Checkout';
 import OrderSuccess from './pages/store/OrderSuccess';
+// Legal & Support Imports
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import CustomerSupport from './pages/CustomerSupport';
+
 import BibleStudyHome from './pages/bible-study/BibleStudyHome';
 import StudyGuideDetail from './pages/bible-study/StudyGuideDetail';
 import UserDashboard from './pages/bible-study/UserDashboard';
@@ -311,6 +316,11 @@ function App() {
               <Route path="/salvation" element={<Salvation />} />
               <Route path="/prayer" element={<NeedPrayer />} />
               <Route path="/baptism" element={<Baptism />} />
+
+              {/* Legal & Support Routes */}
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/support" element={<CustomerSupport />} />
 
               {/* Store Routes */}
               <Route path="/store" element={<StoreHome />} />
