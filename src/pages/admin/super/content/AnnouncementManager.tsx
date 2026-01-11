@@ -3,10 +3,7 @@ import {
     HiSpeakerphone,
     HiPlus,
     HiTrash,
-    HiPencil,
-    HiEye,
-    HiCheck,
-    HiX
+    HiPencil
 } from 'react-icons/hi';
 import {
     getFirestore,
@@ -17,8 +14,7 @@ import {
     query,
     orderBy,
     onSnapshot,
-    serverTimestamp,
-    updateDoc
+    serverTimestamp
 } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 
@@ -29,233 +25,203 @@ interface Announcement {
     type: 'Info' | 'Warning' | 'Alert' | 'Success';
     audience: 'All' | 'Members' | 'Leaders' | 'Public';
     status: 'Active' | 'Draft' | 'Expired';
-    date: string; // Stored as ISO string or timestamp
+    date: string;
+    createdAt: any;
 }
 
 const AnnouncementManager: React.FC = () => {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
 
     // Form State
-    const [title, setTitle] = useState('');
-    const [message, setMessage] = useState('');
-    const [type, setType] = useState<'Info' | 'Warning' | 'Alert' | 'Success'>('Info');
-    const [audience, setAudience] = useState<'All' | 'Members' | 'Leaders' | 'Public'>('All');
-    const [status, setStatus] = useState<'Active' | 'Draft'>('Active');
+    const [formData, setFormData] = useState({
+        title: '',
+        message: '',
+        type: 'Info',
+        audience: 'All',
+        status: 'Active'
+    });
 
     const db = getFirestore();
+    const announcementsRef = collection(db, 'announcements');
 
-    // 1. Fetch Real Announcements
     useEffect(() => {
-        const q = query(collection(db, 'announcements'), orderBy('createdAt', 'desc'));
+        // Real-time listener for announcements
+        const q = query(announcementsRef, orderBy('createdAt', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const data = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             })) as Announcement[];
             setAnnouncements(data);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching announcements:", error);
+            toast.error("Failed to load announcements");
+            setLoading(false);
         });
+
         return () => unsubscribe();
-    }, [db]);
+    }, []);
 
-    // 2. Create Announcement
-    const handleCreate = async () => {
-        if (!title || !message) return toast.error("Title and message required");
-
+    const handleDelete = async (id: string) => {
+        if (!window.confirm("Are you sure you want to delete this announcement?")) return;
         try {
-            await addDoc(collection(db, 'announcements'), {
-                title,
-                message,
-                type,
-                audience,
-                status,
-                date: new Date().toISOString().split('T')[0],
+            await deleteDoc(doc(db, 'announcements', id));
+            toast.success("Announcement deleted");
+        } catch (error) {
+            console.error("Delete error:", error);
+            toast.error("Failed to delete");
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await addDoc(announcementsRef, {
+                ...formData,
+                date: new Date().toISOString(),
                 createdAt: serverTimestamp()
             });
-            toast.success("Announcement created!");
-            setIsEditing(false);
-            resetForm();
+            toast.success("Announcement published successfully!");
+            setShowModal(false);
+            setFormData({
+                title: '',
+                message: '',
+                type: 'Info',
+                audience: 'All',
+                status: 'Active'
+            });
         } catch (error) {
-            console.error(error);
-            toast.error("Failed to create announcement");
-        }
-    };
-
-    // 3. Delete Announcement
-    const handleDelete = async (id: string) => {
-        if (confirm('Are you sure you want to delete this announcement?')) {
-            try {
-                await deleteDoc(doc(db, 'announcements', id));
-                toast.success("Announcement deleted");
-            } catch (error) {
-                toast.error("Failed to delete");
-            }
-        }
-    };
-
-    const resetForm = () => {
-        setTitle('');
-        setMessage('');
-        setType('Info');
-        setAudience('All');
-        setStatus('Active');
-    };
-
-    const getBadgeColor = (type: string) => {
-        switch (type) {
-            case 'Info': return 'bg-sky-100 text-sky-700';
-            case 'Warning': return 'bg-amber-100 text-amber-700';
-            case 'Alert': return 'bg-rose-100 text-rose-700';
-            case 'Success': return 'bg-emerald-100 text-emerald-700';
-            default: return 'bg-gray-100 text-gray-700';
+            console.error("Error creating announcement:", error);
+            toast.error("Failed to publish announcement");
         }
     };
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800">Announcement Manager</h1>
-                    <p className="text-slate-500">Create and manage global notifications.</p>
+                    <p className="text-slate-500">Create and manage church-wide announcements.</p>
                 </div>
                 <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition shadow-sm"
+                    onClick={() => setShowModal(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
                 >
-                    <HiPlus className="w-5 h-5" />
-                    New Announcement
+                    <HiPlus /> New Announcement
                 </button>
             </div>
 
             {/* List */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-50 border-b border-slate-100">
-                        <tr>
-                            <th className="p-4 font-semibold text-slate-600">Title</th>
-                            <th className="p-4 font-semibold text-slate-600">Type</th>
-                            <th className="p-4 font-semibold text-slate-600">Audience</th>
-                            <th className="p-4 font-semibold text-slate-600">Status</th>
-                            <th className="p-4 font-semibold text-slate-600 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {announcements.map((ann) => (
-                            <tr key={ann.id} className="hover:bg-slate-50">
-                                <td className="p-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
-                                            <HiSpeakerphone className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-slate-900">{ann.title}</p>
-                                            <p className="text-xs text-slate-500 truncate w-48">{ann.message}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="p-4">
-                                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${getBadgeColor(ann.type)}`}>
+            <div className="grid gap-4">
+                {loading ? (
+                    <p className="text-gray-500">Loading announcements...</p>
+                ) : announcements.length === 0 ? (
+                    <div className="bg-white p-8 rounded-xl border border-dashed border-gray-300 text-center">
+                        <HiSpeakerphone className="mx-auto text-4xl text-gray-300 mb-2" />
+                        <p className="text-gray-500">No announcements found. Create one to get started.</p>
+                    </div>
+                ) : (
+                    announcements.map((ann) => (
+                        <div key={ann.id} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex justify-between items-start">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${ann.type === 'Alert' ? 'bg-red-100 text-red-700' :
+                                            ann.type === 'Warning' ? 'bg-yellow-100 text-yellow-700' :
+                                                ann.type === 'Success' ? 'bg-green-100 text-green-700' :
+                                                    'bg-blue-100 text-blue-700'
+                                        }`}>
                                         {ann.type}
                                     </span>
-                                </td>
-                                <td className="p-4 text-slate-600 text-sm">{ann.audience}</td>
-                                <td className="p-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${ann.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                                        ann.status === 'Draft' ? 'bg-gray-50 text-gray-600 border-gray-200' :
-                                            'bg-rose-50 text-rose-600 border-rose-200'
-                                        }`}>
-                                        {ann.status}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-right space-x-2">
-                                    <button onClick={() => handleDelete(ann.id)} className="p-2 text-slate-300 hover:text-rose-600 transition">
-                                        <HiTrash className="w-5 h-5" />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                {announcements.length === 0 && (
-                    <div className="p-12 text-center text-slate-500">
-                        <HiSpeakerphone className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                        <p>No announcements found.</p>
-                    </div>
+                                    <span className="text-xs text-gray-400">•</span>
+                                    <span className="text-xs text-gray-500">{new Date(ann.date).toLocaleDateString()}</span>
+                                    <span className="text-xs text-gray-400">•</span>
+                                    <span className="text-xs text-gray-500">Audience: {ann.audience}</span>
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-1">{ann.title}</h3>
+                                <p className="text-gray-600 leading-relaxed">{ann.message}</p>
+                            </div>
+                            <div className="flex gap-2 ml-4">
+                                <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit (Coming Soon)">
+                                    <HiPencil className="text-xl" />
+                                </button>
+                                <button onClick={() => handleDelete(ann.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                    <HiTrash className="text-xl" />
+                                </button>
+                            </div>
+                        </div>
+                    ))
                 )}
             </div>
 
             {/* Create Modal */}
-            {isEditing && (
+            {showModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
-                        <h3 className="text-lg font-bold mb-4">New Announcement</h3>
-
-                        <div className="space-y-4">
+                    <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in">
+                        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                            <h2 className="font-bold text-lg text-gray-800">New Announcement</h2>
+                            <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+                                <HiPlus className="rotate-45 text-2xl" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Title</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                                 <input
-                                    value={title}
-                                    onChange={e => setTitle(e.target.value)}
-                                    className="w-full border p-2 rounded-lg"
-                                    placeholder="e.g. Easter Service"
+                                    required
+                                    type="text"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Message</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
                                 <textarea
-                                    value={message}
-                                    onChange={e => setMessage(e.target.value)}
-                                    className="w-full border p-2 rounded-lg"
-                                    rows={3}
-                                    placeholder="Details..."
+                                    required
+                                    rows={4}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={formData.message}
+                                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Type</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                                     <select
-                                        value={type}
-                                        onChange={e => setType(e.target.value as any)}
-                                        className="w-full border p-2 rounded-lg"
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none"
+                                        value={formData.type}
+                                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
                                     >
-                                        <option value="Info">Info</option>
-                                        <option value="Warning">Warning</option>
-                                        <option value="Alert">Alert</option>
-                                        <option value="Success">Success</option>
+                                        <option>Info</option>
+                                        <option>Warning</option>
+                                        <option>Alert</option>
+                                        <option>Success</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Audience</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Audience</label>
                                     <select
-                                        value={audience}
-                                        onChange={e => setAudience(e.target.value as any)}
-                                        className="w-full border p-2 rounded-lg"
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none"
+                                        value={formData.audience}
+                                        onChange={(e) => setFormData({ ...formData, audience: e.target.value as any })}
                                     >
-                                        <option value="All">All</option>
-                                        <option value="Members">Members</option>
-                                        <option value="Leaders">Leaders</option>
-                                        <option value="Public">Public</option>
+                                        <option>All</option>
+                                        <option>Members</option>
+                                        <option>Leaders</option>
+                                        <option>Public</option>
                                     </select>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="flex justify-end gap-3 mt-6">
-                            <button
-                                onClick={() => setIsEditing(false)}
-                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg"
-                            >
-                                Cancel
+                            <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition mt-2">
+                                Publish Announcement
                             </button>
-                            <button
-                                onClick={handleCreate}
-                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                            >
-                                Post Announcement
-                            </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
             )}

@@ -10,7 +10,6 @@ const AttendanceLog: React.FC = () => {
 
     const [status, setStatus] = useState("loading"); // loading, input-phone, logging, success, error
     const [message, setMessage] = useState("");
-    const [phone, setPhone] = useState("");
     const [inputPhone, setInputPhone] = useState("");
 
     useEffect(() => {
@@ -22,7 +21,6 @@ const AttendanceLog: React.FC = () => {
 
         const storedPhone = localStorage.getItem("phone");
         if (storedPhone) {
-            setPhone(storedPhone);
             checkDonorAndLog(storedPhone, service);
         } else {
             setStatus("input-phone");
@@ -112,7 +110,6 @@ const AttendanceLog: React.FC = () => {
         if (!inputPhone.trim()) return;
 
         localStorage.setItem("phone", inputPhone.trim());
-        setPhone(inputPhone.trim());
         if (service) {
             checkDonorAndLog(inputPhone.trim(), service);
         }
@@ -120,7 +117,6 @@ const AttendanceLog: React.FC = () => {
 
     const handleReset = () => {
         localStorage.removeItem("phone");
-        setPhone("");
         setInputPhone("");
         setStatus("input-phone");
     };

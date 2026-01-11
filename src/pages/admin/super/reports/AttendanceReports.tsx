@@ -4,11 +4,10 @@ import {
     collection,
     query,
     orderBy,
-    getDocs, // For reports we might want getDocs instead of real-time for performance if large
-    where,
+    getDocs,
     Timestamp
 } from 'firebase/firestore';
-import { HiDownload, HiFilter, HiSearch, HiCalendar } from 'react-icons/hi';
+import { HiDownload, HiSearch, HiCalendar } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
 
 interface AttendanceRecord {
@@ -36,11 +35,6 @@ const AttendanceReports: React.FC = () => {
         setLoading(true);
         try {
             let q = query(collection(db, 'attendance'), orderBy('timestamp', 'desc'));
-
-            // Basic Client-side filtering is okay for < 2k records. 
-            // For production with thousands, verify if composite indexes exist for server-side filtering.
-            // Here we fetch all (with limit?) then filter for this demo.
-
             const snapshot = await getDocs(q);
             const data: AttendanceRecord[] = snapshot.docs.map(doc => ({
                 id: doc.id,

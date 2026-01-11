@@ -88,6 +88,7 @@ const QuickMenu: React.FC<QuickMenuProps> = ({ isOpen, onClose }) => {
                                     <SubMenuItem to="/services" title="Service Times" onClose={onClose} />
                                     <SubMenuItem to="/sermons" title="Watch Sermons" onClose={onClose} />
                                     <SubMenuItem to="/plan-visit" title="Plan Your Visit" onClose={onClose} />
+                                    <SubMenuItem to="/visit" title="Visitor Connect Card" onClose={onClose} />
                                 </AccordionItem>
 
                                 {/* Ministries Section */}

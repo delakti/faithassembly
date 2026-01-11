@@ -81,6 +81,7 @@ const Navbar: React.FC = () => {
                                         <Link to="/services" className={dropdownItemClasses}>Service Times</Link>
                                         <Link to="/sermons" className={dropdownItemClasses}>Watch Sermons</Link>
                                         <Link to="/plan-visit" className={dropdownItemClasses}>Plan Your Visit</Link>
+                                        <Link to="/visit" className={dropdownItemClasses}>Visitor Connect Card</Link>
                                     </div>
                                 </div>
 

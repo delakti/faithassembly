@@ -36,6 +36,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import CustomerSupport from './pages/CustomerSupport';
 import Visit from './pages/Visit';
+import AttendanceLog from './pages/AttendanceLog';
 
 import BibleStudyHome from './pages/bible-study/BibleStudyHome';
 import StudyGuideDetail from './pages/bible-study/StudyGuideDetail';
