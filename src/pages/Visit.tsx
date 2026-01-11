@@ -1,7 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaUser, FaEnvelope, FaMapMarkerAlt, FaPray, FaInfoCircle, FaCheckCircle, FaPaperPlane } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaMapMarkerAlt, FaPray, FaInfoCircle, FaCheckCircle, FaPaperPlane, FaCalendar, FaHeart, FaUsers } from 'react-icons/fa';
+import { database } from '../firebase';
+import { ref, push, set } from 'firebase/database';
+import toast from 'react-hot-toast';
 
 const Visit: React.FC = () => {
     useEffect(() => {
@@ -16,25 +19,70 @@ const Visit: React.FC = () => {
         address: '',
         visitType: 'First Time Guest',
         message: '',
-        contactPreference: 'Email'
+        contactPreference: 'Email',
+        // New Fields
+        gender: '',
+        maritalStatus: '',
+        nextBirthday: '',
+        ministryInterest: '',
+        referralSource: '',
+        consentToContact: false
     });
 
     const [submitted, setSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+        const checked = (e.target as HTMLInputElement).checked;
+
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: type === 'checkbox' ? checked : value
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // In a real app, send to Firebase/API here
-        console.log('Visitor Form Submitted:', formData);
-        setSubmitted(true);
-        // Reset after delay or keep success state
+        setIsSubmitting(true);
+
+        try {
+            const newcomersRef = ref(database, 'Newcomers');
+            const newNewcomerRef = push(newcomersRef);
+
+            const payload = {
+                firstname: formData.firstName,
+                lastname: formData.lastName,
+                email: formData.email,
+                emailAddress: formData.email, // Redundant but matches schema
+                phoneNumber: formData.phone,
+                contactAddress: formData.address,
+                lookingForPlaceToWorship: formData.visitType === 'Looking for a Church Home',
+                gender: formData.gender,
+                maritalStatus: formData.maritalStatus,
+                ministryInterest: formData.ministryInterest,
+                nextBirthday: formData.nextBirthday,
+                nextSteps: 'New',
+                prayerPoints: formData.message,
+                referralSource: formData.referralSource,
+                consentToContact: formData.consentToContact,
+                timestamp: new Date().toISOString(),
+                // Extra fields from form that map generally
+                visitType: formData.visitType,
+                contactPreference: formData.contactPreference
+            };
+
+            await set(newNewcomerRef, payload);
+
+            setSubmitted(true);
+            toast.success('Information submitted successfully!');
+            window.scrollTo(0, 0);
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            toast.error('Something went wrong. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (submitted) {
@@ -114,6 +162,47 @@ const Visit: React.FC = () => {
                                         className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-cyan-500 focus:bg-white transition outline-none"
                                         placeholder="Doe"
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                                    <select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-cyan-500 focus:bg-white transition outline-none"
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Marital Status</label>
+                                    <select
+                                        name="maritalStatus"
+                                        value={formData.maritalStatus}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-cyan-500 focus:bg-white transition outline-none"
+                                    >
+                                        <option value="">Select Status</option>
+                                        <option value="Single">Single</option>
+                                        <option value="Married">Married</option>
+                                        <option value="Widowed">Widowed</option>
+                                        <option value="Divorced">Divorced</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Next Birthday</label>
+                                    <div className="relative">
+                                        <FaCalendar className="absolute left-4 top-3.5 text-gray-400" />
+                                        <input
+                                            type="date"
+                                            name="nextBirthday"
+                                            value={formData.nextBirthday}
+                                            onChange={handleChange}
+                                            className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-cyan-500 focus:bg-white transition outline-none"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -229,6 +318,55 @@ const Visit: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Interests */}
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-2">
+                                <FaHeart className="text-cyan-600 mr-3" />
+                                Interests
+                            </h3>
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Ministry Interest</label>
+                                    <select
+                                        name="ministryInterest"
+                                        value={formData.ministryInterest}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-cyan-500 focus:bg-white transition outline-none"
+                                    >
+                                        <option value="">Select Ministry Interest</option>
+                                        <option value="Choir/Worship">Choir/Worship</option>
+                                        <option value="Ushering">Ushering</option>
+                                        <option value="Media/Tech">Media/Tech</option>
+                                        <option value="Children">Children</option>
+                                        <option value="Youth">Youth</option>
+                                        <option value="Evangelism">Evangelism</option>
+                                        <option value="Prayer">Prayer</option>
+                                        <option value="None">None / Not Sure</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">How did you hear about us?</label>
+                                    <div className="relative">
+                                        <FaUsers className="absolute left-4 top-3.5 text-gray-400" />
+                                        <select
+                                            name="referralSource"
+                                            value={formData.referralSource}
+                                            onChange={handleChange}
+                                            className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-cyan-500 focus:bg-white transition outline-none appearance-none"
+                                        >
+                                            <option value="">Select Source</option>
+                                            <option value="Friend/Family">Friend/Family</option>
+                                            <option value="Social Media">Social Media</option>
+                                            <option value="Website">Website</option>
+                                            <option value="Flyer/Poster">Flyer/Poster</option>
+                                            <option value="Drive/Walk by">Drive/Walk by</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Prayer/Comments */}
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-2">
@@ -248,16 +386,37 @@ const Visit: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Consent */}
+                        <div className="flex items-start">
+                            <div className="flex bg-blue-50 p-4 rounded-lg w-full">
+                                <div className="flex items-center h-5">
+                                    <input
+                                        id="consentToContact"
+                                        name="consentToContact"
+                                        type="checkbox"
+                                        checked={formData.consentToContact}
+                                        onChange={handleChange}
+                                        className="focus:ring-cyan-500 h-4 w-4 text-cyan-600 border-gray-300 rounded"
+                                    />
+                                </div>
+                                <div className="ml-3 text-sm">
+                                    <label htmlFor="consentToContact" className="font-medium text-blue-900">Consent to Contact</label>
+                                    <p className="text-blue-700">I agree that Faith Assembly may contact me using the information I have provided.</p>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Submit Button */}
                         <div className="pt-4">
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 type="submit"
-                                className="w-full bg-cyan-600 text-white font-bold py-4 rounded-xl hover:bg-cyan-700 transition shadow-lg shadow-cyan-600/30 flex items-center justify-center text-lg"
+                                disabled={isSubmitting}
+                                className={`w-full text-white font-bold py-4 rounded-xl transition shadow-lg flex items-center justify-center text-lg ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-700 shadow-cyan-600/30'}`}
                             >
                                 <FaPaperPlane className="mr-3" />
-                                Submit Form
+                                {isSubmitting ? 'Submitting...' : 'Submit Form'}
                             </motion.button>
                         </div>
 

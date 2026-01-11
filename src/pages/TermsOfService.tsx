@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { FaFileAlt, FaCheckCircle, FaExclamationCircle, FaQuestionCircle } from 'react-icons/fa';
 
 const TermsOfService = () => {

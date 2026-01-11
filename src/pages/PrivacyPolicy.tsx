@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { FaShieldAlt, FaLock, FaEye, FaFileAlt } from 'react-icons/fa';
 
 const PrivacyPolicy = () => {
