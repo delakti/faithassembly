@@ -35,6 +35,7 @@ import OrderSuccess from './pages/store/OrderSuccess';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import CustomerSupport from './pages/CustomerSupport';
+import Visit from './pages/Visit';
 
 import BibleStudyHome from './pages/bible-study/BibleStudyHome';
 import StudyGuideDetail from './pages/bible-study/StudyGuideDetail';
@@ -298,6 +299,7 @@ function App() {
 
               <Route path="/contact" element={<Contact />} />
               <Route path="/plan-visit" element={<PlanVisit />} />
+              <Route path="/visit" element={<Visit />} />
 
               {/* New Routes */}
               <Route path="/events" element={<Events />} />
