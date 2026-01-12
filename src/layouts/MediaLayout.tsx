@@ -43,7 +43,10 @@ const MediaLayout: React.FC = () => {
         <div className="flex h-screen bg-slate-950 font-sans overflow-hidden text-slate-300">
             {/* Sidebar (Desktop) */}
             <aside className="hidden md:flex w-72 bg-slate-900 border-r border-slate-800 flex-col z-20">
-                <div className="p-8 flex items-center space-x-3 bg-slate-900 border-b border-slate-800">
+                <div
+                    onClick={() => navigate('/media/dashboard')}
+                    className="p-8 flex items-center space-x-3 bg-slate-900 border-b border-slate-800 cursor-pointer hover:bg-slate-800/50 transition-colors"
+                >
                     <div className="w-10 h-10 rounded bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30">
                         <HiLightningBolt className="w-6 h-6 text-cyan-400" />
                     </div>
@@ -61,8 +64,8 @@ const MediaLayout: React.FC = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 font-medium group relative overflow-hidden ${isActive
-                                        ? 'bg-slate-800 text-cyan-400 border border-slate-700'
-                                        : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800/50'
+                                    ? 'bg-slate-800 text-cyan-400 border border-slate-700'
+                                    : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800/50'
                                     }`}
                             >
                                 {isActive && (
@@ -95,7 +98,10 @@ const MediaLayout: React.FC = () => {
 
             {/* Mobile Header & Nav */}
             <div className="md:hidden fixed top-0 left-0 right-0 bg-slate-900 z-50 px-6 py-4 flex justify-between items-center text-white shadow-lg border-b border-slate-800">
-                <div className="flex items-center space-x-2">
+                <div
+                    onClick={() => navigate('/media/dashboard')}
+                    className="flex items-center space-x-2 cursor-pointer"
+                >
                     <div className="w-8 h-8 rounded bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30">
                         <HiLightningBolt className="w-5 h-5 text-cyan-400" />
                     </div>
@@ -121,8 +127,8 @@ const MediaLayout: React.FC = () => {
                                     to={item.path}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className={`flex items-center px-6 py-4 rounded-lg transition-all font-mono uppercase tracking-wider text-sm ${location.pathname.startsWith(item.path)
-                                            ? 'bg-slate-800 text-cyan-400 border border-slate-700'
-                                            : 'text-slate-500 bg-slate-900/50'
+                                        ? 'bg-slate-800 text-cyan-400 border border-slate-700'
+                                        : 'text-slate-500 bg-slate-900/50'
                                         }`}
                                 >
                                     <span className="mr-4">{item.icon}</span>
