@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiFire, HiCalendar, HiLightningBolt, HiTrash } from 'react-icons/hi';
+import { HiFire, HiCalendar, HiLightningBolt, HiTrash, HiBookOpen } from 'react-icons/hi';
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { toast } from 'react-hot-toast';
@@ -35,12 +35,19 @@ const MenLeaderPanel: React.FC = () => {
                     icon={<HiFire className="w-5 h-5" />}
                     label="Challenges"
                 />
+                <TabButton
+                    active={activeTab === 'verse'}
+                    onClick={() => setActiveTab('verse')}
+                    icon={<HiBookOpen className="w-5 h-5" />}
+                    label="Verse of Day"
+                />
             </div>
 
             <div className="min-h-[400px]">
                 {activeTab === 'missions' && <MissionManager />}
                 {activeTab === 'intel' && <IntelManager />}
                 {activeTab === 'challenges' && <ChallengeManager />}
+                {activeTab === 'verse' && <VerseManager />}
             </div>
         </div>
     );
@@ -240,6 +247,76 @@ const ChallengeManager = () => {
                             <p className="text-xs text-slate-500">{c.content}</p>
                         </div>
                         <button onClick={() => handleDelete(c.id)} className="text-slate-400 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const VerseManager = () => {
+    const [verses, setVerses] = useState<any[]>([]);
+    const [newVerse, setNewVerse] = useState({ text: '', reference: '' });
+
+    useEffect(() => {
+        const q = query(collection(db, 'men_verses'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setVerses(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, 'men_verses'), {
+                ...newVerse,
+                createdAt: serverTimestamp()
+            });
+            toast.success("Verse Set");
+            setNewVerse({ text: '', reference: '' });
+        } catch (error) {
+            toast.error("Failed");
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Delete verse?")) return;
+        await deleteDoc(doc(db, 'men_verses', id));
+        toast.success("Deleted");
+    };
+
+    return (
+        <div className="grid lg:grid-cols-2 gap-8">
+            <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm h-fit">
+                <h3 className="font-bold text-slate-900 mb-4 uppercase italic">Set Verse of the Day</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <textarea
+                        placeholder="Verse Text (e.g. Have I not commanded you...)"
+                        value={newVerse.text}
+                        onChange={e => setNewVerse({ ...newVerse, text: e.target.value })}
+                        className="w-full border p-2 rounded h-32"
+                        required
+                    />
+                    <input
+                        type="text"
+                        placeholder="Reference (e.g. Joshua 1:9)"
+                        value={newVerse.reference}
+                        onChange={e => setNewVerse({ ...newVerse, reference: e.target.value })}
+                        className="w-full border p-2 rounded"
+                        required
+                    />
+                    <button className="w-full py-3 bg-indigo-900 text-white font-black uppercase rounded hover:bg-slate-800">Set Verse</button>
+                </form>
+            </div>
+            <div className="space-y-4">
+                {verses.map(v => (
+                    <div key={v.id} className="bg-white border border-slate-200 p-4 rounded-xl flex justify-between items-start shadow-sm">
+                        <div>
+                            <p className="font-serif italic text-slate-800 mb-1">"{v.text}"</p>
+                            <p className="text-xs font-bold text-indigo-600 uppercase">{v.reference}</p>
+                        </div>
+                        <button onClick={() => handleDelete(v.id)} className="text-slate-400 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
                     </div>
                 ))}
             </div>

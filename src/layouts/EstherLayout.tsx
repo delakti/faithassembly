@@ -62,12 +62,15 @@ const EstherLayout: React.FC = () => {
         <div className="flex h-screen bg-rose-50 font-serif overflow-hidden">
             {/* Sidebar */}
             <aside className="hidden md:flex w-72 bg-white flex-col border-r border-rose-100 shadow-sm z-20">
-                <div className="p-8 flex items-center space-x-3 border-b border-rose-50">
-                    <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
+                <div
+                    onClick={() => navigate('/esther/dashboard')}
+                    className="p-8 flex items-center space-x-3 border-b border-rose-50 cursor-pointer group"
+                >
+                    <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center group-hover:bg-rose-200 transition-colors">
                         <HiHeart className="w-5 h-5 text-rose-500" />
                     </div>
                     <div>
-                        <h1 className="font-medium text-2xl text-rose-950 tracking-wide font-serif">Esther<span className="text-rose-400">Gen</span></h1>
+                        <h1 className="font-medium text-2xl text-rose-950 tracking-wide font-serif group-hover:text-rose-600 transition-colors">Esther<span className="text-rose-400">Gen</span></h1>
                     </div>
                 </div>
 

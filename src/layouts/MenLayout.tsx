@@ -43,12 +43,15 @@ const MenLayout: React.FC = () => {
         <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
             {/* Sidebar (Desktop) */}
             <aside className="hidden md:flex w-64 bg-slate-900 flex-col border-r border-slate-800 shadow-2xl z-20">
-                <div className="p-6 flex items-center space-x-3 border-b border-slate-800">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                        <HiShieldCheck className="w-6 h-6 text-white" />
+                <div
+                    onClick={() => navigate('/men/dashboard')}
+                    className="p-6 flex items-center space-x-3 border-b border-slate-800 cursor-pointer group"
+                >
+                    <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:bg-white group-hover:text-indigo-600 transition-colors">
+                        <HiShieldCheck className="w-6 h-6 text-white group-hover:text-indigo-600 transition-colors" />
                     </div>
                     <div>
-                        <h1 className="font-black text-xl text-white tracking-widest uppercase italic">Iron<span className="text-indigo-500">Men</span></h1>
+                        <h1 className="font-black text-xl text-white tracking-widest uppercase italic group-hover:text-indigo-500 transition-colors">Iron<span className="text-indigo-500 group-hover:text-white transition-colors">Men</span></h1>
                     </div>
                 </div>
 
@@ -84,7 +87,10 @@ const MenLayout: React.FC = () => {
 
             {/* Mobile Header & Nav */}
             <div className="md:hidden fixed top-0 left-0 right-0 bg-slate-900 z-50 px-4 py-3 flex justify-between items-center shadow-md">
-                <div className="flex items-center space-x-2">
+                <div
+                    onClick={() => navigate('/men/dashboard')}
+                    className="flex items-center space-x-2 cursor-pointer"
+                >
                     <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center">
                         <HiShieldCheck className="w-5 h-5 text-white" />
                     </div>
