@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { HiUserGroup, HiCalendar, HiSparkles, HiTrash, HiPlus } from 'react-icons/hi';
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { ref, get } from 'firebase/database';
+import { db, database } from '../../firebase';
 import { toast } from 'react-hot-toast';
 import type { HospitalityMember, HospitalityEvent, HospitalityShift } from '../../types/hospitality';
 
@@ -61,9 +62,16 @@ const TabButton = ({ active, onClick, icon, label }: any) => (
 
 const TeamManager = () => {
     const [members, setMembers] = useState<HospitalityMember[]>([]);
-    const [newMember, setNewMember] = useState({
-        name: '', role: 'Volunteer', team: 'Greeting', phone: '', email: '', status: 'active'
-    });
+
+    // Search State
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searching, setSearching] = useState(false);
+    const [selectedWorker, setSelectedWorker] = useState<any | null>(null);
+
+    // Form State for selected worker
+    const [role, setRole] = useState('Volunteer');
+    const [team, setTeam] = useState('Greeting');
 
     useEffect(() => {
         const q = query(collection(db, 'hospitality_team'), orderBy('name', 'asc'));
@@ -73,22 +81,75 @@ const TeamManager = () => {
         return () => unsubscribe();
     }, []);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!searchTerm.trim()) return;
+
+        setSearching(true);
+        setSelectedWorker(null);
         try {
-            await addDoc(collection(db, 'hospitality_team'), {
-                ...newMember,
-                createdAt: serverTimestamp()
-            });
-            toast.success("Member Added");
-            setNewMember({ name: '', role: 'Volunteer', team: 'Greeting', phone: '', email: '', status: 'active' });
+            // Updated to use Realtime Database
+            const donorsRef = ref(database, 'donor');
+            const snapshot = await get(donorsRef);
+
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                // Convert object to array
+                const donorsArray = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                }));
+
+                const results = donorsArray
+                    .filter((d: any) => d.worker === true) // Filter for workers
+                    .filter((d: any) => {
+                        const fullName = `${d['First Name']} ${d['Last Name']}`.toLowerCase();
+                        return fullName.includes(searchTerm.toLowerCase());
+                    })
+                    .slice(0, 5); // Limit results
+
+                setSearchResults(results);
+            } else {
+                setSearchResults([]);
+            }
         } catch (error) {
+            console.error(error);
+            toast.error("Search failed");
+        } finally {
+            setSearching(false);
+        }
+    };
+
+    const handleAddMember = async () => {
+        if (!selectedWorker) return;
+
+        try {
+            const newMember = {
+                name: `${selectedWorker['First Name']} ${selectedWorker['Last Name']}`,
+                phone: selectedWorker['Mobile Phone'] || '',
+                email: selectedWorker['Email'] || '',
+                role,
+                team,
+                donorId: selectedWorker.id,
+                status: 'active',
+                createdAt: serverTimestamp()
+            };
+
+            await addDoc(collection(db, 'hospitality_team'), newMember);
+            toast.success(`${newMember.name} added to ${team} Team`);
+
+            // Reset
+            setSelectedWorker(null);
+            setSearchTerm('');
+            setSearchResults([]);
+        } catch (error) {
+            console.error(error);
             toast.error("Failed to add member");
         }
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Remove this member?")) return;
+        if (!window.confirm("Remove this member?")) return;
         await deleteDoc(doc(db, 'hospitality_team', id));
         toast.success("Member Removed");
     };
@@ -96,35 +157,107 @@ const TeamManager = () => {
     return (
         <div className="grid lg:grid-cols-2 gap-8">
             <div className="bg-white border border-stone-200 p-6 rounded-xl shadow-sm h-fit">
-                <h3 className="font-bold text-stone-900 mb-4 uppercase">Register Volunteer</h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <input type="text" placeholder="Full Name" value={newMember.name} onChange={e => setNewMember({ ...newMember, name: e.target.value })} className="w-full bg-stone-50 border border-stone-200 p-2 rounded" required />
-                    <div className="grid grid-cols-2 gap-4">
-                        <select value={newMember.role} onChange={e => setNewMember({ ...newMember, role: e.target.value })} className="w-full bg-stone-50 border border-stone-200 p-2 rounded">
-                            <option value="Team Lead">Team Lead</option>
-                            <option value="Volunteer">Volunteer</option>
-                            <option value="Trainee">Trainee</option>
-                        </select>
-                        <select value={newMember.team} onChange={e => setNewMember({ ...newMember, team: e.target.value })} className="w-full bg-stone-50 border border-stone-200 p-2 rounded">
-                            <option value="Greeting">Greeting</option>
-                            <option value="Coffee">Coffee</option>
-                            <option value="Cooking">Cooking</option>
-                            <option value="Setup">Setup</option>
-                        </select>
-                    </div>
-                    <input type="text" placeholder="Phone" value={newMember.phone} onChange={e => setNewMember({ ...newMember, phone: e.target.value })} className="w-full bg-stone-50 border border-stone-200 p-2 rounded" required />
-                    <input type="email" placeholder="Email" value={newMember.email} onChange={e => setNewMember({ ...newMember, email: e.target.value })} className="w-full bg-stone-50 border border-stone-200 p-2 rounded" required />
-                    <button className="w-full py-3 bg-orange-600 text-white font-bold uppercase rounded hover:bg-orange-700">Add Member</button>
-                </form>
-            </div>
-            <div className="space-y-4">
-                {members.map(m => (
-                    <div key={m.id} className="bg-white border border-stone-200 p-4 rounded-xl flex justify-between items-center shadow-sm">
-                        <div>
-                            <h4 className="font-bold text-stone-900">{m.name}</h4>
-                            <p className="text-sm text-orange-600 font-bold">{m.role} &bull; {m.team} Team</p>
+                <h3 className="font-bold text-stone-900 mb-4 uppercase flex items-center gap-2">
+                    <HiPlus className="text-orange-600" /> Add Team Member
+                </h3>
+
+                {/* Search Step */}
+                <div className="space-y-4 mb-6">
+                    <form onSubmit={handleSearch} className="flex gap-2">
+                        <input
+                            type="text"
+                            placeholder="Search Worker Name..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="flex-1 bg-stone-50 border border-stone-200 p-2 rounded focus:ring-2 focus:ring-orange-500 outline-none"
+                        />
+                        <button type="submit" disabled={searching} className="bg-stone-800 text-white px-4 py-2 rounded font-bold uppercase text-xs hover:bg-stone-900">
+                            {searching ? '...' : 'Find'}
+                        </button>
+                    </form>
+
+                    {/* Results List */}
+                    {searchResults.length > 0 && !selectedWorker && (
+                        <div className="bg-stone-50 border border-stone-200 rounded-lg overflow-hidden">
+                            {searchResults.map(worker => (
+                                <button
+                                    key={worker.id}
+                                    onClick={() => setSelectedWorker(worker)}
+                                    className="w-full text-left p-3 hover:bg-orange-50 hover:text-orange-700 border-b last:border-0 border-stone-200 flex justify-between items-center transition-colors"
+                                >
+                                    <span className="font-bold">{worker['First Name']} {worker['Last Name']}</span>
+                                    <span className="text-xs bg-stone-200 text-stone-600 px-2 py-1 rounded">Select</span>
+                                </button>
+                            ))}
                         </div>
-                        <button onClick={() => handleDelete(m.id)} className="text-stone-400 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
+                    )}
+
+                    {searchResults.length === 0 && searchTerm && !searching && !selectedWorker && (
+                        <p className="text-xs text-stone-400 italic">No workers found. Ensure they are tagged as 'worker: true' in the Donor database.</p>
+                    )}
+                </div>
+
+                {/* Assignment Step */}
+                {selectedWorker && (
+                    <div className="animate-fade-in bg-orange-50 border border-orange-100 p-4 rounded-lg space-y-4">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <p className="text-xs text-orange-500 font-bold uppercase mb-1">Selected Worker</p>
+                                <p className="font-bold text-lg text-stone-900">{selectedWorker['First Name']} {selectedWorker['Last Name']}</p>
+                                <p className="text-xs text-stone-500">{selectedWorker['Email']}</p>
+                            </div>
+                            <button onClick={() => setSelectedWorker(null)} className="text-stone-400 hover:text-stone-600">
+                                <HiTrash />
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-xs font-bold text-stone-500 uppercase mb-1 block">Role</label>
+                                <select value={role} onChange={e => setRole(e.target.value)} className="w-full bg-white border border-stone-200 p-2 rounded text-sm">
+                                    <option value="Team Lead">Team Lead</option>
+                                    <option value="Volunteer">Volunteer</option>
+                                    <option value="Trainee">Trainee</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-stone-500 uppercase mb-1 block">Team</label>
+                                <select value={team} onChange={e => setTeam(e.target.value)} className="w-full bg-white border border-stone-200 p-2 rounded text-sm">
+                                    <option value="Greeting">Greeting</option>
+                                    <option value="Coffee">Coffee</option>
+                                    <option value="Cooking">Cooking</option>
+                                    <option value="Setup">Setup</option>
+                                    <option value="Events">Events</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onClick={handleAddMember} className="w-full py-3 bg-orange-600 text-white font-bold uppercase rounded hover:bg-orange-700 transition shadow-sm">
+                            Confirm Assignment
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* List */}
+            <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                <h3 className="font-bold text-stone-900 uppercase">Current Team ({members.length})</h3>
+                {members.length === 0 ? (
+                    <p className="text-stone-400 italic">No team members yet.</p>
+                ) : members.map(m => (
+                    <div key={m.id} className="bg-white border border-stone-200 p-4 rounded-xl flex justify-between items-center shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${m.role === 'Team Lead' ? 'bg-orange-500' : 'bg-stone-300'}`}>
+                                {m.name.charAt(0)}
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-stone-900">{m.name}</h4>
+                                <p className="text-xs text-stone-500 font-bold uppercase tracking-wide">{m.role} &bull; <span className="text-orange-600">{m.team} Team</span></p>
+                            </div>
+                        </div>
+                        <button onClick={() => handleDelete(m.id)} className="p-2 text-stone-300 hover:text-red-600 hover:bg-red-50 rounded transition">
+                            <HiTrash className="w-5 h-5" />
+                        </button>
                     </div>
                 ))}
             </div>

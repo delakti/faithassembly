@@ -12,6 +12,7 @@ import {
     HiHeart
 } from 'react-icons/hi';
 import { motion, AnimatePresence } from 'framer-motion';
+import sisiImage from '../assets/sisi-david.png';
 
 const HospitalityLayout: React.FC = () => {
     const navigate = useNavigate();
@@ -140,7 +141,7 @@ const HospitalityLayout: React.FC = () => {
                             <p className="text-stone-500 text-sm">Thank you for serving today.</p>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-stone-200 border-2 border-white shadow-sm overflow-hidden hidden md:block">
-                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&auto=format&fit=crop&q=60" alt="Profile" className="w-full h-full object-cover" />
+                            <img src={sisiImage} alt="Profile" className="w-full h-full object-cover" />
                         </div>
                     </header>
                     <Outlet />
