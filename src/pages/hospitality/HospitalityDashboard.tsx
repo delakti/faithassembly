@@ -1,8 +1,11 @@
 import React from 'react';
 import { HiCalendar, HiUserGroup, HiChat, HiEmojiHappy } from 'react-icons/hi';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const HospitalityDashboard: React.FC = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="space-y-8 font-sans">
             {/* Main Welcome Card */}
@@ -21,10 +24,16 @@ const HospitalityDashboard: React.FC = () => {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <button className="px-6 py-3 bg-stone-800 text-white font-bold rounded-xl shadow hover:bg-stone-900 transition-colors flex items-center justify-center gap-2">
+                        <button
+                            onClick={() => navigate('/hospitality/referrals')}
+                            className="px-6 py-3 bg-stone-800 text-white font-bold rounded-xl shadow hover:bg-stone-900 transition-colors flex items-center justify-center gap-2"
+                        >
                             <HiCalendar className="w-5 h-5" /> View My Rota
                         </button>
-                        <button className="px-6 py-3 bg-white text-stone-600 border border-stone-200 font-bold rounded-xl hover:bg-stone-50 transition-colors">
+                        <button
+                            onClick={() => navigate('/hospitality/referrals')}
+                            className="px-6 py-3 bg-white text-stone-600 border border-stone-200 font-bold rounded-xl hover:bg-stone-50 transition-colors"
+                        >
                             Swap Shift
                         </button>
                     </div>
@@ -46,7 +55,10 @@ const HospitalityDashboard: React.FC = () => {
 
             {/* Quick Actions Grid */}
             <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-white border border-stone-200 p-8 rounded-2xl hover:shadow-md transition-shadow cursor-pointer group">
+                <div
+                    onClick={() => navigate('/hospitality/team')}
+                    className="bg-white border border-stone-200 p-8 rounded-2xl hover:shadow-md transition-shadow cursor-pointer group"
+                >
                     <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors mb-6">
                         <HiUserGroup className="w-6 h-6" />
                     </div>
@@ -57,7 +69,10 @@ const HospitalityDashboard: React.FC = () => {
                     <span className="text-green-600 text-sm font-bold group-hover:underline">Meet the Family →</span>
                 </div>
 
-                <div className="bg-white border border-stone-200 p-8 rounded-2xl hover:shadow-md transition-shadow cursor-pointer group">
+                <div
+                    onClick={() => navigate('/hospitality/announcements')}
+                    className="bg-white border border-stone-200 p-8 rounded-2xl hover:shadow-md transition-shadow cursor-pointer group"
+                >
                     <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors mb-6">
                         <HiChat className="w-6 h-6" />
                     </div>
@@ -68,7 +83,10 @@ const HospitalityDashboard: React.FC = () => {
                     <span className="text-blue-600 text-sm font-bold group-hover:underline">Read Updates →</span>
                 </div>
 
-                <div className="bg-white border border-stone-200 p-8 rounded-2xl hover:shadow-md transition-shadow cursor-pointer group">
+                <div
+                    onClick={() => navigate('/hospitality/team')}
+                    className="bg-white border border-stone-200 p-8 rounded-2xl hover:shadow-md transition-shadow cursor-pointer group"
+                >
                     <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 group-hover:bg-yellow-500 group-hover:text-white transition-colors mb-6">
                         <HiEmojiHappy className="w-6 h-6" />
                     </div>
