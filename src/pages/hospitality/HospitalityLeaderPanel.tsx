@@ -229,7 +229,7 @@ const TeamManager = () => {
                 }));
 
                 const results = donorsArray
-                    .filter((d: any) => d.worker === true) // Filter for workers
+                    .filter((d: any) => d.worker === true || d.worker === 'true') // Filter for workers (robust)
                     .filter((d: any) => {
                         const fullName = `${d['First Name']} ${d['Last Name']}`.toLowerCase();
                         return fullName.includes(searchTerm.toLowerCase());
