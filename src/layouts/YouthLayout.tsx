@@ -51,12 +51,15 @@ const YouthLayout: React.FC = () => {
 
             {/* Desktop Sidebar (Hidden on mobile) */}
             <aside className="hidden md:flex w-64 bg-gray-900 flex-col border-r border-gray-800">
-                <div className="p-8 flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center transform -rotate-6">
+                <div
+                    onClick={() => navigate('/youth/dashboard')}
+                    className="p-8 flex items-center space-x-3 cursor-pointer group"
+                >
+                    <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center transform -rotate-6 group-hover:rotate-0 transition-transform">
                         <HiLightningBolt className="w-6 h-6 text-black" />
                     </div>
                     <div>
-                        <h1 className="font-black text-2xl tracking-tighter italic">YTH<span className="text-yellow-400">NATION</span></h1>
+                        <h1 className="font-black text-2xl tracking-tighter italic text-white group-hover:text-yellow-400 transition-colors">YTH<span className="text-yellow-400 group-hover:text-white transition-colors">NATION</span></h1>
                     </div>
                 </div>
 
@@ -68,8 +71,8 @@ const YouthLayout: React.FC = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items - center px - 4 py - 4 rounded - xl transition - all font - bold ${isActive
-                                        ? 'bg-yellow-400 text-black translate-x-2'
-                                        : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                                    ? 'bg-yellow-400 text-black translate-x-2'
+                                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
                                     } `}
                             >
                                 <span className="mr-3">{item.icon}</span>

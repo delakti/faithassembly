@@ -43,7 +43,10 @@ const HospitalityLayout: React.FC = () => {
         <div className="flex h-screen bg-stone-50 font-sans overflow-hidden text-stone-800">
             {/* Sidebar (Desktop) */}
             <aside className="hidden md:flex w-64 bg-stone-100 flex-col z-20 border-r border-stone-200">
-                <div className="p-8 flex items-center space-x-3 bg-stone-50 border-b border-stone-200">
+                <div
+                    onClick={() => navigate('/hospitality/dashboard')}
+                    className="p-8 flex items-center space-x-3 bg-stone-50 border-b border-stone-200 cursor-pointer hover:bg-stone-100 transition-colors"
+                >
                     <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
                         <HiHeart className="w-5 h-5 text-orange-500" />
                     </div>
@@ -85,7 +88,10 @@ const HospitalityLayout: React.FC = () => {
 
             {/* Mobile Header & Nav */}
             <div className="md:hidden fixed top-0 left-0 right-0 bg-white z-50 px-6 py-4 flex justify-between items-center text-stone-800 shadow-sm border-b border-stone-200">
-                <div className="flex items-center space-x-2">
+                <div
+                    onClick={() => navigate('/hospitality/dashboard')}
+                    className="flex items-center space-x-2 cursor-pointer"
+                >
                     <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
                         <HiHeart className="w-4 h-4 text-orange-500" />
                     </div>

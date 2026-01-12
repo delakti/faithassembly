@@ -3,11 +3,13 @@ import { HiCalendar, HiChatAlt2, HiPlay } from 'react-icons/hi';
 import { motion } from 'framer-motion';
 import { collection, query, orderBy, limit, onSnapshot, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { useNavigate } from 'react-router-dom';
 import type { YouthFeedPost, YouthEvent } from '../../types/youth';
 import { format } from 'date-fns';
 import { formatDistanceToNow } from 'date-fns';
 
 const YouthDashboard: React.FC = () => {
+    const navigate = useNavigate();
     const [feedPosts, setFeedPosts] = useState<YouthFeedPost[]>([]);
     const [nextEvent, setNextEvent] = useState<YouthEvent | null>(null);
 
@@ -64,7 +66,10 @@ const YouthDashboard: React.FC = () => {
                     <p className="text-lg text-purple-100 font-medium mb-8">
                         Welcome to the fam. Check out what's happening this week, connect with your squad, and stay fired up.
                     </p>
-                    <button className="bg-white text-purple-600 px-8 py-3 rounded-full font-bold hover:bg-yellow-400 hover:text-black transition-all transform hover:scale-105 shadow-lg">
+                    <button
+                        onClick={() => navigate('/youth/events')}
+                        className="bg-white text-purple-600 px-8 py-3 rounded-full font-bold hover:bg-yellow-400 hover:text-black transition-all transform hover:scale-105 shadow-lg"
+                    >
                         View Schedule
                     </button>
                 </div>
