@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import { HiMenuAlt3, HiX, HiHome, HiCalendar, HiUserGroup, HiClipboardList, HiCurrencyPound, HiCube, HiSpeakerphone, HiLogout, HiAcademicCap } from 'react-icons/hi';
 import { getAuth, signOut } from 'firebase/auth';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,10 +29,10 @@ const UsherLayout: React.FC = () => {
         <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900">
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex flex-col w-72 bg-slate-900 text-white fixed h-full z-20 shadow-2xl">
-                <div className="p-8 border-b border-slate-800">
+                <Link to="/ushering/dashboard" className="block p-8 border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
                     <h1 className="text-2xl font-serif font-bold text-amber-500 tracking-wider">GATEKEEPERS</h1>
                     <p className="text-xs text-slate-400 uppercase tracking-widest mt-1">Ushering Department</p>
-                </div>
+                </Link>
 
                 <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
                     {navItems.map((item) => (
@@ -67,9 +67,9 @@ const UsherLayout: React.FC = () => {
             <main className="flex-1 lg:ml-72 flex flex-col min-h-screen transition-all duration-300">
                 {/* Mobile Header */}
                 <header className="lg:hidden bg-slate-900 text-white p-4 sticky top-0 z-30 shadow-md flex items-center justify-between">
-                    <div>
+                    <Link to="/ushering/dashboard">
                         <h1 className="text-xl font-serif font-bold text-amber-500">GATEKEEPERS</h1>
-                    </div>
+                    </Link>
                     <button onClick={() => setIsMobileMenuOpen(true)}>
                         <HiMenuAlt3 className="w-8 h-8 text-amber-500" />
                     </button>

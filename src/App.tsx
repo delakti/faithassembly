@@ -187,8 +187,9 @@ import UsherSchedule from './pages/ushering/UsherSchedule';
 import UsherAttendance from './pages/ushering/UsherAttendance';
 import UsherOffering from './pages/ushering/UsherOffering';
 import UsherStock from './pages/ushering/UsherStock';
-import UsherAnnouncements from './pages/ushering/UsherAnnouncements';
+import UsherBriefs from './pages/ushering/UsherBriefs';
 import UsherTeam from './pages/ushering/UsherTeam';
+import UsherEvents from './pages/ushering/UsherEvents';
 
 
 
@@ -494,8 +495,9 @@ function App() {
                 <Route path="attendance" element={<UsherAttendance />} />
                 <Route path="offering" element={<UsherOffering />} />
                 <Route path="stock" element={<UsherStock />} />
-                <Route path="announcements" element={<UsherAnnouncements />} />
+                <Route path="announcements" element={<UsherBriefs />} />
                 <Route path="team" element={<UsherTeam />} />
+                <Route path="events" element={<UsherEvents />} />
                 <Route path="leader" element={<UsherLeaderPanel />} />
               </Route>
             </Route>

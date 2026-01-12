@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { HiUserGroup, HiCalendar, HiCube, HiTrash, HiPlus } from 'react-icons/hi';
+import { HiUserGroup, HiCalendar, HiCube, HiTrash } from 'react-icons/hi';
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { toast } from 'react-hot-toast';
-import type { UsherMember, UsherService, UsherStockItem } from '../../types/ushering';
+import type { UsherMember, UsherStockItem } from '../../types/ushering';
+import UsherRota from './UsherRota';
 
 const UsherLeaderPanel: React.FC = () => {
     const [activeTab, setActiveTab] = useState('team');
@@ -39,7 +40,7 @@ const UsherLeaderPanel: React.FC = () => {
 
             <div className="min-h-[400px]">
                 {activeTab === 'team' && <TeamManager />}
-                {activeTab === 'schedule' && <ScheduleManager />}
+                {activeTab === 'schedule' && <UsherRota />}
                 {activeTab === 'stock' && <StockManager />}
             </div>
         </div>
@@ -126,66 +127,6 @@ const TeamManager = () => {
                             <p className="text-xs text-slate-500">{m.phone}</p>
                         </div>
                         <button onClick={() => handleDelete(m.id)} className="text-slate-400 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
-
-const ScheduleManager = () => {
-    // Simplified Rota Creator - In a real app, this would be complex
-    const [services, setServices] = useState<UsherService[]>([]);
-
-    useEffect(() => {
-        const q = query(collection(db, 'usher_schedule'), orderBy('date', 'asc'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            setServices(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UsherService)));
-        });
-        return () => unsubscribe();
-    }, []);
-
-    const createService = async () => {
-        const date = prompt("Enter Date (e.g. Sunday, Jan 21):");
-        if (!date) return;
-
-        await addDoc(collection(db, 'usher_schedule'), {
-            date,
-            time: "09:30 AM",
-            name: "Main Service",
-            team: "Team Alpha",
-            status: 'upcoming',
-            duties: [
-                { position: 'Main Entrance', assigneeName: 'Unassigned', status: 'pending' },
-                { position: 'Sanctuary', assigneeName: 'Unassigned', status: 'pending' }
-            ],
-            createdAt: serverTimestamp()
-        });
-        toast.success("Service Created");
-    };
-
-    const handleDelete = async (id: string) => {
-        if (!confirm("Delete this service?")) return;
-        await deleteDoc(doc(db, 'usher_schedule', id));
-        toast.success("Service Deleted");
-    };
-
-    return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h3 className="font-bold text-slate-900 uppercase">Rota Management</h3>
-                <button onClick={createService} className="bg-slate-900 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2 hover:bg-slate-800">
-                    <HiPlus /> New Service
-                </button>
-            </div>
-            <div className="grid gap-4">
-                {services.map(s => (
-                    <div key={s.id} className="bg-white border border-slate-200 p-4 rounded-xl flex justify-between items-center">
-                        <div>
-                            <h4 className="font-bold text-slate-900">{s.date} - {s.name}</h4>
-                            <p className="text-sm text-slate-500">{s.time} &bull; {s.team}</p>
-                        </div>
-                        <button onClick={() => handleDelete(s.id)} className="text-slate-400 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
                     </div>
                 ))}
             </div>

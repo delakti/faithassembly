@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { HiUserGroup, HiCurrencyPound, HiCalendar, HiSpeakerphone, HiChevronRight, HiClock } from 'react-icons/hi';
 
 const UsherDashboard: React.FC = () => {
@@ -56,27 +57,27 @@ const UsherDashboard: React.FC = () => {
                         <span className="text-xl font-bold text-white">Left Aisle (Front)</span>
                         <span className="text-sm font-medium text-amber-500 mt-1">Team Alpha • Week B</span>
                     </div>
-                    <button className="mt-4 text-xs font-bold text-white border border-slate-700 bg-slate-800 px-3 py-2 rounded hover:bg-slate-700 transition-colors w-full text-center">
+                    <Link to="/ushering/schedule" className="mt-4 block w-full text-center text-xs font-bold text-white border border-slate-700 bg-slate-800 px-3 py-2 rounded hover:bg-slate-700 transition-colors">
                         View Rota
-                    </button>
+                    </Link>
                 </div>
 
                 {/* Open Tasks */}
                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Pending Actions</span>
                     <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                            <span className="text-slate-700 flex items-center gap-2">
+                        <Link to="/ushering/attendance" className="flex items-center justify-between text-sm group cursor-pointer">
+                            <span className="text-slate-700 flex items-center gap-2 group-hover:text-amber-600 transition-colors">
                                 <span className="w-2 h-2 rounded-full bg-red-500"></span> Sign Count Sheet
                             </span>
-                            <HiChevronRight className="text-slate-400" />
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                            <span className="text-slate-700 flex items-center gap-2">
+                            <HiChevronRight className="text-slate-400 group-hover:text-amber-600 transition-colors" />
+                        </Link>
+                        <Link to="/ushering/stock" className="flex items-center justify-between text-sm group cursor-pointer">
+                            <span className="text-slate-700 flex items-center gap-2 group-hover:text-amber-600 transition-colors">
                                 <span className="w-2 h-2 rounded-full bg-amber-500"></span> Stock Check (Env.)
                             </span>
-                            <HiChevronRight className="text-slate-400" />
-                        </div>
+                            <HiChevronRight className="text-slate-400 group-hover:text-amber-600 transition-colors" />
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -87,7 +88,7 @@ const UsherDashboard: React.FC = () => {
                     <h3 className="font-serif font-bold text-slate-900 text-lg flex items-center gap-2">
                         <HiSpeakerphone className="text-amber-600" /> Briefings
                     </h3>
-                    <button className="text-sm font-bold text-amber-600 hover:text-amber-700">View All</button>
+                    <Link to="/ushering/announcements" className="text-sm font-bold text-amber-600 hover:text-amber-700">View All</Link>
                 </div>
                 <div className="divide-y divide-slate-100">
                     <div className="p-4 hover:bg-slate-50 transition-colors cursor-pointer">
