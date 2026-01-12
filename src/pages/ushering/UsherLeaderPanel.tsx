@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiUserGroup, HiCalendar, HiCube, HiTrash } from 'react-icons/hi';
+import { HiUserGroup, HiCalendar, HiCube, HiTrash, HiSpeakerphone, HiAcademicCap } from 'react-icons/hi';
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { toast } from 'react-hot-toast';
@@ -36,12 +36,26 @@ const UsherLeaderPanel: React.FC = () => {
                     icon={<HiCube className="w-5 h-5" />}
                     label="Inventory"
                 />
+                <TabButton
+                    active={activeTab === 'briefs'}
+                    onClick={() => setActiveTab('briefs')}
+                    icon={<HiSpeakerphone className="w-5 h-5" />}
+                    label="Briefs"
+                />
+                <TabButton
+                    active={activeTab === 'trainings'}
+                    onClick={() => setActiveTab('trainings')}
+                    icon={<HiAcademicCap className="w-5 h-5" />}
+                    label="Trainings"
+                />
             </div>
 
             <div className="min-h-[400px]">
                 {activeTab === 'team' && <TeamManager />}
                 {activeTab === 'schedule' && <UsherRota />}
                 {activeTab === 'stock' && <StockManager />}
+                {activeTab === 'briefs' && <BriefManager />}
+                {activeTab === 'trainings' && <TrainingManager />}
             </div>
         </div>
     );
@@ -194,6 +208,158 @@ const StockManager = () => {
                             <p className="text-sm text-slate-500">Qty: {s.quantity} | Min: {s.minLevel}</p>
                         </div>
                         <button onClick={() => handleDelete(s.id)} className="text-slate-400 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const BriefManager = () => {
+    const [briefs, setBriefs] = useState<any[]>([]);
+    const [newBrief, setNewBrief] = useState({ title: '', content: '', sender: 'Head Usher', isPriority: false });
+
+    useEffect(() => {
+        const q = query(collection(db, 'usher_briefs'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setBriefs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, 'usher_briefs'), {
+                ...newBrief,
+                createdAt: serverTimestamp(),
+                timestamp: 'Just now', // Ideally calculate properly or use server time for display
+                isNew: true
+            });
+            toast.success("Brief Posted");
+            setNewBrief({ title: '', content: '', sender: 'Head Usher', isPriority: false });
+        } catch (error) {
+            toast.error("Failed to post brief");
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Delete this brief?")) return;
+        await deleteDoc(doc(db, 'usher_briefs', id));
+        toast.success("Brief Deleted");
+    };
+
+    return (
+        <div className="grid lg:grid-cols-2 gap-8">
+            <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm h-fit">
+                <h3 className="font-bold text-slate-900 mb-4 uppercase">Post Service Brief</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input type="text" placeholder="Title" value={newBrief.title} onChange={e => setNewBrief({ ...newBrief, title: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-2 rounded" required />
+                    <textarea placeholder="Content" value={newBrief.content} onChange={e => setNewBrief({ ...newBrief, content: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-2 rounded h-24" required />
+                    <div className="flex items-center gap-4">
+                        <select value={newBrief.sender} onChange={e => setNewBrief({ ...newBrief, sender: e.target.value })} className="bg-slate-50 border border-slate-200 p-2 rounded flex-1">
+                            <option value="Head Usher">Head Usher</option>
+                            <option value="Pastor's Office">Pastor's Office</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                        <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                            <input type="checkbox" checked={newBrief.isPriority} onChange={e => setNewBrief({ ...newBrief, isPriority: e.target.checked })} className="w-4 h-4 text-amber-600 rounded" />
+                            High Priority
+                        </label>
+                    </div>
+                    <button className="w-full py-3 bg-amber-600 text-white font-bold uppercase rounded hover:bg-amber-700">Post Brief</button>
+                </form>
+            </div>
+            <div className="space-y-4">
+                {briefs.map(b => (
+                    <div key={b.id} className="bg-white border border-slate-200 p-4 rounded-xl flex justify-between items-start shadow-sm">
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-bold text-slate-900">{b.title}</h4>
+                                {b.isPriority && <span className="bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded">URGENT</span>}
+                            </div>
+                            <p className="text-sm text-slate-500 line-clamp-2">{b.content}</p>
+                            <p className="text-xs text-slate-400 mt-2">From: {b.sender}</p>
+                        </div>
+                        <button onClick={() => handleDelete(b.id)} className="text-slate-400 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const TrainingManager = () => {
+    const [trainings, setTrainings] = useState<any[]>([]);
+    const [newTraining, setNewTraining] = useState({
+        title: '', date: '', time: '', location: '', description: '', type: 'live', mandatory: false
+    });
+
+    useEffect(() => {
+        const q = query(collection(db, 'usher_trainings'), orderBy('date', 'asc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setTrainings(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, 'usher_trainings'), {
+                ...newTraining,
+                createdAt: serverTimestamp()
+            });
+            toast.success("Training Added");
+            setNewTraining({ title: '', date: '', time: '', location: '', description: '', type: 'live', mandatory: false });
+        } catch (error) {
+            toast.error("Failed to add training");
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Delete this training?")) return;
+        await deleteDoc(doc(db, 'usher_trainings', id));
+        toast.success("Training Deleted");
+    };
+
+    return (
+        <div className="grid lg:grid-cols-2 gap-8">
+            <div className="bg-white border border-slate-200 p-6 rounded-xl shadow-sm h-fit">
+                <h3 className="font-bold text-slate-900 mb-4 uppercase">Schedule Training</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input type="text" placeholder="Title" value={newTraining.title} onChange={e => setNewTraining({ ...newTraining, title: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-2 rounded" required />
+                    <textarea placeholder="Description" value={newTraining.description} onChange={e => setNewTraining({ ...newTraining, description: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-2 rounded h-20" required />
+                    <div className="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Date (e.g. Sat, Feb 10)" value={newTraining.date} onChange={e => setNewTraining({ ...newTraining, date: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-2 rounded" required />
+                        <input type="text" placeholder="Time" value={newTraining.time} onChange={e => setNewTraining({ ...newTraining, time: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-2 rounded" required />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Location" value={newTraining.location} onChange={e => setNewTraining({ ...newTraining, location: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-2 rounded" required />
+                        <select value={newTraining.type} onChange={e => setNewTraining({ ...newTraining, type: e.target.value })} className="w-full bg-slate-50 border border-slate-200 p-2 rounded">
+                            <option value="live">Live In-Person</option>
+                            <option value="online">Online / Zoom</option>
+                        </select>
+                    </div>
+                    <label className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                        <input type="checkbox" checked={newTraining.mandatory} onChange={e => setNewTraining({ ...newTraining, mandatory: e.target.checked })} className="w-4 h-4 text-amber-600 rounded" />
+                        Mandatory Attendance
+                    </label>
+                    <button className="w-full py-3 bg-amber-600 text-white font-bold uppercase rounded hover:bg-amber-700">Schedule Session</button>
+                </form>
+            </div>
+            <div className="space-y-4">
+                {trainings.map(t => (
+                    <div key={t.id} className="bg-white border border-slate-200 p-4 rounded-xl flex justify-between items-start shadow-sm">
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-bold text-slate-900">{t.title}</h4>
+                                {t.mandatory && <span className="bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded">MANDATORY</span>}
+                            </div>
+                            <p className="text-sm text-slate-500">{t.date} @ {t.time}</p>
+                            <p className="text-xs text-slate-400">{t.location} • {t.type}</p>
+                        </div>
+                        <button onClick={() => handleDelete(t.id)} className="text-slate-400 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
                     </div>
                 ))}
             </div>
