@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { HiUserGroup, HiCalendar, HiSparkles, HiTrash, HiPlus } from 'react-icons/hi';
-import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { HiUserGroup, HiCalendar, HiSparkles, HiTrash, HiPlus, HiSpeakerphone, HiPencil, HiBookOpen, HiChatAlt2, HiCake } from 'react-icons/hi';
+import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, setDoc, getDoc } from 'firebase/firestore';
 import { ref, get } from 'firebase/database';
 import { db, database } from '../../firebase';
 import { toast } from 'react-hot-toast';
-import type { HospitalityMember, HospitalityEvent, HospitalityShift } from '../../types/hospitality';
+import type { HospitalityMember, HospitalityEvent, HospitalityShift, HospitalityNotice } from '../../types/hospitality';
+import MenuManager from './components/MenuManager';
 
 const HospitalityLeaderPanel: React.FC = () => {
     const [activeTab, setActiveTab] = useState('team');
@@ -36,12 +37,33 @@ const HospitalityLeaderPanel: React.FC = () => {
                     icon={<HiSparkles className="w-5 h-5" />}
                     label="Events & Training"
                 />
+                <TabButton
+                    active={activeTab === 'notices'}
+                    onClick={() => setActiveTab('notices')}
+                    icon={<HiSpeakerphone className="w-5 h-5" />}
+                    label="Communication"
+                />
+                <TabButton
+                    active={activeTab === 'menu'}
+                    onClick={() => setActiveTab('menu')}
+                    icon={<HiCake className="w-5 h-5" />}
+                    label="Food Menu"
+                />
+                <TabButton
+                    active={activeTab === 'content'}
+                    onClick={() => setActiveTab('content')}
+                    icon={<HiPencil className="w-5 h-5" />}
+                    label="Sidebar Content"
+                />
             </div>
 
             <div className="min-h-[400px]">
                 {activeTab === 'team' && <TeamManager />}
                 {activeTab === 'shifts' && <ShiftManager />}
                 {activeTab === 'events' && <EventManager />}
+                {activeTab === 'notices' && <NoticeManager />}
+                {activeTab === 'menu' && <MenuManager />}
+                {activeTab === 'content' && <SidebarManager />}
             </div>
         </div>
     );
@@ -57,6 +79,112 @@ const TabButton = ({ active, onClick, icon, label }: any) => (
         </div>
     </button>
 );
+
+// --- Sub-Components ---
+
+const NoticeManager = () => {
+    const [notices, setNotices] = useState<HospitalityNotice[]>([]);
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const [posting, setPosting] = useState(false);
+
+    useEffect(() => {
+        const q = query(collection(db, 'hospitality_notices'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setNotices(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as HospitalityNotice)));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handlePost = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!title.trim() || !content.trim()) return;
+
+        setPosting(true);
+        try {
+            await addDoc(collection(db, 'hospitality_notices'), {
+                title,
+                content,
+                author: 'Sisi David', // Hardcoded for now per requirements
+                role: 'Team Lead',
+                createdAt: serverTimestamp(),
+                commentsCount: 0,
+                attachmentsCount: 0
+            });
+            toast.success("Notice Posted!");
+            setTitle('');
+            setContent('');
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to post notice");
+        } finally {
+            setPosting(false);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm("Delete this notice?")) return;
+        await deleteDoc(doc(db, 'hospitality_notices', id));
+        toast.success("Notice Deleted");
+    };
+
+    return (
+        <div className="grid lg:grid-cols-2 gap-8">
+            <div className="bg-white border border-stone-200 p-6 rounded-xl shadow-sm h-fit">
+                <h3 className="font-bold text-stone-900 mb-4 uppercase flex items-center gap-2">
+                    <HiSpeakerphone className="text-orange-600" /> Post New Notice
+                </h3>
+                <form onSubmit={handlePost} className="space-y-4">
+                    <div>
+                        <label className="text-xs font-bold text-stone-500 uppercase mb-1 block">Title</label>
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="e.g. Menu Update for Sunday"
+                            className="w-full bg-stone-50 border border-stone-200 p-2 rounded focus:ring-2 focus:ring-orange-500 outline-none"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-stone-500 uppercase mb-1 block">Message</label>
+                        <textarea
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            placeholder="Write your update here..."
+                            rows={4}
+                            className="w-full bg-stone-50 border border-stone-200 p-2 rounded focus:ring-2 focus:ring-orange-500 outline-none resize-none"
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        disabled={posting}
+                        className="w-full py-3 bg-stone-900 text-white font-bold uppercase rounded hover:bg-stone-800 transition shadow-sm"
+                    >
+                        {posting ? 'Posting...' : 'Post Update'}
+                    </button>
+                </form>
+            </div>
+
+            <div className="space-y-4">
+                <h3 className="font-bold text-stone-900 uppercase">Recent Notices</h3>
+                {notices.length === 0 ? (
+                    <p className="text-stone-400 italic">No notices posted yet.</p>
+                ) : notices.map(notice => (
+                    <div key={notice.id} className="bg-white border border-stone-200 p-4 rounded-xl shadow-sm">
+                        <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-bold text-stone-900">{notice.title}</h4>
+                            <button onClick={() => handleDelete(notice.id)} className="text-stone-300 hover:text-red-500">
+                                <HiTrash />
+                            </button>
+                        </div>
+                        <p className="text-sm text-stone-600 mb-2 line-clamp-2">{notice.content}</p>
+                        <p className="text-xs text-stone-400">Posted by {notice.author}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 // --- Sub-Components ---
 
@@ -381,3 +509,132 @@ const EventManager = () => {
 };
 
 export default HospitalityLeaderPanel;
+
+const SidebarManager = () => {
+    const [verseText, setVerseText] = useState('');
+    const [verseRef, setVerseRef] = useState('');
+    const [discussions, setDiscussions] = useState<any[]>([]);
+    const [newDescTitle, setNewDescTitle] = useState('');
+    const [newDescMeta, setNewDescMeta] = useState('');
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            const docRef = doc(db, 'hospitality_content', 'sidebar');
+            const snapshot = await getDoc(docRef);
+            if (snapshot.exists()) {
+                const data = snapshot.data();
+                setVerseText(data.verse?.text || '');
+                setVerseRef(data.verse?.reference || '');
+                setDiscussions(data.discussions || []);
+            }
+        };
+        fetchContent();
+    }, []);
+
+    const handleSaveVerse = async () => {
+        setSaving(true);
+        try {
+            await setDoc(doc(db, 'hospitality_content', 'sidebar'), {
+                verse: { text: verseText, reference: verseRef },
+                discussions
+            }, { merge: true });
+            toast.success("Verse Updated");
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to update");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleAddDiscussion = async () => {
+        if (!newDescTitle) return;
+        const newDisc = { id: Date.now().toString(), title: newDescTitle, meta: newDescMeta || 'New Topic' };
+        const updatedDiscs = [...discussions, newDisc];
+        setDiscussions(updatedDiscs);
+
+        try {
+            await setDoc(doc(db, 'hospitality_content', 'sidebar'), { discussions: updatedDiscs }, { merge: true });
+            toast.success("Discussion Added");
+            setNewDescTitle('');
+            setNewDescMeta('');
+        } catch (e) {
+            toast.error("Failed to add");
+        }
+    };
+
+    const handleDeleteDiscussion = async (id: string) => {
+        const updatedDiscs = discussions.filter(d => d.id !== id);
+        setDiscussions(updatedDiscs);
+        await setDoc(doc(db, 'hospitality_content', 'sidebar'), { discussions: updatedDiscs }, { merge: true });
+        toast.success("Discussion Removed");
+    };
+
+    return (
+        <div className="grid lg:grid-cols-2 gap-8">
+            {/* Verse Editor */}
+            <div className="bg-white p-6 rounded-xl border border-stone-200">
+                <h3 className="font-bold text-stone-900 mb-4 flex items-center gap-2">
+                    <HiBookOpen className="text-orange-600" /> Edit Team Verse
+                </h3>
+                <div className="space-y-4">
+                    <div>
+                        <label className="text-xs font-bold text-stone-500 uppercase mb-1 block">Verse Text</label>
+                        <textarea
+                            value={verseText}
+                            onChange={(e) => setVerseText(e.target.value)}
+                            className="w-full bg-stone-50 border border-stone-200 p-2 rounded h-24"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-stone-500 uppercase mb-1 block">Reference</label>
+                        <input
+                            type="text"
+                            value={verseRef}
+                            onChange={(e) => setVerseRef(e.target.value)}
+                            className="w-full bg-stone-50 border border-stone-200 p-2 rounded"
+                        />
+                    </div>
+                    <button onClick={handleSaveVerse} disabled={saving} className="bg-stone-900 text-white px-4 py-2 rounded font-bold text-sm">
+                        {saving ? 'Saving...' : 'Save Verse'}
+                    </button>
+                </div>
+            </div>
+
+            {/* Discussion Manager */}
+            <div className="bg-white p-6 rounded-xl border border-stone-200">
+                <h3 className="font-bold text-stone-900 mb-4 flex items-center gap-2">
+                    <HiChatAlt2 className="text-blue-600" /> Manage Discussions
+                </h3>
+                <div className="mb-6 flex gap-2">
+                    <input
+                        placeholder="New Topic Title"
+                        value={newDescTitle}
+                        onChange={(e) => setNewDescTitle(e.target.value)}
+                        className="flex-1 bg-stone-50 border border-stone-200 p-2 rounded text-sm"
+                    />
+                    <input
+                        placeholder="Subtitle (e.g. 5 replies)"
+                        value={newDescMeta}
+                        onChange={(e) => setNewDescMeta(e.target.value)}
+                        className="flex-1 bg-stone-50 border border-stone-200 p-2 rounded text-sm"
+                    />
+                    <button onClick={handleAddDiscussion} className="bg-blue-600 text-white px-4 py-2 rounded font-bold text-sm">Add</button>
+                </div>
+
+                <div className="space-y-2">
+                    {discussions.map(d => (
+                        <div key={d.id} className="flex justify-between items-center bg-stone-50 p-3 rounded border border-stone-100">
+                            <div>
+                                <p className="font-bold text-sm text-stone-800">{d.title}</p>
+                                <p className="text-xs text-stone-500">{d.meta}</p>
+                            </div>
+                            <button onClick={() => handleDeleteDiscussion(d.id)} className="text-red-400 hover:text-red-600"><HiTrash /></button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};

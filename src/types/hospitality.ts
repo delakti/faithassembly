@@ -33,3 +33,14 @@ export interface HospitalityShift {
     assigneeId?: string;
     createdAt?: any;
 }
+
+export interface HospitalityNotice {
+    id: string;
+    author: string;
+    role: string;
+    title: string;
+    content: string;
+    createdAt: any;
+    commentsCount?: number;
+    attachmentsCount?: number;
+}

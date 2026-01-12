@@ -9,7 +9,8 @@ import {
     HiLogout,
     HiMenu,
     HiX,
-    HiHeart
+    HiHeart,
+    HiCake
 } from 'react-icons/hi';
 import { motion, AnimatePresence } from 'framer-motion';
 import sisiImage from '../assets/sisi-david.png';
@@ -32,6 +33,7 @@ const HospitalityLayout: React.FC = () => {
     const navItems = [
         { path: '/hospitality/dashboard', label: 'Home', icon: <HiHome className="w-5 h-5" /> },
         { path: '/hospitality/referrals', label: 'My Rota', icon: <HiCalendar className="w-5 h-5" /> },
+        { path: '/hospitality/menu', label: 'Food Menu', icon: <HiCake className="w-5 h-5" /> },
         { path: '/hospitality/events', label: 'Gatherings', icon: <HiUserGroup className="w-5 h-5" /> },
         { path: '/hospitality/announcements', label: 'Notice Board', icon: <HiSpeakerphone className="w-5 h-5" /> },
         { path: '/hospitality/team', label: 'Our Family', icon: <HiUserGroup className="w-5 h-5" /> },

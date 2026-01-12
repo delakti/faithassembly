@@ -28,6 +28,7 @@ const SuperAdminLayout: React.FC = () => {
     const navItems = [
         { path: '/admin/super/dashboard', label: 'Dashboard', icon: <HiHome className="w-5 h-5" /> },
         { path: '/admin/super/users', label: 'User Management', icon: <HiUsers className="w-5 h-5" /> },
+        { path: '/admin/super/donors', label: 'Donor Management', icon: <HiUsers className="w-5 h-5" /> },
         { path: '/admin/super/portals', label: 'Portal Oversight', icon: <HiViewGrid className="w-5 h-5" /> },
         { path: '/admin/super/analytics', label: 'Analytics & Logs', icon: <HiChartBar className="w-5 h-5" /> },
         { path: '/admin/super/settings', label: 'System Settings', icon: <HiCog className="w-5 h-5" /> },

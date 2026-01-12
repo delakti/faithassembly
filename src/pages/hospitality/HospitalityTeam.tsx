@@ -1,9 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { HiUserGroup, HiBadgeCheck, HiMail, HiHeart, HiSparkles } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 import sisiImage from '../../assets/sisi-david.png';
+import NoticeFeed from './components/NoticeFeed';
+import HospitalitySidebar from './components/HospitalitySidebar';
 
 interface Member {
     id: string;
@@ -11,6 +14,8 @@ interface Member {
     role: string;
     team: string; // 'Greeting', 'Coffee', etc.
 }
+
+// --- Main Component ---
 
 const HospitalityTeam: React.FC = () => {
     const [members, setMembers] = useState<Member[]>([]);
@@ -30,6 +35,8 @@ const HospitalityTeam: React.FC = () => {
             }
         };
         fetchTeam();
+
+        return () => { }; // No cleanup needed for team fetch
     }, []);
 
     const handleContact = (name: string) => {
@@ -97,9 +104,84 @@ const HospitalityTeam: React.FC = () => {
                     </div>
                 </div>
             </div>
+            {/* Quick Actions */}
+            <div className="grid md:grid-cols-3 gap-6">
+                <div className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition-all group">
+                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-6 group-hover:scale-110 transition-transform">
+                        <HiUserGroup className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl font-bold text-stone-900 mb-3">Team Directory</h3>
+                    <p className="text-stone-500 mb-6 leading-relaxed">Connect with other volunteers and team leaders.</p>
+                    <button
+                        onClick={() => document.getElementById('team-grid')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="text-green-600 font-bold flex items-center gap-2 hover:gap-3 transition-all"
+                    >
+                        Meet the Family &rarr;
+                    </button>
+                </div>
+
+                <div className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition-all group">
+                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mb-6 group-hover:scale-110 transition-transform">
+                        <HiMail className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl font-bold text-stone-900 mb-3">Notices</h3>
+                    <p className="text-stone-500 mb-6 leading-relaxed">Important updates regarding upcoming events and menu changes.</p>
+                    <button
+                        onClick={() => document.getElementById('notice-board')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="text-blue-600 font-bold flex items-center gap-2 hover:gap-3 transition-all"
+                    >
+                        Read Updates &rarr;
+                    </button>
+                </div>
+
+                <div className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition-all group">
+                    <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 mb-6 group-hover:scale-110 transition-transform">
+                        <HiHeart className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl font-bold text-stone-900 mb-3">New Volunteer?</h3>
+                    <p className="text-stone-500 mb-6 leading-relaxed">Access training materials and the hospitality handbook.</p>
+                    <button
+                        onClick={() => toast('Handbook module coming soon!')}
+                        className="text-yellow-600 font-bold flex items-center gap-2 hover:gap-3 transition-all"
+                    >
+                        Get Started &rarr;
+                    </button>
+                </div>
+            </div>
+
+            {/* Notice Board Section */}
+            <div id="notice-board" className="bg-stone-50 -mx-4 md:-mx-8 p-4 md:p-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex justify-between items-end mb-8">
+                        <div>
+                            <span className="text-orange-600 font-bold tracking-widest uppercase text-xs mb-2 block">Communication</span>
+                            <h2 className="text-3xl font-serif font-bold text-stone-900">Notice Board</h2>
+                            <p className="text-stone-500 mt-1">Stay updated with the latest news and conversations from the team.</p>
+                        </div>
+                        <button
+                            onClick={() => toast('Please use the Leader Panel to post updates.')}
+                            className="bg-stone-900 text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-stone-800 transition"
+                        >
+                            <HiSparkles className="w-4 h-4" /> Post Update
+                        </button>
+                    </div>
+
+                    <div className="grid lg:grid-cols-3 gap-8">
+                        {/* Feed */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <NoticeFeed />
+                        </div>
+
+                        {/* Sidebar */}
+                        <div className="space-y-6">
+                            <HospitalitySidebar />
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {/* Dynamic Teams Grid */}
-            <div className="grid gap-8">
+            <div id="team-grid" className="grid gap-8">
                 {Object.keys(teamsDict).length === 0 && !loading ? (
                     <div className="text-center py-12 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
                         <p className="text-stone-400">Teams are being assembled. Check back soon!</p>

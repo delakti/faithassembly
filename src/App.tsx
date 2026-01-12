@@ -70,6 +70,7 @@ import SuperAdminLayout from './layouts/SuperAdminLayout';
 import SuperAdminLogin from './pages/admin/super/SuperAdminLogin';
 import SuperAdminDashboard from './pages/admin/super/Dashboard';
 import UserManager from './pages/admin/super/users/UserManager';
+import DonorManager from './pages/admin/super/users/DonorManager';
 import AnalyticsDashboard from './pages/admin/super/analytics/AnalyticsDashboard';
 import ActivityLogViewer from './pages/admin/super/analytics/ActivityLogViewer';
 import AnnouncementManager from './pages/admin/super/content/AnnouncementManager';
@@ -136,6 +137,7 @@ import HospitalityLayout from './layouts/HospitalityLayout';
 import HospitalityLeaderPanel from './pages/hospitality/HospitalityLeaderPanel';
 import HospitalityDashboard from './pages/hospitality/HospitalityDashboard';
 import HospitalitySchedule from './pages/hospitality/HospitalitySchedule';
+import HospitalityMenu from './pages/hospitality/HospitalityMenu';
 import HospitalityEvents from './pages/hospitality/HospitalityEvents';
 import HospitalityAnnouncements from './pages/hospitality/HospitalityAnnouncements';
 import HospitalityTeam from './pages/hospitality/HospitalityTeam';
@@ -350,6 +352,7 @@ function App() {
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<SuperAdminDashboard />} />
                 <Route path="users" element={<UserManager />} />
+                <Route path="donors" element={<DonorManager />} />
                 <Route path="analytics" element={<AnalyticsDashboard />} />
                 <Route path="logs" element={<ActivityLogViewer />} />
                 <Route path="announcements" element={<AnnouncementManager />} />
@@ -426,6 +429,7 @@ function App() {
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<HospitalityDashboard />} />
                 <Route path="referrals" element={<HospitalitySchedule />} />
+                <Route path="menu" element={<HospitalityMenu />} />
                 <Route path="events" element={<HospitalityEvents />} />
                 <Route path="announcements" element={<HospitalityAnnouncements />} />
                 <Route path="team" element={<HospitalityTeam />} />
