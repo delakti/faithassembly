@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiFire, HiCalendar, HiLightningBolt, HiTrash, HiBookOpen } from 'react-icons/hi';
+import { HiFire, HiCalendar, HiLightningBolt, HiTrash, HiBookOpen, HiCollection } from 'react-icons/hi';
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { toast } from 'react-hot-toast';
@@ -41,6 +41,12 @@ const MenLeaderPanel: React.FC = () => {
                     icon={<HiBookOpen className="w-5 h-5" />}
                     label="Verse of Day"
                 />
+                <TabButton
+                    active={activeTab === 'armory'}
+                    onClick={() => setActiveTab('armory')}
+                    icon={<HiCollection className="w-5 h-5" />}
+                    label="Armory (Resources)"
+                />
             </div>
 
             <div className="min-h-[400px]">
@@ -48,6 +54,7 @@ const MenLeaderPanel: React.FC = () => {
                 {activeTab === 'intel' && <IntelManager />}
                 {activeTab === 'challenges' && <ChallengeManager />}
                 {activeTab === 'verse' && <VerseManager />}
+                {activeTab === 'armory' && <ResourceManager />}
             </div>
         </div>
     );
@@ -317,6 +324,122 @@ const VerseManager = () => {
                             <p className="text-xs font-bold text-indigo-600 uppercase">{v.reference}</p>
                         </div>
                         <button onClick={() => handleDelete(v.id)} className="text-slate-400 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const ResourceManager = () => {
+    const [resources, setResources] = useState<any[]>([]);
+    const [newResource, setNewResource] = useState({
+        title: '', type: 'book', author: '', desc: '', image: '', url: ''
+    });
+
+    useEffect(() => {
+        const q = query(collection(db, 'men_resources'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setResources(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleAdd = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, 'men_resources'), {
+                ...newResource,
+                createdAt: serverTimestamp()
+            });
+            toast.success("Resource Added to Armory");
+            setNewResource({ title: '', type: 'book', author: '', desc: '', image: '', url: '' });
+        } catch (error) {
+            toast.error("Failed to add resource");
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Decommission this resource?")) return;
+        try {
+            await deleteDoc(doc(db, 'men_resources', id));
+            toast.success("Resource Removed");
+        } catch (error) {
+            toast.error("Failed to remove resource");
+        }
+    };
+
+    return (
+        <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-900 uppercase mb-4">Stock the Armory</h3>
+                <form onSubmit={handleAdd} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <select
+                            className="w-full p-3 bg-slate-50 rounded border border-slate-200 font-bold text-sm"
+                            value={newResource.type}
+                            onChange={e => setNewResource({ ...newResource, type: e.target.value })}
+                        >
+                            <option value="book">Book</option>
+                            <option value="video">Video Intel</option>
+                            <option value="pdf">PDF Guide</option>
+                        </select>
+                        <input
+                            type="text"
+                            placeholder="Author / Source"
+                            className="w-full p-3 bg-slate-50 rounded border border-slate-200 font-bold"
+                            value={newResource.author}
+                            onChange={e => setNewResource({ ...newResource, author: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Resource Title"
+                        className="w-full p-3 bg-slate-50 rounded border border-slate-200 font-bold"
+                        value={newResource.title}
+                        onChange={e => setNewResource({ ...newResource, title: e.target.value })}
+                        required
+                    />
+                    <textarea
+                        placeholder="Description (Brief)"
+                        className="w-full p-3 bg-slate-50 rounded border border-slate-200 font-medium h-24"
+                        value={newResource.desc}
+                        onChange={e => setNewResource({ ...newResource, desc: e.target.value })}
+                        required
+                    />
+                    <input
+                        type="url"
+                        placeholder="Cover Image URL (Optional)"
+                        className="w-full p-3 bg-slate-50 rounded border border-slate-200 text-sm"
+                        value={newResource.image}
+                        onChange={e => setNewResource({ ...newResource, image: e.target.value })}
+                    />
+                    <input
+                        type="url"
+                        placeholder="Resource Link / URL"
+                        className="w-full p-3 bg-slate-50 rounded border border-slate-200 text-sm"
+                        value={newResource.url}
+                        onChange={e => setNewResource({ ...newResource, url: e.target.value })}
+                    />
+                    <button type="submit" className="w-full py-3 bg-slate-900 text-white font-black uppercase tracking-widest rounded hover:bg-slate-800">Add Stock</button>
+                </form>
+            </div>
+            <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                <h3 className="font-bold text-slate-900 uppercase">Armory Inventory</h3>
+                {resources.map(r => (
+                    <div key={r.id} className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm relative flex gap-4 group">
+                        {r.image && <div className="w-16 h-20 bg-slate-200 rounded shrink-0 overflow-hidden"><img src={r.image} alt="" className="w-full h-full object-cover" /></div>}
+                        <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                                <h4 className="font-bold text-slate-900 leading-tight">{r.title}</h4>
+                                <button onClick={() => handleDelete(r.id)} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <HiTrash />
+                                </button>
+                            </div>
+                            <span className="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded inline-block my-1">{r.type}</span>
+                            <p className="text-xs text-slate-500 line-clamp-2">{r.desc}</p>
+                        </div>
                     </div>
                 ))}
             </div>

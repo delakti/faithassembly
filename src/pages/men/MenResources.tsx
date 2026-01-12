@@ -1,54 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiDownload, HiPlay, HiBookOpen, HiSearch, HiShieldCheck } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
-
-const RESOURCES = [
-    {
-        id: 1,
-        title: "The Man in the Mirror",
-        type: "book",
-        author: "Recommended Reading",
-        desc: "Solving the 24 problems men face. A field manual for personal reflection.",
-        image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&auto=format&fit=crop&q=60"
-    },
-    {
-        id: 2,
-        title: "Kingdom Man - Session 1",
-        type: "video",
-        author: "Tony Evans",
-        duration: "45m",
-        desc: "Understanding your mandate as a leader in your home and community.",
-        image: "https://images.unsplash.com/photo-1478737270239-2f52b7126fea?w=800&auto=format&fit=crop&q=60"
-    },
-    {
-        id: 3,
-        title: "30-Day Spiritual Bootcamp",
-        type: "pdf",
-        author: "Ministry HQ",
-        size: "1.2 MB",
-        desc: "A daily training regimen for prayer and scripture memorization.",
-        image: "https://images.unsplash.com/photo-1517842645767-c639042777db?w=800&auto=format&fit=crop&q=60"
-    },
-    {
-        id: 4,
-        title: "Wild at Heart",
-        type: "book",
-        author: "John Eldredge",
-        desc: "Discovering the secret of a man's soul and the adventure God intended.",
-        image: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=800&auto=format&fit=crop&q=60"
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 const MenResources: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [resources, setResources] = useState<any[]>([]);
 
-    const filteredResources = RESOURCES.filter(r =>
+    useEffect(() => {
+        const q = query(collection(db, 'men_resources'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setResources(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const filteredResources = resources.filter(r =>
         r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.author.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleAction = (_type: string, title: string) => {
-        toast.success(`Accessing ${title}...`);
+    const handleAction = (_type: string, title: string, url?: string) => {
+        if (url) {
+            window.open(url, '_blank');
+        } else {
+            toast.success(`Accessing ${title}...`);
+        }
     };
 
     return (
@@ -76,10 +54,21 @@ const MenResources: React.FC = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {resources.length === 0 && (
+                    <div className="col-span-full text-center py-20 text-slate-400 italic">
+                        No resources deployed yet.
+                    </div>
+                )}
                 {filteredResources.map((resource) => (
                     <div key={resource.id} className="bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-2xl transition-all group flex flex-col">
                         <div className="h-40 overflow-hidden relative bg-slate-100">
-                            <img src={resource.image} alt={resource.title} className="w-full h-full object-cover mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
+                            {resource.image ? (
+                                <img src={resource.image} alt={resource.title} className="w-full h-full object-cover mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
+                                    <HiBookOpen className="w-12 h-12" />
+                                </div>
+                            )}
                             <div className="absolute top-3 right-3">
                                 <span className={`inline-block px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider shadow ${resource.type === 'video' ? 'bg-red-600 text-white' :
                                     resource.type === 'pdf' ? 'bg-indigo-600 text-white' :
@@ -100,7 +89,7 @@ const MenResources: React.FC = () => {
                             </p>
 
                             <button
-                                onClick={() => handleAction(resource.type, resource.title)}
+                                onClick={() => handleAction(resource.type, resource.title, resource.url)}
                                 className="w-full py-3 mt-auto border-2 border-slate-200 rounded font-bold uppercase tracking-widest text-xs hover:border-slate-900 hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center gap-2"
                             >
                                 {resource.type === 'video' ? <><HiPlay className="w-4 h-4" /> Watch Intel</> :

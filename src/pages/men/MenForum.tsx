@@ -1,37 +1,58 @@
-import React, { useState } from 'react';
-import { HiChatAlt2, HiThumbUp, HiPencilAlt } from 'react-icons/hi';
-
-const TOPICS = [
-    {
-        id: 1,
-        author: "Bro. James",
-        initial: "J",
-        category: "Leadership",
-        title: "Leading your family in devotions",
-        content: "Men, I've been struggling to be consistent with family altar. What resources or schedules work for you guys with young kids?",
-        likes: 15,
-        replies: 8,
-        time: "4h ago"
-    },
-    {
-        id: 2,
-        author: "Deacon Mike",
-        initial: "M",
-        category: "Work/Life",
-        title: "Prayer for job interview tomorrow",
-        content: "Heading into a final round interview for a management role. Need agreement in prayer for favor and wisdom.",
-        likes: 28,
-        replies: 12,
-        time: "6h ago"
-    }
-];
+import React, { useState, useEffect } from 'react';
+import { HiChatAlt2, HiThumbUp, HiPencilAlt, HiX } from 'react-icons/hi';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { db } from '../../firebase';
+import { toast } from 'react-hot-toast';
+import { formatDistanceToNow } from 'date-fns';
 
 const MenForum: React.FC = () => {
-    const [threads] = useState(TOPICS);
+    const [threads, setThreads] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'all' | 'prayer' | 'discussion'>('all');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newTopic, setNewTopic] = useState({ title: '', content: '', category: 'Discussion' });
+    const auth = getAuth();
+
+    useEffect(() => {
+        const q = query(collection(db, 'men_threads'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setThreads(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handlePost = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newTopic.title || !newTopic.content) return;
+
+        try {
+            const user = auth.currentUser;
+            const authorName = user?.displayName || "IronMan";
+            const initial = authorName.charAt(0).toUpperCase();
+
+            await addDoc(collection(db, 'men_threads'), {
+                ...newTopic,
+                author: authorName,
+                initial: initial,
+                likes: 0,
+                replies: 0,
+                createdAt: serverTimestamp(),
+                uid: user?.uid
+            });
+            toast.success("Comms Established");
+            setNewTopic({ title: '', content: '', category: 'Discussion' });
+            setIsModalOpen(false);
+        } catch (error) {
+            toast.error("Transmission Failed");
+        }
+    };
+
+    const filteredThreads = activeTab === 'all'
+        ? threads
+        : threads.filter(t => t.category.toLowerCase() === activeTab.toLowerCase());
 
     return (
-        <div className="grid lg:grid-cols-3 gap-8 font-sans h-[calc(100vh-140px)]">
+        <div className="grid lg:grid-cols-3 gap-8 font-sans h-[calc(100vh-140px)] relative">
             {/* Main Feed */}
             <div className="lg:col-span-2 flex flex-col h-full bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
@@ -59,7 +80,12 @@ const MenForum: React.FC = () => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-100">
-                    {threads.map((thread) => (
+                    {filteredThreads.length === 0 && (
+                        <div className="text-center py-20 text-slate-400">
+                            <p className="italic">No comms in this channel yet.</p>
+                        </div>
+                    )}
+                    {filteredThreads.map((thread) => (
                         <div key={thread.id} className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex items-start gap-4">
                                 <div className="w-12 h-12 rounded bg-slate-900 flex items-center justify-center font-black text-white shrink-0 text-xl">
@@ -68,9 +94,11 @@ const MenForum: React.FC = () => {
                                 <div className="flex-1">
                                     <div className="flex justify-between items-center mb-1">
                                         <h3 className="font-bold text-slate-900 uppercase tracking-wide text-sm">{thread.author}</h3>
-                                        <span className="text-xs font-mono text-slate-400">{thread.time}</span>
+                                        <span className="text-xs font-mono text-slate-400">
+                                            {thread.createdAt?.seconds ? formatDistanceToNow(new Date(thread.createdAt.seconds * 1000), { addSuffix: true }) : 'Just now'}
+                                        </span>
                                     </div>
-                                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider mb-2 ${thread.category === 'Leadership' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'
+                                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider mb-2 ${thread.category === 'Prayer' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'
                                         }`}>
                                         {thread.category}
                                     </span>
@@ -80,10 +108,10 @@ const MenForum: React.FC = () => {
                                     </p>
                                     <div className="flex gap-6 text-slate-400 text-xs font-bold uppercase tracking-wider">
                                         <button className="flex items-center hover:text-indigo-600 transition-colors">
-                                            <HiThumbUp className="w-4 h-4 mr-1" /> {thread.likes} Affirmations
+                                            <HiThumbUp className="w-4 h-4 mr-1" /> {thread.likes || 0} Affirmations
                                         </button>
                                         <button className="flex items-center hover:text-indigo-600 transition-colors">
-                                            <HiChatAlt2 className="w-4 h-4 mr-1" /> {thread.replies} Replies
+                                            <HiChatAlt2 className="w-4 h-4 mr-1" /> {thread.replies || 0} Replies
                                         </button>
                                     </div>
                                 </div>
@@ -104,7 +132,10 @@ const MenForum: React.FC = () => {
                     <p className="text-indigo-200 text-sm mb-8 font-medium relative z-10">
                         Seek counsel, share a victory, or mobilize prayer support.
                     </p>
-                    <button className="w-full py-4 bg-white text-indigo-700 font-black rounded uppercase tracking-widest hover:bg-indigo-50 transition-colors shadow-lg relative z-10">
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="w-full py-4 bg-white text-indigo-700 font-black rounded uppercase tracking-widest hover:bg-indigo-50 transition-colors shadow-lg relative z-10"
+                    >
                         Start Comms
                     </button>
                 </div>
@@ -129,6 +160,62 @@ const MenForum: React.FC = () => {
                     </ul>
                 </div>
             </div>
+
+            {/* Create Topic Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                            <h3 className="font-black text-slate-900 uppercase italic text-lg">Initiate New Topic</h3>
+                            <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-red-500 transition-colors">
+                                <HiX className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <form onSubmit={handlePost} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Topic Category</label>
+                                <select
+                                    value={newTopic.category}
+                                    onChange={(e) => setNewTopic({ ...newTopic, category: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block p-3 font-medium"
+                                >
+                                    <option value="Discussion">Discussion / Tactical</option>
+                                    <option value="Prayer">Prayer Request</option>
+                                    <option value="Victory">Victory Report</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Subject Line</label>
+                                <input
+                                    type="text"
+                                    value={newTopic.title}
+                                    onChange={(e) => setNewTopic({ ...newTopic, title: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block p-3 font-bold"
+                                    placeholder="Enter topic title..."
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Message Content</label>
+                                <textarea
+                                    rows={5}
+                                    value={newTopic.content}
+                                    onChange={(e) => setNewTopic({ ...newTopic, content: e.target.value })}
+                                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block p-3 font-medium resize-none"
+                                    placeholder="Type your message here..."
+                                    required
+                                ></textarea>
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 font-black rounded-lg text-sm px-5 py-4 text-center uppercase tracking-widest transition-all"
+                            >
+                                Transmit Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
