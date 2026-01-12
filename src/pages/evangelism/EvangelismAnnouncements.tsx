@@ -1,34 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiSpeakerphone, HiLightningBolt, HiExclamation } from 'react-icons/hi';
-
-const ANNOUNCEMENTS = [
-    {
-        id: 1,
-        title: "Urgent: City Centre Crusade Mobilization",
-        date: "Dec 10, 2025",
-        author: "Evangelism Director",
-        priority: "critical",
-        content: "Brethren, next Saturday's crusade is pivotal. We need FULL mobilization. All leave is cancelled for core team members. We are expecting a harvest of 500 souls. Fasting begins on Wednesday."
-    },
-    {
-        id: 2,
-        title: "New Tracts Available: 'The Great Question'",
-        date: "Dec 05, 2025",
-        author: "Resource Manager",
-        priority: "normal",
-        content: "A fresh batch of 'The Great Question' tracts has arrived. These are excellent for street conversations. Please collect your bundles from the Resource Room after Sunday service."
-    },
-    {
-        id: 3,
-        title: "Rain Forecast for Tuesday Outreach",
-        date: "Dec 11, 2025",
-        author: "Team Lead (Alpha)",
-        priority: "warning",
-        content: "Heavy rain is forecast for our market outreach. Please bring umbrellas and waterproof gear. We will focus on the covered market area."
-    }
-];
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 const EvangelismAnnouncements: React.FC = () => {
+    const [briefs, setBriefs] = useState<any[]>([]);
+
+    useEffect(() => {
+        const q = query(collection(db, 'evangelism_briefs'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setBriefs(snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    // If date is manually entered string use it, else format createdAt
+                    displayDate: data.date || (data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now')
+                };
+            }));
+        });
+        return () => unsubscribe();
+    }, []);
+
     return (
         <div className="space-y-8 font-sans">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -39,7 +32,12 @@ const EvangelismAnnouncements: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-                {ANNOUNCEMENTS.map((item) => (
+                {briefs.length === 0 && (
+                    <div className="py-12 text-center border border-dashed border-stone-800 rounded-xl">
+                        <p className="text-stone-500 italic">No current intel briefs.</p>
+                    </div>
+                )}
+                {briefs.map((item) => (
                     <div key={item.id} className="bg-stone-950 border border-stone-800 rounded-xl p-6 md:p-8 relative overflow-hidden group hover:border-orange-500/50 transition-all">
                         {item.priority === 'critical' && (
                             <div className="absolute top-0 right-0 p-4">
@@ -51,8 +49,8 @@ const EvangelismAnnouncements: React.FC = () => {
 
                         <div className="flex items-start gap-4 mb-4">
                             <div className={`w-12 h-12 rounded-lg flex items-center justify-center border-2 flex-shrink-0 ${item.priority === 'critical' ? 'bg-red-500/10 border-red-500 text-red-500' :
-                                    item.priority === 'warning' ? 'bg-yellow-500/10 border-yellow-500 text-yellow-500' :
-                                        'bg-stone-800 border-stone-700 text-stone-500'
+                                item.priority === 'warning' ? 'bg-yellow-500/10 border-yellow-500 text-yellow-500' :
+                                    'bg-stone-800 border-stone-700 text-stone-500'
                                 }`}>
                                 {item.priority === 'critical' ? <HiLightningBolt className="w-6 h-6" /> : <HiSpeakerphone className="w-6 h-6" />}
                             </div>
@@ -60,14 +58,14 @@ const EvangelismAnnouncements: React.FC = () => {
                                 <h3 className={`text-xl font-bold mb-1 uppercase italic ${item.priority === 'critical' ? 'text-red-500' : 'text-white'
                                     }`}>{item.title}</h3>
                                 <div className="flex items-center gap-3 text-xs font-bold text-stone-500 uppercase tracking-wide">
-                                    <span>{item.date}</span>
+                                    <span>{item.displayDate}</span>
                                     <span>&bull;</span>
                                     <span className="text-stone-400">From: {item.author}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <p className="text-stone-300 leading-relaxed text-sm md:text-base border-l-4 border-stone-800 pl-6 ml-6">
+                        <p className="text-stone-300 leading-relaxed text-sm md:text-base border-l-4 border-stone-800 pl-6 ml-6 whitespace-pre-wrap">
                             {item.content}
                         </p>
                     </div>

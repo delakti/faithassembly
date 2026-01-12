@@ -43,7 +43,10 @@ const EvangelismLayout: React.FC = () => {
         <div className="flex h-screen bg-stone-900 font-sans overflow-hidden text-stone-300">
             {/* Sidebar (Desktop) */}
             <aside className="hidden md:flex w-72 bg-stone-950 border-r border-stone-800 flex-col z-20">
-                <div className="p-8 flex items-center space-x-3 bg-stone-950 border-b border-stone-800">
+                <div
+                    onClick={() => navigate('/evangelism/dashboard')}
+                    className="p-8 flex items-center space-x-3 bg-stone-950 border-b border-stone-800 cursor-pointer hover:bg-stone-900 transition-colors"
+                >
                     <div className="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center border-2 border-orange-400 shadow-[0_0_15px_rgba(234,88,12,0.5)]">
                         <HiFire className="w-6 h-6 text-white" />
                     </div>
@@ -61,8 +64,8 @@ const EvangelismLayout: React.FC = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 font-bold group relative overflow-hidden ${isActive
-                                        ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/50'
-                                        : 'text-stone-500 hover:text-white hover:bg-stone-800'
+                                    ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/50'
+                                    : 'text-stone-500 hover:text-white hover:bg-stone-800'
                                     }`}
                             >
                                 <span className={`mr-3 ${isActive ? 'text-white' : 'text-stone-600 group-hover:text-stone-400'}`}>{item.icon}</span>
@@ -92,7 +95,10 @@ const EvangelismLayout: React.FC = () => {
 
             {/* Mobile Header & Nav */}
             <div className="md:hidden fixed top-0 left-0 right-0 bg-stone-950 z-50 px-6 py-4 flex justify-between items-center text-white shadow-lg border-b border-stone-800">
-                <div className="flex items-center space-x-2">
+                <div
+                    onClick={() => navigate('/evangelism/dashboard')}
+                    className="flex items-center space-x-2 cursor-pointer"
+                >
                     <div className="w-8 h-8 rounded-full bg-orange-600 flex items-center justify-center border border-orange-400">
                         <HiFire className="w-5 h-5 text-white" />
                     </div>
@@ -118,8 +124,8 @@ const EvangelismLayout: React.FC = () => {
                                     to={item.path}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className={`flex items-center px-6 py-4 rounded-lg transition-all font-bold uppercase tracking-wider text-sm ${location.pathname.startsWith(item.path)
-                                            ? 'bg-orange-600 text-white shadow-lg'
-                                            : 'text-stone-400 bg-stone-800'
+                                        ? 'bg-orange-600 text-white shadow-lg'
+                                        : 'text-stone-400 bg-stone-800'
                                         }`}
                                 >
                                     <span className="mr-4">{item.icon}</span>

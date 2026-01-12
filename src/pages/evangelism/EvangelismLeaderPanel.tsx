@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiCalendar, HiUserAdd, HiTrash } from 'react-icons/hi';
+import { HiCalendar, HiUserAdd, HiTrash, HiChat, HiUserGroup, HiSpeakerphone } from 'react-icons/hi';
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { toast } from 'react-hot-toast';
@@ -29,11 +29,32 @@ const EvangelismLeaderPanel: React.FC = () => {
                     icon={<HiUserAdd className="w-5 h-5" />}
                     label="Harvest Log (Converts)"
                 />
+                <TabButton
+                    active={activeTab === 'stories'}
+                    onClick={() => setActiveTab('stories')}
+                    icon={<HiChat className="w-5 h-5" />}
+                    label="Testimonies"
+                />
+                <TabButton
+                    active={activeTab === 'squads'}
+                    onClick={() => setActiveTab('squads')}
+                    icon={<HiUserGroup className="w-5 h-5" />}
+                    label="Active Squads"
+                />
+                <TabButton
+                    active={activeTab === 'intel'}
+                    onClick={() => setActiveTab('intel')}
+                    icon={<HiSpeakerphone className="w-5 h-5" />}
+                    label="Intel (Briefs)"
+                />
             </div>
 
             <div className="min-h-[400px]">
                 {activeTab === 'events' && <EventManager />}
                 {activeTab === 'harvest' && <ConvertManager />}
+                {activeTab === 'stories' && <TestimonyManager />}
+                {activeTab === 'squads' && <SquadManager />}
+                {activeTab === 'intel' && <BriefManager />}
             </div>
         </div>
     );
@@ -192,6 +213,199 @@ const ConvertManager = () => {
                             </button>
                         </div>
                         <button onClick={() => handleDelete(c.id)} className="text-stone-600 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const TestimonyManager = () => {
+    const [stories, setStories] = useState<any[]>([]);
+
+    useEffect(() => {
+        const q = query(collection(db, 'evangelism_stories'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setStories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Delete this testimony?")) return;
+        await deleteDoc(doc(db, 'evangelism_stories', id));
+        toast.success("Testimony Removed");
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="bg-stone-900 border border-stone-800 p-4 rounded-xl">
+                <p className="text-stone-400 text-sm">Testimonies are submitted by team members via the "Stories" page. Use this panel to moderate content.</p>
+            </div>
+
+            <div className="grid gap-4">
+                {stories.map(s => (
+                    <div key={s.id} className="bg-stone-900 border border-stone-800 p-6 rounded-xl relative group">
+                        <button onClick={() => handleDelete(s.id)} className="absolute top-4 right-4 text-stone-600 hover:text-red-500"><HiTrash /></button>
+                        <h4 className="font-bold text-white text-lg">"{s.title}"</h4>
+                        <p className="text-stone-400 mt-2 text-sm">{s.content}</p>
+                        <div className="mt-4 flex items-center gap-4 text-xs font-mono text-stone-500 uppercase">
+                            <span>Author: {s.author}</span>
+                            <span>Date: {s.date}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const SquadManager = () => {
+    const [squads, setSquads] = useState<any[]>([]);
+    const [newSquad, setNewSquad] = useState({
+        name: '', focus: '', lead: '', members: 0, colorTheme: 'orange'
+    });
+
+    useEffect(() => {
+        const q = query(collection(db, 'evangelism_squads'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setSquads(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, 'evangelism_squads'), {
+                ...newSquad,
+                createdAt: serverTimestamp()
+            });
+            toast.success("Squad Deployed");
+            setNewSquad({ name: '', focus: '', lead: '', members: 0, colorTheme: 'orange' });
+        } catch (error) {
+            toast.error("Failed to deploy squad");
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Disband this squad?")) return;
+        await deleteDoc(doc(db, 'evangelism_squads', id));
+        toast.success("Squad Disbanded");
+    };
+
+    return (
+        <div className="grid lg:grid-cols-2 gap-8">
+            <div className="bg-stone-900 border border-stone-800 p-6 rounded-xl shadow-sm h-fit">
+                <h3 className="font-bold text-white mb-4 uppercase italic">Deploy New Squad</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input type="text" placeholder="Squad Name (e.g. Team Alpha)" value={newSquad.name} onChange={e => setNewSquad({ ...newSquad, name: e.target.value })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded" required />
+                    <input type="text" placeholder="Operational Focus (e.g. Street)" value={newSquad.focus} onChange={e => setNewSquad({ ...newSquad, focus: e.target.value })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded" required />
+                    <input type="text" placeholder="Team Lead" value={newSquad.lead} onChange={e => setNewSquad({ ...newSquad, lead: e.target.value })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded" required />
+
+                    <div className="grid grid-cols-2 gap-2">
+                        <input type="number" placeholder="Members Count" value={newSquad.members} onChange={e => setNewSquad({ ...newSquad, members: parseInt(e.target.value) })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded" required />
+                        <select value={newSquad.colorTheme} onChange={e => setNewSquad({ ...newSquad, colorTheme: e.target.value })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded">
+                            <option value="orange">Orange (Default)</option>
+                            <option value="red">Red (Urgent)</option>
+                            <option value="blue">Blue (Support)</option>
+                            <option value="purple">Purple (Prayer)</option>
+                            <option value="green">Green (Training)</option>
+                        </select>
+                    </div>
+
+                    <button className="w-full py-3 bg-orange-600 text-white font-black uppercase rounded hover:bg-orange-700">Deploy Squad</button>
+                </form>
+            </div>
+            <div className="space-y-4">
+                {squads.map(s => (
+                    <div key={s.id} className="bg-stone-900 border border-stone-800 p-4 rounded-xl flex justify-between items-center shadow-sm">
+                        <div>
+                            <h4 className="font-bold text-white">{s.name}</h4>
+                            <p className="text-xs text-stone-500">{s.focus} &bull; Lead: {s.lead}</p>
+                            <span className="text-[10px] bg-stone-800 px-2 py-0.5 rounded text-stone-400 mt-1 inline-block">
+                                Members: {s.members}
+                            </span>
+                        </div>
+                        <button onClick={() => handleDelete(s.id)} className="text-stone-600 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+
+
+const BriefManager = () => {
+    const [briefs, setBriefs] = useState<any[]>([]);
+    const [newBrief, setNewBrief] = useState({
+        title: '', author: '', priority: 'normal', content: '', date: ''
+    });
+
+    useEffect(() => {
+        const q = query(collection(db, 'evangelism_briefs'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setBriefs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await addDoc(collection(db, 'evangelism_briefs'), {
+                ...newBrief,
+                date: newBrief.date || new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+                createdAt: serverTimestamp()
+            });
+            toast.success("Intel Brief Published");
+            setNewBrief({ title: '', author: '', priority: 'normal', content: '', date: '' });
+        } catch (error) {
+            toast.error("Failed to publish brief");
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Declassify this brief?")) return;
+        await deleteDoc(doc(db, 'evangelism_briefs', id));
+        toast.success("Brief Removed");
+    };
+
+    return (
+        <div className="grid lg:grid-cols-2 gap-8">
+            <div className="bg-stone-900 border border-stone-800 p-6 rounded-xl shadow-sm h-fit">
+                <h3 className="font-bold text-white mb-4 uppercase italic">Issue Campaign Brief</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input type="text" placeholder="Subject / Title" value={newBrief.title} onChange={e => setNewBrief({ ...newBrief, title: e.target.value })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded" required />
+                    <input type="text" placeholder="Issuer (e.g. Director)" value={newBrief.author} onChange={e => setNewBrief({ ...newBrief, author: e.target.value })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded" required />
+
+                    <div className="grid grid-cols-2 gap-2">
+                        <input type="text" placeholder="Date Override (Optional)" value={newBrief.date} onChange={e => setNewBrief({ ...newBrief, date: e.target.value })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded" />
+                        <select value={newBrief.priority} onChange={e => setNewBrief({ ...newBrief, priority: e.target.value })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded">
+                            <option value="normal">Normal Priority</option>
+                            <option value="warning">Warning / Caution</option>
+                            <option value="critical">Critical / Action Req.</option>
+                        </select>
+                    </div>
+
+                    <textarea placeholder="Briefing Content..." value={newBrief.content} onChange={e => setNewBrief({ ...newBrief, content: e.target.value })} className="w-full bg-stone-950 border border-stone-800 text-white p-2 rounded h-24" required />
+
+                    <button className="w-full py-3 bg-orange-600 text-white font-black uppercase rounded hover:bg-orange-700">Publish Intel</button>
+                </form>
+            </div>
+            <div className="space-y-4">
+                {briefs.map(b => (
+                    <div key={b.id} className="bg-stone-900 border border-stone-800 p-4 rounded-xl shadow-sm relative overflow-hidden">
+                        {b.priority === 'critical' && <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500 m-2 animate-pulse"></div>}
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h4 className="font-bold text-white">{b.title}</h4>
+                                <p className="text-xs text-stone-500 font-mono uppercase">{b.priority} &bull; {b.date}</p>
+                            </div>
+                            <button onClick={() => handleDelete(b.id)} className="text-stone-600 hover:text-red-600"><HiTrash className="w-5 h-5" /></button>
+                        </div>
+                        <p className="text-stone-400 text-xs mt-2 line-clamp-2">{b.content}</p>
                     </div>
                 ))}
             </div>
