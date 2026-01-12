@@ -1,8 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiClock, HiSparkles, HiShieldCheck, HiArrowRight } from 'react-icons/hi';
 import { motion } from 'framer-motion';
+import { collection, query, orderBy, where, limit, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { useNavigate } from 'react-router-dom';
 
 const PrayerDashboard: React.FC = () => {
+    const navigate = useNavigate();
+    const [urgentFocus, setUrgentFocus] = useState<any>(null);
+    const [upcomingSlots, setUpcomingSlots] = useState<any[]>([]);
+
+    useEffect(() => {
+        // Fetch Urgent Focus (Latest high priority Intel)
+        const qUrgent = query(
+            collection(db, 'prayer_intel'),
+            where('priority', '==', 'urgent'),
+            orderBy('createdAt', 'desc'),
+            limit(1)
+        );
+        const unsubscribeUrgent = onSnapshot(qUrgent, (snapshot) => {
+            if (!snapshot.empty) {
+                setUrgentFocus({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
+            } else {
+                setUrgentFocus(null);
+            }
+        });
+
+        // Fetch Upcoming Slots (Just fetching first 2 sorted by day/time for now - simplified)
+        // Ideally we'd query by actual time, but for this demo we'll just show the first few slots.
+        const qSlots = query(collection(db, 'prayer_slots'), orderBy('day', 'asc'), limit(2));
+        const unsubscribeSlots = onSnapshot(qSlots, (snapshot) => {
+            setUpcomingSlots(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+
+        return () => {
+            unsubscribeUrgent();
+            unsubscribeSlots();
+        };
+    }, []);
+
     return (
         <div className="space-y-8 font-sans">
             {/* Main Alert Card */}
@@ -15,14 +51,26 @@ const PrayerDashboard: React.FC = () => {
 
                 <div className="p-8 md:p-12 flex-1 relative z-10">
                     <span className="inline-block px-3 py-1 bg-indigo-500/20 text-indigo-300 text-[10px] font-bold tracking-widest uppercase rounded-full mb-4 border border-indigo-500/30">Urgent Focus</span>
-                    <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">Pray for Healing</h2>
-                    <p className="text-slate-400 text-lg leading-relaxed max-w-xl mb-8">
-                        The pastoral team has requested focused intercession for Sister Elizabeth's recovery. Let us stand in the gap today.
-                    </p>
+
+                    {urgentFocus ? (
+                        <>
+                            <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">{urgentFocus.title}</h2>
+                            <p className="text-slate-400 text-lg leading-relaxed max-w-xl mb-8 line-clamp-3">
+                                {urgentFocus.content}
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">Pray for the Church</h2>
+                            <p className="text-slate-400 text-lg leading-relaxed max-w-xl mb-8">
+                                Stand in the gap for the body of Christ. Let us intercede for unity, strength, and revival in our midst.
+                            </p>
+                        </>
+                    )}
 
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <button className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/30 hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2">
-                            <HiSparkles className="w-5 h-5" /> View Request
+                        <button onClick={() => navigate('/prayer/announcements')} className="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/30 hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2">
+                            <HiSparkles className="w-5 h-5" /> {urgentFocus ? 'View Details' : 'View Intel'}
                         </button>
                         <button className="px-6 py-3 bg-transparent text-slate-300 border border-slate-700 font-bold rounded-xl hover:bg-slate-800 transition-colors">
                             Mark as Prayed
@@ -38,20 +86,20 @@ const PrayerDashboard: React.FC = () => {
                         <HiClock className="w-5 h-5 text-indigo-400" /> The Watch
                     </h3>
                     <div className="space-y-4">
-                        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center group cursor-pointer hover:border-indigo-500/50 transition-colors">
-                            <div>
-                                <span className="text-xs font-bold text-indigo-400 uppercase tracking-wide block mb-1">Today &bull; 06:00 AM</span>
-                                <span className="text-lg font-bold text-slate-200 block">Morning Glory</span>
-                            </div>
-                            <HiArrowRight className="w-5 h-5 text-slate-600 group-hover:text-indigo-400 transition-colors" />
-                        </div>
-                        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center group cursor-pointer hover:border-indigo-500/50 transition-colors">
-                            <div>
-                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-1">Tomorrow &bull; 12:00 AM</span>
-                                <span className="text-lg font-bold text-slate-200 block">Midnight Watch</span>
-                            </div>
-                            <HiArrowRight className="w-5 h-5 text-slate-600 group-hover:text-indigo-400 transition-colors" />
-                        </div>
+                        {upcomingSlots.length > 0 ? (
+                            upcomingSlots.map(slot => (
+                                <div key={slot.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center group cursor-pointer hover:border-indigo-500/50 transition-colors">
+                                    <div>
+                                        <span className="text-xs font-bold text-indigo-400 uppercase tracking-wide block mb-1">{slot.day} &bull; {slot.time}</span>
+                                        <span className="text-lg font-bold text-slate-200 block">{slot.focus}</span>
+                                    </div>
+                                    <HiArrowRight className="w-5 h-5 text-slate-600 group-hover:text-indigo-400 transition-colors" />
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-slate-500 italic">No active watch slots.</p>
+                        )}
+                        <button onClick={() => navigate('/prayer/schedule')} className="w-full text-center text-xs text-slate-500 font-bold uppercase hover:text-indigo-400 mt-2">View Full Schedule</button>
                     </div>
                 </div>
 
@@ -66,7 +114,7 @@ const PrayerDashboard: React.FC = () => {
                             Track your prayer hours and manage your assigned slots for the month.
                         </p>
                     </div>
-                    <button className="w-full py-3 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 hover:text-white transition-colors">
+                    <button onClick={() => navigate('/prayer/schedule')} className="w-full py-3 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700 hover:text-white transition-colors">
                         Manage Schedule
                     </button>
                 </div>

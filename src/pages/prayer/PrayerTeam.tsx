@@ -1,56 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiUserGroup, HiBadgeCheck, HiMail, HiShieldCheck } from 'react-icons/hi';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebase';
 import { toast } from 'react-hot-toast';
 
-const TEAMS = [
-    {
-        id: 'watchmen',
-        name: "Night Watchmen",
-        description: "Covering the midnight hours in intercession.",
-        leader: {
-            name: "Brother James",
-            role: "Watch Leader",
-            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&auto=format&fit=crop&q=60"
-        },
-        members: [
-            { name: "David K.", role: "Intercessor" },
-            { name: "Samuel O.", role: "Intercessor" },
-            { name: "Peter R.", role: "Intercessor" }
-        ]
-    },
-    {
-        id: 'healing',
-        name: "Healing & Deliverance",
-        description: "Focusing on physical and spiritual wholeness.",
-        leader: {
-            name: "Sister Elizabeth",
-            role: "Ministry Head",
-            image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&auto=format&fit=crop&q=60"
-        },
-        members: [
-            { name: "Grace M.", role: "Prayer Warrior" },
-            { name: "Ruth T.", role: "Hospital Ministry" },
-            { name: "John P.", role: "Counselor" }
-        ]
-    },
-    {
-        id: 'prophetic',
-        name: "Prophetic Intercession",
-        description: "Seeking God's heart and direction for the church.",
-        leader: {
-            name: "Pastor Solomon",
-            role: "Oversight",
-            image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&auto=format&fit=crop&q=60"
-        },
-        members: [
-            { name: "Sarah J.", role: "Scribe" },
-            { name: "Mark L.", role: "Musician" },
-            { name: "Hannah B.", role: "Seer" }
-        ]
-    }
-];
-
 const PrayerTeam: React.FC = () => {
+    const [teams, setTeams] = useState<any[]>([]);
+
+    useEffect(() => {
+        const q = query(collection(db, 'prayer_teams'), orderBy('createdAt', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setTeams(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        return () => unsubscribe();
+    }, []);
+
     const handleContact = (name: string) => {
         toast.success(`Message sent to ${name}.`);
     };
@@ -66,7 +30,12 @@ const PrayerTeam: React.FC = () => {
             </div>
 
             <div className="grid gap-8">
-                {TEAMS.map((team) => (
+                {teams.length === 0 && (
+                    <div className="p-8 text-center border border-slate-800 rounded-xl bg-slate-900/50">
+                        <p className="text-slate-500 italic">No prayer teams currently forming.</p>
+                    </div>
+                )}
+                {teams.map((team) => (
                     <div key={team.id} className="bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden hover:border-indigo-500/30 transition-all">
                         <div className="bg-slate-950 p-6 border-b border-slate-800 flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -91,12 +60,12 @@ const PrayerTeam: React.FC = () => {
                                 </span>
                                 <div className="flex flex-col items-center text-center">
                                     <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-800 shadow-lg mb-4">
-                                        <img src={team.leader.image} alt={team.leader.name} className="w-full h-full object-cover" />
+                                        <img src={team.leader?.image || `https://ui-avatars.com/api/?name=${team.leader?.name}&background=random`} alt={team.leader?.name} className="w-full h-full object-cover" />
                                     </div>
-                                    <h3 className="font-bold text-lg text-white">{team.leader.name}</h3>
-                                    <p className="text-sm text-slate-500 mb-4">{team.leader.role}</p>
+                                    <h3 className="font-bold text-lg text-white">{team.leader?.name}</h3>
+                                    <p className="text-sm text-slate-500 mb-4">{team.leader?.role}</p>
                                     <button
-                                        onClick={() => handleContact(team.leader.name)}
+                                        onClick={() => handleContact(team.leader?.name)}
                                         className="w-full py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-indigo-500 transition-colors"
                                     >
                                         Contact
@@ -108,9 +77,9 @@ const PrayerTeam: React.FC = () => {
                             <div className="md:col-span-3">
                                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 block">Team Members</span>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                    {team.members.map((member, idx) => (
+                                    {team.members?.map((member: any, idx: number) => (
                                         <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-slate-950 border border-slate-800">
-                                            <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-slate-600 text-xs font-bold border border-slate-800">
+                                            <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-slate-600 text-xs font-bold border border-slate-800 uppercase">
                                                 {member.name.charAt(0)}
                                             </div>
                                             <div>

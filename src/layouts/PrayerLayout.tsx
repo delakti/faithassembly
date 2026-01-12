@@ -42,7 +42,7 @@ const PrayerLayout: React.FC = () => {
         <div className="flex h-screen bg-slate-950 font-sans overflow-hidden text-slate-200">
             {/* Sidebar (Desktop) */}
             <aside className="hidden md:flex w-64 bg-slate-900 flex-col z-20 border-r border-slate-800">
-                <div className="p-8 flex items-center space-x-3 bg-slate-900 border-b border-slate-800">
+                <Link to="/prayer/dashboard" className="p-8 flex items-center space-x-3 bg-slate-900 border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
                     <div className="w-10 h-10 rounded-full bg-indigo-900/30 flex items-center justify-center border border-indigo-500/30">
                         <HiFire className="w-5 h-5 text-indigo-400" />
                     </div>
@@ -50,7 +50,7 @@ const PrayerLayout: React.FC = () => {
                         <h1 className="font-serif font-bold text-xl tracking-tight text-white">Prayer<span className="text-indigo-400">Force</span></h1>
                         <p className="text-[10px] text-slate-500 uppercase tracking-widest">In His Presence</p>
                     </div>
-                </div>
+                </Link>
 
                 <nav className="flex-1 px-4 space-y-2 mt-8">
                     {navItems.map((item) => {
@@ -84,12 +84,12 @@ const PrayerLayout: React.FC = () => {
 
             {/* Mobile Header & Nav */}
             <div className="md:hidden fixed top-0 left-0 right-0 bg-slate-900 z-50 px-6 py-4 flex justify-between items-center text-white shadow-sm border-b border-slate-800">
-                <div className="flex items-center space-x-2">
+                <Link to="/prayer/dashboard" className="flex items-center space-x-2">
                     <div className="w-8 h-8 rounded-full bg-indigo-900/30 flex items-center justify-center border border-indigo-500/30">
                         <HiFire className="w-4 h-4 text-indigo-400" />
                     </div>
                     <span className="font-serif font-bold text-lg">Prayer<span className="text-indigo-400">Force</span></span>
-                </div>
+                </Link>
                 <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-slate-400">
                     {isMobileMenuOpen ? <HiX className="w-6 h-6" /> : <HiMenu className="w-6 h-6" />}
                 </button>
