@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
     FaChild, FaUserFriends, FaFemale, FaMale, FaMusic,
     FaPray, FaHandHoldingHeart, FaMicrophoneAlt, FaBullhorn,
-    FaHome, FaChalkboardTeacher, FaShoppingCart
+    FaHome, FaChalkboardTeacher, FaShoppingCart, FaPaintBrush, FaUserTie
 } from 'react-icons/fa';
 
 const portals = [
@@ -102,6 +102,22 @@ const portals = [
         icon: <FaShoppingCart className="text-4xl text-emerald-600" />,
         description: 'Manage E-commerce products and orders.',
         color: 'border-emerald-200 bg-emerald-50'
+    },
+    {
+        id: 'decoration',
+        name: 'Beauty & Decoration',
+        path: '/decoration/dashboard',
+        icon: <FaPaintBrush className="text-4xl text-fuchsia-600" />,
+        description: 'Manage decor inventory, rotas, and events.',
+        color: 'border-fuchsia-200 bg-fuchsia-50'
+    },
+    {
+        id: 'house-admin',
+        name: 'House Superintendent',
+        path: '/house-admin/dashboard',
+        icon: <FaUserTie className="text-4xl text-indigo-600" />,
+        description: 'Superintendent oversight and reporting.',
+        color: 'border-indigo-200 bg-indigo-50'
     }
 ];
 
