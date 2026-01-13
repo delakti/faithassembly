@@ -233,6 +233,18 @@ import HouseAdminLayout from './layouts/HouseAdminLayout';
 import HouseAdminDashboard from './pages/house/admin/HouseAdminDashboard';
 import HouseAdminCommunication from './pages/house/admin/HouseAdminCommunication';
 
+// Visitation Portal Imports
+import VisitationLogin from './pages/visitation/VisitationLogin';
+import VisitationRoute from './components/visitation/VisitationRoute';
+import VisitationLayout from './layouts/VisitationLayout';
+import VisitationDashboard from './pages/visitation/VisitationDashboard';
+import VisitationSchedule from './pages/visitation/VisitationSchedule';
+import VisitationRequests from './pages/visitation/VisitationRequests';
+import VisitationReports from './pages/visitation/VisitationReports';
+import VisitationPrayer from './pages/visitation/VisitationPrayer';
+import VisitationEvents from './pages/visitation/VisitationEvents';
+import VisitationLeaderPanel from './pages/visitation/VisitationLeaderPanel';
+
 
 
 // Children's Portal Imports
@@ -677,6 +689,21 @@ function App() {
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<HouseAdminDashboard />} />
                 <Route path="communication" element={<HouseAdminCommunication />} />
+              </Route>
+            </Route>
+
+            {/* Visitation Portal Routes */}
+            <Route path="/visitation/login" element={<VisitationLogin />} />
+            <Route element={<VisitationRoute />}>
+              <Route path="/visitation" element={<VisitationLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<VisitationDashboard />} />
+                <Route path="schedule" element={<VisitationSchedule />} />
+                <Route path="requests" element={<VisitationRequests />} />
+                <Route path="reports" element={<VisitationReports />} />
+                <Route path="prayer" element={<VisitationPrayer />} />
+                <Route path="events" element={<VisitationEvents />} />
+                <Route path="leader" element={<VisitationLeaderPanel />} />
               </Route>
             </Route>
 
