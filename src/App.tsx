@@ -321,7 +321,7 @@ function App() {
 
 
               {/* House Fellowship Superintendent */}
-              <Route path="house-superintendent" element={<HouseSuperintendent />} />
+
 
 
               {/* New Routes */}
@@ -559,6 +559,8 @@ function App() {
                 <Route path="directory" element={<ChildDirectory />} />
                 <Route path="register" element={<ChildProfile />} />
                 <Route path="profile/:id" element={<ChildProfile />} />
+                <Route path="attendance/mobile-scanner" element={<MobileScanner />} />
+                <Route path="house-superintendent" element={<HouseSuperintendent />} />
                 <Route path="attendance" element={<Attendance />} />
                 <Route path="lessons" element={<LessonManager />} />
                 <Route path="events" element={<EventPlanner />} />
