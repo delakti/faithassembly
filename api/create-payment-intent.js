@@ -1,7 +1,8 @@
-const Stripe = require('stripe');
+import Stripe from 'stripe';
+
 // potential for initialization of Stripe outside the handler for cold start optimization? 
 // For now, simple is fine.
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
