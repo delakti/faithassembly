@@ -12,7 +12,9 @@ import {
     HiChatAlt2,
     HiVideoCamera,
     HiArrowRight,
-    HiShieldCheck
+    HiShieldCheck,
+    HiSparkles,
+    HiHome
 } from 'react-icons/hi';
 
 const SuperAdminDashboard: React.FC = () => {
@@ -115,6 +117,8 @@ const SuperAdminDashboard: React.FC = () => {
                         { name: 'Men Admin', path: '/men/leader', icon: <HiUserGroup className="w-6 h-6" />, color: 'bg-slate-800', desc: 'Manage Men\'s Ministry' },
                         { name: 'Esther Admin', path: '/esther/leader', icon: <HiUserGroup className="w-6 h-6" />, color: 'bg-rose-600', desc: 'Manage Women\'s Ministry' },
                         { name: 'Youth Admin', path: '/youth/leader', icon: <HiUserGroup className="w-6 h-6" />, color: 'bg-yellow-600', desc: 'Manage Youth' },
+                        { name: 'Decoration Admin', path: '/decoration/leader', icon: <HiSparkles className="w-6 h-6" />, color: 'bg-fuchsia-600', desc: 'Manage Decor & Assets' },
+                        { name: 'House Admin', path: '/house-admin', icon: <HiHome className="w-6 h-6" />, color: 'bg-indigo-600', desc: 'Superintendent Overview' },
                     ].map((portal, idx) => (
                         <Link
                             key={idx}
