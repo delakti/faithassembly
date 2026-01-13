@@ -559,7 +559,7 @@ function App() {
                 <Route path="directory" element={<ChildDirectory />} />
                 <Route path="register" element={<ChildProfile />} />
                 <Route path="profile/:id" element={<ChildProfile />} />
-                <Route path="attendance/mobile-scanner" element={<MobileScanner />} />
+
                 <Route path="house-superintendent" element={<HouseSuperintendent />} />
                 <Route path="attendance" element={<Attendance />} />
                 <Route path="lessons" element={<LessonManager />} />
@@ -599,6 +599,28 @@ function App() {
 
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
+            {/* Super Admin Routes */}
+            <Route path="/admin/super/login" element={<SuperAdminLogin />} />
+            <Route path="/setup/admin" element={<AdminSetup />} />
+            <Route element={<SuperAdminRoute />}>
+              <Route path="/admin" element={<Navigate to="/admin/super/dashboard" replace />} />
+              <Route path="/admin/super" element={<SuperAdminLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<SuperAdminDashboard />} />
+                <Route path="users" element={<UserManager />} />
+                <Route path="donors" element={<DonorManager />} />
+                <Route path="analytics" element={<AnalyticsDashboard />} />
+                <Route path="logs" element={<ActivityLogViewer />} />
+                <Route path="announcements" element={<AnnouncementManager />} />
+                <Route path="groups" element={<GroupManager />} />
+                <Route path="settings" element={<SystemSettings />} />
+                <Route path="portals" element={<PortalManager />} />
+                <Route path="attendance/reports" element={<AttendanceReports />} />
+                <Route path="attendance/qr-generator" element={<ServiceQRGenerator />} />
+                <Route path="house-superintendent" element={<HouseSuperintendent />} />
+              </Route>
+            </Route>
+
             <Route path="/team/login" element={<VolunteerLogin />} />
             <Route path="/members/login" element={<MemberLogin />} />
             <Route path="/members/register" element={<MemberRegister />} />
