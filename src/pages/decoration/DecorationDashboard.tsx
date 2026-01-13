@@ -9,7 +9,6 @@ const DecorationDashboard: React.FC = () => {
     const navigate = useNavigate();
     const auth = getAuth();
     const db = getFirestore();
-    const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
         assets: 0,
         upcomingEvents: 0,
@@ -62,8 +61,6 @@ const DecorationDashboard: React.FC = () => {
 
             } catch (error) {
                 console.error("Error fetching dashboard data:", error);
-            } finally {
-                setLoading(false);
             }
         };
 

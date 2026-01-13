@@ -51,7 +51,6 @@ const DecorationRota: React.FC = () => {
     const fetchEvents = async () => {
         setLoading(true);
         try {
-            const today = new Date().toISOString().split('T')[0];
             // Fetch all future events (and maybe some past ones if meaningful)
             // Just simple sort for now
             const q = query(collection(db, 'decor_rota'), orderBy('date', 'asc'));
@@ -206,8 +205,8 @@ const DecorationRota: React.FC = () => {
                                     <button
                                         onClick={() => toggleVolunteer(event)}
                                         className={`px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-colors ${isSignedUp
-                                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                : 'bg-slate-100 text-slate-600 hover:bg-fuchsia-100 hover:text-fuchsia-700'
+                                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-fuchsia-100 hover:text-fuchsia-700'
                                             }`}
                                     >
                                         {isSignedUp ? <><HiCheckCircle /> I'm Volunteering</> : <><HiHand /> Sign Me Up</>}

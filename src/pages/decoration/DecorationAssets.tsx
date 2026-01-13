@@ -10,7 +10,6 @@ import {
     HiPhotograph,
     HiLocationMarker,
     HiX,
-    HiFilter
 } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
 
@@ -174,8 +173,8 @@ const DecorationAssets: React.FC = () => {
                         key={cat}
                         onClick={() => setCategoryFilter(cat)}
                         className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${categoryFilter === cat
-                                ? 'bg-fuchsia-100 text-fuchsia-700'
-                                : 'bg-white border border-slate-100 text-slate-500 hover:bg-slate-50'
+                            ? 'bg-fuchsia-100 text-fuchsia-700'
+                            : 'bg-white border border-slate-100 text-slate-500 hover:bg-slate-50'
                             }`}
                     >
                         {cat}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, query, orderBy, getDocs, addDoc, deleteDoc, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { HiClipboardList, HiPlus, HiHand, HiCalendar, HiCheckCircle, HiTrash } from 'react-icons/hi';
+import { HiClipboardList, HiHand, HiCalendar, HiCheckCircle, HiTrash } from 'react-icons/hi';
 import { format, parseISO } from 'date-fns';
 import { toast } from 'react-hot-toast';
 
@@ -171,8 +171,8 @@ const DecorationPlanning: React.FC = () => {
                                     <button
                                         onClick={() => toggleAttendance(meeting)}
                                         className={`px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-colors whitespace-nowrap ${isAttending
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                             }`}
                                     >
                                         {isAttending ? <><HiCheckCircle /> Count Me In</> : <><HiHand /> RSVP Yes</>}
