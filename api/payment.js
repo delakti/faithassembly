@@ -1,7 +1,5 @@
 import crypto from 'crypto';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
+import { Client, Environment } from 'square';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,19 +11,24 @@ export default async function handler(req, res) {
           throw new Error('Server configuration error: Missing SQUARE_ACCESS_TOKEN');
       }
 
-      // Use CommonJS require to load Square SDK reliably
-      const square = require('square');
-      const { SquareClient, SquareEnvironment } = square;
-
-      if (!SquareClient) {
-          throw new Error('Failed to import SquareClient from square SDK via require');
+      // Initialize Square Client
+      // PRIORITIZE explicit SQUARE_ENVIRONMENT env var
+      // FALLBACK to checking NODE_ENV
+      let env = Environment.Sandbox; 
+      
+      if (process.env.SQUARE_ENVIRONMENT === 'production') {
+          env = Environment.Production;
+      } else if (process.env.SQUARE_ENVIRONMENT === 'sandbox') {
+          env = Environment.Sandbox;
+      } else if (process.env.NODE_ENV === 'production') {
+          env = Environment.Production;
       }
 
-      // Initialize Square Client
-      // Note: "Environment" is now "SquareEnvironment"
-      const client = new SquareClient({
+      console.log(`Initializing Square Client in ${env === Environment.Production ? 'Production' : 'Sandbox'} mode`);
+
+      const client = new Client({
         accessToken: process.env.SQUARE_ACCESS_TOKEN,
-        environment: process.env.NODE_ENV === 'production' ? SquareEnvironment.Production : SquareEnvironment.Sandbox,
+        environment: env,
       });
 
       const { sourceId, amount } = req.body;
