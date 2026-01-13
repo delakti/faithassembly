@@ -18,7 +18,8 @@ const SuperAdminRoute: React.FC = () => {
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     // Allow if role is specifically 'super_admin'
-                    if (userData.role === 'super_admin') {
+                    const allowedRoles = ['super_admin', 'admin', 'hospitality_leader', 'house_leader'];
+                    if (allowedRoles.includes(userData.role)) {
                         setIsSuperAdmin(true);
                     } else {
                         setIsSuperAdmin(false);

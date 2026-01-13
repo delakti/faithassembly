@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import {
     HiHome,
     HiUsers,
@@ -15,6 +16,22 @@ const SuperAdminLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const auth = getAuth();
+
+    const [userRole, setUserRole] = React.useState('');
+    const db = getFirestore();
+
+    React.useEffect(() => {
+        const fetchRole = async () => {
+            if (auth.currentUser) {
+                const docRef = doc(db, 'users', auth.currentUser.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    setUserRole(docSnap.data().role);
+                }
+            }
+        };
+        fetchRole();
+    }, [auth.currentUser]);
 
     const handleLogout = async () => {
         try {
@@ -65,6 +82,25 @@ const SuperAdminLayout: React.FC = () => {
                             </Link>
                         );
                     })}
+
+                    {/* Superintendent Link */}
+                    {['super_admin', 'admin', 'hospitality_leader', 'house_leader'].includes(userRole) && (
+                        <div className="pt-4 mt-2 border-t border-slate-800">
+                            <p className="px-4 text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-wider">Superintendent</p>
+                            <Link
+                                to="/admin/house-superintendent"
+                                className={`flex items-center px-4 py-3 rounded-lg transition-colors group ${location.pathname.includes('house-superintendent')
+                                    ? 'bg-indigo-600 text-white shadow-md'
+                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                    }`}
+                            >
+                                <span className={`mr-3 ${location.pathname.includes('house-superintendent') ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}>
+                                    <HiUserGroup className="w-5 h-5" />
+                                </span>
+                                <span className="font-medium text-sm">House Fellowship</span>
+                            </Link>
+                        </div>
+                    )}
                 </nav>
 
                 <div className="p-4 border-t border-slate-800">

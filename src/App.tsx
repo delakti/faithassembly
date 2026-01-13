@@ -80,6 +80,7 @@ import AdminSetup from './pages/admin/super/AdminSetup';
 import PortalManager from './pages/admin/super/portals/PortalManager';
 import AttendanceReports from './pages/admin/super/reports/AttendanceReports';
 import ServiceQRGenerator from './pages/admin/super/attendance/ServiceQRGenerator';
+import HouseSuperintendent from './pages/admin/super/HouseSuperintendent';
 
 // Youth Portal Imports
 import YouthLogin from './pages/youth/YouthLogin';
@@ -317,7 +318,11 @@ function App() {
               <Route path="/plan-visit" element={<PlanVisit />} />
               <Route path="/plan-visit" element={<PlanVisit />} />
               <Route path="/visit" element={<Visit />} />
-              <Route path="/attendance/check-in" element={<AttendanceLog />} />
+              <Route path="attendance/mobile-scanner" element={<MobileScanner />} />
+
+              {/* House Fellowship Superintendent */}
+              <Route path="house-superintendent" element={<HouseSuperintendent />} />
+
 
               {/* New Routes */}
               <Route path="/events" element={<Events />} />
