@@ -227,6 +227,14 @@ import HouseEvents from './pages/members/house/Events';
 import HouseChat from './pages/members/house/Chat';
 import HouseResources from './pages/members/house/Resources';
 
+// House Admin Imports
+import HouseAdminRoute from './components/house/HouseAdminRoute';
+import HouseAdminLayout from './layouts/HouseAdminLayout';
+import HouseAdminDashboard from './pages/house/admin/HouseAdminDashboard';
+import HouseAdminCommunication from './pages/house/admin/HouseAdminCommunication';
+
+
+
 // Children's Portal Imports
 import ChildrenLogin from './pages/children/ChildrenLogin';
 import ChildrenRoute from './components/children/ChildrenRoute';
@@ -662,6 +670,16 @@ function App() {
                 <Route path="resources" element={<HouseResources />} />
               </Route>
             </Route>
+
+            {/* House Admin Portal (Separate) */}
+            <Route path="/house-admin" element={<HouseAdminRoute />}>
+              <Route element={<HouseAdminLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<HouseAdminDashboard />} />
+                <Route path="communication" element={<HouseAdminCommunication />} />
+              </Route>
+            </Route>
+
           </Routes>
         </SearchProvider>
       </StoreProvider>
