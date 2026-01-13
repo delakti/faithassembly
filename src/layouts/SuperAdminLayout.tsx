@@ -89,7 +89,7 @@ const SuperAdminLayout: React.FC = () => {
                         <div className="pt-4 mt-2 border-t border-slate-800">
                             <p className="px-4 text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-wider">Superintendent</p>
                             <Link
-                                to="/admin/house-superintendent"
+                                to="/admin/super/house-superintendent"
                                 className={`flex items-center px-4 py-3 rounded-lg transition-colors group ${location.pathname.includes('house-superintendent')
                                     ? 'bg-indigo-600 text-white shadow-md'
                                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
