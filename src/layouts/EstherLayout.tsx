@@ -27,7 +27,7 @@ const EstherLayout: React.FC = () => {
                 const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
                 if (userDoc.exists()) {
                     const role = userDoc.data().role;
-                    if (['esther_leader', 'super_admin', 'admin'].includes(role)) {
+                    if (['esther_leader', 'hospitality_leader', 'super_admin', 'admin'].includes(role)) {
                         setIsLeader(true);
                     }
                 }

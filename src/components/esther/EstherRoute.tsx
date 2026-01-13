@@ -16,7 +16,7 @@ const EstherRoute: React.FC = () => {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists()) {
                     const role = userDoc.data().role;
-                    if (['esther_member', 'esther_leader', 'admin', 'super_admin'].includes(role)) {
+                    if (['esther_member', 'esther_leader', 'hospitality_leader', 'admin', 'super_admin'].includes(role)) {
                         setIsEsther(true);
                     } else {
                         setIsEsther(false);
