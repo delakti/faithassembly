@@ -191,6 +191,16 @@ import UsherBriefs from './pages/ushering/UsherBriefs';
 import UsherTeam from './pages/ushering/UsherTeam';
 import UsherEvents from './pages/ushering/UsherEvents';
 
+// Decoration Portal Imports
+import DecorationLayout from './layouts/DecorationLayout';
+import DecorationLogin from './pages/decoration/DecorationLogin';
+import DecorationDashboard from './pages/decoration/DecorationDashboard';
+import DecorationAnnouncements from './pages/decoration/DecorationAnnouncements';
+import DecorationRota from './pages/decoration/DecorationRota';
+import DecorationAssets from './pages/decoration/DecorationAssets';
+import DecorationPlanning from './pages/decoration/DecorationPlanning';
+import DecorationLeaderPanel from './pages/decoration/DecorationLeaderPanel';
+import DecorationRoute from './components/decoration/DecorationRoute';
 
 
 // Member Portal Imports
@@ -522,7 +532,21 @@ function App() {
               </Route>
             </Route>
 
-            {/* Children's Portal Routes */}
+            {/* Decoration Portal Routes */}
+            <Route path="/decoration/login" element={<DecorationLogin />} />
+            <Route element={<DecorationRoute />}>
+              <Route path="/decoration" element={<DecorationLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<DecorationDashboard />} />
+                <Route path="announcements" element={<DecorationAnnouncements />} />
+                <Route path="rota" element={<DecorationRota />} />
+                <Route path="assets" element={<DecorationAssets />} />
+                <Route path="planning" element={<DecorationPlanning />} />
+                <Route path="leader" element={<DecorationLeaderPanel />} />
+              </Route>
+            </Route>
+
+            {/* Catch all redirect - MUST BE LAST */}
             <Route path="/children/login" element={<ChildrenLogin />} />
             <Route path="/children" element={<ChildrenRoute />}>
               <Route element={<ChildrenLayout />}>
