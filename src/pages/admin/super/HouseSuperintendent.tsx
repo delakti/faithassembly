@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getFirestore, collection, getDocs, query, where, getDoc, doc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { HiUserGroup, HiDocumentDownload, HiChartPie, HiLocationMarker } from 'react-icons/hi';
+
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
 import html2canvas from 'html2canvas'; // Will need to be installed or handled if missing
@@ -16,20 +16,11 @@ interface Group {
     membersCount?: number;
 }
 
-interface AttendanceRecord {
-    id: string;
-    groupId: string;
-    date: string;
-    count: number;
-    notes: string;
-}
+
 
 const HouseSuperintendent: React.FC = () => {
     const db = getFirestore();
-    const auth = getAuth();
     const [groups, setGroups] = useState<Group[]>([]);
-    const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-    const [loading, setLoading] = useState(true);
     const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
     const reportRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +36,7 @@ const HouseSuperintendent: React.FC = () => {
     }, [selectedMonth]);
 
     const fetchData = async () => {
-        setLoading(true);
+        // setLoading(true);
         try {
             // 1. Fetch Groups
             // Assuming collection is 'groups' based on plan. Adjust if 'life_groups' etc.
@@ -63,14 +54,14 @@ const HouseSuperintendent: React.FC = () => {
             // For now, allow mock/empty to render UI
             // const q = query(collection(db, 'attendance'), where('date', '>=', start), where('date', '<=', end));
             // For MVP UI, we'll simulate some records if empty
-            setAttendance([]);
+            // setAttendance([]);
 
         } catch (error) {
             console.error("Error fetching superintendent data", error);
             // Fallback to mocks for demo
             setGroups(mockGroups);
         } finally {
-            setLoading(false);
+            // setLoading(false);
         }
     };
 

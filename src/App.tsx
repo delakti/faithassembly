@@ -36,7 +36,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import CustomerSupport from './pages/CustomerSupport';
 import Visit from './pages/Visit';
-import AttendanceLog from './pages/AttendanceLog';
+
 
 import BibleStudyHome from './pages/bible-study/BibleStudyHome';
 import StudyGuideDetail from './pages/bible-study/StudyGuideDetail';
@@ -318,7 +318,7 @@ function App() {
               <Route path="/plan-visit" element={<PlanVisit />} />
               <Route path="/plan-visit" element={<PlanVisit />} />
               <Route path="/visit" element={<Visit />} />
-              <Route path="attendance/mobile-scanner" element={<MobileScanner />} />
+
 
               {/* House Fellowship Superintendent */}
               <Route path="house-superintendent" element={<HouseSuperintendent />} />

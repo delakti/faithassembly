@@ -5,6 +5,7 @@ import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import {
     HiHome,
     HiUsers,
+    HiUserGroup, // Added
     HiViewGrid, // Portals
     HiChartBar,
     HiCog,
